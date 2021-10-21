@@ -16,6 +16,7 @@ const LoginPage = () => {
       <div className="BaseLayout">
         <div className="content">
           <div className="Form">
+            <h3>Войдите чтобы продолжить</h3>
             <form>
               <div className="FormContent">
                 <LabelInput label="email" name="email1" type="text" required />

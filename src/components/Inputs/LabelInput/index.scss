@@ -1,7 +1,10 @@
 .LabelInput {
+  width: 100%;
+  width: -moz-available;
+
   margin-top: 0;
   position: relative;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 
 label {
