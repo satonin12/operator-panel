@@ -2,9 +2,8 @@
   width: 100%;
   width: -moz-available;
 
-  margin-top: 0;
   position: relative;
-  margin-bottom: 2rem;
+  margin-top: 2rem;
 }
 
 label {
@@ -34,7 +33,8 @@ label {
 }
 
 input:focus ~ label,
-input:not(:focus):valid ~ label {
+input:not(:focus):valid ~ label,
+input:invalid ~ label{
   color: #F78Cb6;
   transform: translateY(-14px) scale(0.8);
   transform-origin: 0 0;
