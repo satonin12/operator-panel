@@ -4,15 +4,17 @@ import Input from '../Input/Input'
 
 import './index.scss'
 
-const LabelInput = (props) => {
+const LabelInput = ({
+  type = 'text',
+  name = '',
+  required,
+  label,
+  ...props
+}) => {
   return (
     <div className="LabelInput">
-      <Input
-        type={props.type || 'text'}
-        name={props.name || ''}
-        required={props.required}
-      />
-      <label>{props.label}</label>
+      <Input type={type} name={name} required={required} {...props} />
+      <label>{label}</label>
     </div>
   )
 }

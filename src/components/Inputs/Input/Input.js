@@ -2,14 +2,8 @@ import React from 'react'
 
 import './index.scss'
 
-const Input = (props) => {
-  return (
-    <input
-      type={props.type}
-      name={props.name}
-      required={props.required || ''}
-    />
-  )
+const Input = ({ type, name, required = '', ...props }) => {
+  return <input type={type} name={name} required={required} {...props} />
 }
 
 export default Input
