@@ -1,15 +1,33 @@
-import { all, fork } from 'redux-saga/effects'
+import { takeLatest, put, call } from 'redux-saga/effects'
 
-import * as actions from '../actions'
+import rsf from '../firebase'
 
-export function* checkout() {
+export function* watcherSaga() {
+  yield takeLatest('CHECKOUT_REQUEST', signUp)
+}
+
+function* signUp(action) {
   try {
-    // что-то пробуем
-  } catch (error) {
-    // какая-то ошибка
+    console.log('зашли в action - auth')
+    console.log(action.user.email, action.user.password)
+
+    const data = yield call(
+      rsf.auth.signInWithEmailAndPassword,
+      action.user.email,
+      action.user.password
+    )
+    console.log(data)
+    yield put({ type: 'CHECKOUT_SUCCESS', user: action.user })
+    // yield put(checkoutSuccess(action))
+  } catch (e) {
+    console.log('зашли в ошибку')
+    console.log(e)
+
+    const e_msg = { code: e.code, message: e.message }
+    yield put({ type: 'CHECKOUT_FAILURE', error: e_msg })
   }
 }
 
 export default function* rootSaga() {
-  yield all([fork(checkout)])
+  yield takeLatest('CHECKOUT_REQUEST', signUp)
 }

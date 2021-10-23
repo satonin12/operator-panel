@@ -6,6 +6,7 @@ import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
 import Button from '../../components/Button/Button'
 
 import './index.scss'
+import { useDispatch } from 'react-redux'
 
 const SignupSchema = Yup.object().shape({
   email: Yup.string()
@@ -15,6 +16,8 @@ const SignupSchema = Yup.object().shape({
 })
 
 const LoginPage = () => {
+  const dispatch = useDispatch()
+
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -23,6 +26,13 @@ const LoginPage = () => {
     validationSchema: SignupSchema,
     onSubmit: (values) => {
       alert(JSON.stringify(values, null, 2))
+      dispatch({
+        type: 'CHECKOUT_REQUEST',
+        user: {
+          email: values.email,
+          password: values.password,
+        },
+      })
     },
   })
 

@@ -1,8 +1,9 @@
 import firebase from 'firebase/app'
 import 'firebase/auth'
+import ReduxSagaFirebase from 'redux-saga-firebase'
 
-const app = firebase.initializeApp({
-  apiKey: 'AIzaSyD2C0YZCfsFzH-_ZrP-HutnsNwX6ABmook',
+const firebaseApp = firebase.initializeApp({
+  apiKey: 'AIzaSyD2C0YZCfsFzH-_ZrP-HutnsNwX6ABmook ',
   authDomain: 'vsatonin-intership-login.firebaseapp.com',
   projectId: 'vsatonin-intership-login',
   storageBucket: 'vsatonin-intership-login.appspot.com',
@@ -11,4 +12,5 @@ const app = firebase.initializeApp({
   measurementId: 'G-LN3JK1WSZM',
 })
 
-export default app
+const rsf = new ReduxSagaFirebase(firebaseApp)
+export default rsf

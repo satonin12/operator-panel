@@ -8,9 +8,10 @@ export function checkout() {
   }
 }
 
-export function checkoutSuccess() {
+export function checkoutSuccess(credential) {
   return {
     type: CHECKOUT_SUCCESS,
+    credential,
   }
 }
 
