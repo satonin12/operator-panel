@@ -1,4 +1,4 @@
-import { takeLatest, put, call } from 'redux-saga/effects'
+import { takeLatest, put, call, all } from 'redux-saga/effects'
 
 import rsf from '../firebase'
 
@@ -18,5 +18,5 @@ function* signUp(action) {
 }
 
 export default function* rootSaga() {
-  yield takeLatest('CHECKOUT_REQUEST', signUp)
+  yield all([takeLatest('CHECKOUT_REQUEST', signUp)])
 }
