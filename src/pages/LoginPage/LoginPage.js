@@ -1,12 +1,12 @@
 import React from 'react'
 import { useFormik } from 'formik'
+import { useDispatch, useSelector } from 'react-redux'
 import * as Yup from 'yup'
 
 import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
 import Button from '../../components/Button/Button'
 
 import './index.scss'
-import { useDispatch } from 'react-redux'
 
 const SignupSchema = Yup.object().shape({
   email: Yup.string()
@@ -17,7 +17,7 @@ const SignupSchema = Yup.object().shape({
 
 const LoginPage = () => {
   const dispatch = useDispatch()
-
+  const formError = useSelector((state) => state.error)
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -25,7 +25,6 @@ const LoginPage = () => {
     },
     validationSchema: SignupSchema,
     onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2))
       dispatch({
         type: 'CHECKOUT_REQUEST',
         user: {
@@ -42,6 +41,11 @@ const LoginPage = () => {
         <div className="content">
           <div className="Form">
             <h3>Войдите чтобы продолжить</h3>
+            {formError && formik.isSubmitting && (
+              <span className="formPrompt formPrompt--error">
+                Ошибка входа, пожалуйста проверьте логин или пароль
+              </span>
+            )}
             <form onSubmit={formik.handleSubmit}>
               <div className="FormContent">
                 <LabelInput

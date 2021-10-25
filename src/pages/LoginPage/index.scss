@@ -37,6 +37,15 @@ main {
     margin-bottom: 50px;
   }
 
+  .formPrompt {
+    align-self: auto;
+    font-size: 1rem;
+
+    &--error {
+      color: #e63946;
+    }
+  }
+
   form {
     width: 100%;
     width: -moz-available;
@@ -63,6 +72,4 @@ main {
       }
     }
   }
-
-
 }
