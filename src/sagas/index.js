@@ -9,8 +9,8 @@ function* signUp(action) {
       action.user.email,
       action.user.password
     )
-    // yield put({ type: 'CHECKOUT_SUCCESS', user: action.user })
-    yield put({ type: 'CHECKOUT_SUCCESS', user: data })
+    yield put({ type: 'CHECKOUT_SUCCESS', user: action.user }) // save user data in our form
+    // yield put({ type: 'CHECKOUT_SUCCESS', user: data }) // save user data in firebase response
   } catch (e) {
     const e_msg = { code: e.code, message: e.message }
     yield put({ type: 'CHECKOUT_FAILURE', error: e_msg })
