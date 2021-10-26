@@ -33,8 +33,7 @@ label {
 }
 
 input:focus ~ label,
-input:not(:focus):valid ~ label,
-input:invalid ~ label{
+input:not(:placeholder-shown) ~ label {
   color: #F78Cb6;
   transform: translateY(-14px) scale(0.8);
   transform-origin: 0 0;
