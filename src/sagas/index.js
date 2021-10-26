@@ -4,7 +4,7 @@ import rsf from '../firebase'
 
 function* signUp(action) {
   try {
-    const data = yield call(
+    yield call(
       rsf.auth.signInWithEmailAndPassword,
       action.user.email,
       action.user.password
