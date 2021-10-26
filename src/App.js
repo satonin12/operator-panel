@@ -1,5 +1,7 @@
 import LoginPage from './pages/LoginPage/LoginPage'
 
+import './App.scss'
+
 function App() {
   return (
     <div className="App">

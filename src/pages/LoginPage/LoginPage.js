@@ -40,7 +40,7 @@ const LoginPage = () => {
       <div className="BaseLayout">
         <div className="content">
           <div className="Form">
-            <h3>Войдите чтобы продолжить</h3>
+            <h2>Войдите чтобы продолжить</h2>
             {formError && formik.isSubmitting && (
               <span className="formPrompt formPrompt--error">
                 Ошибка входа, пожалуйста проверьте логин или пароль
