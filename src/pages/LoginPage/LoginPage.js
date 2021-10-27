@@ -3,8 +3,7 @@ import { useFormik } from 'formik'
 import { useDispatch, useSelector } from 'react-redux'
 import * as Yup from 'yup'
 
-import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
-import Button from '../../components/Button/Button'
+import LoginForm from '../../components/forms/LoginForm'
 
 import './index.scss'
 
@@ -46,41 +45,7 @@ const LoginPage = () => {
                 Ошибка входа, пожалуйста проверьте логин или пароль
               </span>
             )}
-            <form onSubmit={formik.handleSubmit}>
-              <div className="FormContent">
-                <LabelInput
-                  type="email"
-                  label="email"
-                  name="email"
-                  placeholder=""
-                  value={formik.values.email}
-                  onChange={formik.handleChange}
-                />
-                {formik.touched.email && formik.errors.email ? (
-                  <span className="formPrompt formPrompt--error">
-                    {formik.errors.email}
-                  </span>
-                ) : null}
-
-                <LabelInput
-                  name="password"
-                  type="password"
-                  label="password"
-                  placeholder=""
-                  onChange={formik.handleChange}
-                  value={formik.values.password}
-                />
-                {formik.touched.password && formik.errors.password ? (
-                  <span className="formPrompt formPrompt--error">
-                    {formik.errors.password}
-                  </span>
-                ) : null}
-
-                <Button type="submit" styleButton="primary">
-                  Войти
-                </Button>
-              </div>
-            </form>
+            <LoginForm formik={formik} />
           </div>
         </div>
       </div>
