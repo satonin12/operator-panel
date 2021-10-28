@@ -12,7 +12,7 @@ const ForgotPasswordForm = ({ formik }) => {
           <LabelInput
             name="email"
             type="text"
-            label="email"
+            label="Email"
             placeholder=""
             onChange={formik.handleChange}
             value={formik.values.email}

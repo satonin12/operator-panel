@@ -14,7 +14,7 @@ const LoginForm = ({ formik }) => {
         <div className="FormContent">
           <LabelInput
             type="email"
-            label="email"
+            label="Email"
             name="email"
             placeholder=""
             value={formik.values.email}
@@ -29,7 +29,7 @@ const LoginForm = ({ formik }) => {
           <LabelInput
             name="password"
             type="password"
-            label="password"
+            label="Пароль"
             placeholder=""
             onChange={formik.handleChange}
             value={formik.values.password}

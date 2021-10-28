@@ -14,7 +14,7 @@ const RefreshPasswordForm = ({ formik }) => {
           <LabelInput
             name="password"
             type="password"
-            label="password"
+            label="Пароль"
             placeholder=""
             onChange={formik.handleChange}
             value={formik.values.password}
@@ -28,7 +28,7 @@ const RefreshPasswordForm = ({ formik }) => {
           <LabelInput
             name="repeatPassword"
             type="password"
-            label="confirm password"
+            label="Подтверждение пароля"
             placeholder=""
             onChange={formik.handleChange}
             value={formik.values.repeatPassword}
