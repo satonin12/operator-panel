@@ -3,7 +3,7 @@ import { Switch, Route, Redirect } from 'react-router-dom'
 import { RouteNames, publicRoutes, privateRoutes } from './index'
 
 const AppRouter = () => {
-  const auth = false
+  const auth = true
 
   return auth === true ? (
     <Switch>
@@ -11,11 +11,11 @@ const AppRouter = () => {
         <Route
           key={route.path}
           path={route.path}
-          exact={route.exact}
+          // exact={route.exact}
           component={route.component}
         />
       ))}
-      <Redirect to="/" />
+      <Redirect to={RouteNames.HOMEPAGE} />
     </Switch>
   ) : (
     <Switch>
