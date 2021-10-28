@@ -1,13 +1,16 @@
 import React from 'react'
-import { BrowserRouter, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import LabelInput from '../Inputs/LabelInput/LabelInput'
 import Button from '../Button/Button'
+import { RouteNames } from '../../router'
+
+import './index.scss'
 
 const RegisterForm = ({ formik }) => {
   return (
     <>
-      <form onSubmit={formik.handleSubmit}>
+      <form onSubmit={formik.handleSubmit} noValidate>
         <div className="FormContent">
           <LabelInput
             type="email"
@@ -56,17 +59,13 @@ const RegisterForm = ({ formik }) => {
           </Button>
 
           <div className="formLinks">
-            <BrowserRouter>
-              <Link className="formLinks--item" to="/sign-in">
-                Войти
-              </Link>
-            </BrowserRouter>
+            <Link className="formLinks--item" to={RouteNames.LOGIN}>
+              Войти
+            </Link>
 
-            <BrowserRouter>
-              <Link className="formLinks--item" to="/refresh-password">
-                Забыли пароль ?
-              </Link>
-            </BrowserRouter>
+            <Link className="formLinks--item" to="/refresh-password">
+              Забыли пароль ?
+            </Link>
           </div>
         </div>
       </form>

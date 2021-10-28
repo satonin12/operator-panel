@@ -1,6 +1,11 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
+
 import LabelInput from '../Inputs/LabelInput/LabelInput'
 import Button from '../Button/Button'
+import { RouteNames } from '../../router'
+
+import './index.scss'
 
 const LoginForm = ({ formik }) => {
   return (
@@ -38,6 +43,16 @@ const LoginForm = ({ formik }) => {
           <Button type="submit" styleButton="primary">
             Войти
           </Button>
+
+          <div className="formLinks">
+            <Link className="formLinks--item" to={RouteNames.REGISTER}>
+              Зарегистрироваться
+            </Link>
+
+            <Link className="formLinks--item" to={RouteNames.FORGOT_PASSWORD}>
+              Забыли пароль ?
+            </Link>
+          </div>
         </div>
       </form>
     </>
