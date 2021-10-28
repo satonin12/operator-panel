@@ -1,0 +1,20 @@
+form {
+  .FormContent {
+    .formLinks {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+
+      width: auto;
+      width: -moz-available;
+
+      margin-top: 30px;
+
+      &--item {
+        color: #56597A;
+        //margin: 0 10px;
+      }
+    }
+  }
+}
