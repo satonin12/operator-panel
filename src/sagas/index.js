@@ -2,7 +2,7 @@ import { takeLatest, put, call, all } from 'redux-saga/effects'
 
 import rsf from '../firebase'
 
-function* signUp(action) {
+function* signIn(action) {
   try {
     yield call(
       rsf.auth.signInWithEmailAndPassword,
@@ -17,6 +17,23 @@ function* signUp(action) {
   }
 }
 
+function* signUp(action) {
+  try {
+    yield call(
+      rsf.auth.createUserWithEmailAndPassword,
+      action.user.email,
+      action.user.password
+    )
+    yield put({ type: 'CHECKOUT_REGISTRATION_SUCCESS', user: action.user }) // save user data in our form
+  } catch (e) {
+    const e_msg = { code: e.code, message: e.message }
+    yield put({ type: 'CHECKOUT_REGISTRATION_FAILURE', error: e_msg })
+  }
+}
+
 export default function* rootSaga() {
-  yield all([takeLatest('CHECKOUT_REQUEST', signUp)])
+  yield all([
+    takeLatest('CHECKOUT_REQUEST', signIn),
+    takeLatest('CHECKOUT_REGISTRATION_REQUEST', signUp),
+  ])
 }

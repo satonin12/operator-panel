@@ -3,7 +3,7 @@ import { Switch, Route, Redirect } from 'react-router-dom'
 import { RouteNames, publicRoutes, privateRoutes } from './index'
 
 const AppRouter = () => {
-  const auth = true
+  const auth = false
 
   return auth === true ? (
     <Switch>

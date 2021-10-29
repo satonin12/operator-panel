@@ -5,8 +5,10 @@ import RegisterForm from '../../components/forms/RegisterForm'
 import { RegisterSchema } from '../../utils/validation'
 
 import './index.scss'
+import { useDispatch } from 'react-redux'
 
 const RegisterPage = () => {
+  const dispatch = useDispatch()
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -16,6 +18,14 @@ const RegisterPage = () => {
     validationSchema: RegisterSchema,
     onSubmit: (values) => {
       alert(JSON.stringify(values, null, 2))
+      console.log(values)
+      dispatch({
+        type: 'CHECKOUT_REGISTRATION_REQUEST',
+        user: {
+          email: values.email,
+          password: values.password,
+        },
+      })
     },
   })
   return (
