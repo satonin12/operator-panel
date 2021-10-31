@@ -42,5 +42,4 @@ export const privateRoutes = [
     exact: true,
     component: HoomRoom,
   },
-  {},
 ]

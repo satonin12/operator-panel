@@ -3,13 +3,15 @@ import {
   CHECKOUT_REGISTRATION_REQUEST,
   CHECKOUT_REQUEST,
   CHECKOUT_SUCCESS,
+  SET_AUTH,
 } from '../actions'
 
 const initialState = {
   fetching: false,
+  error: null,
   user: null,
   createUser: null,
-  error: null,
+  isAuth: false,
 }
 
 export function reducer(state = initialState, action) {
@@ -39,6 +41,11 @@ export function reducer(state = initialState, action) {
         createUser: action,
         user: action,
         error: null,
+      }
+    case SET_AUTH:
+      return {
+        ...state,
+        isAuth: action.payload,
       }
     default:
       return state

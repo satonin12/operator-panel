@@ -2,9 +2,17 @@ export const CHECKOUT_REQUEST = 'CHECKOUT_REQUEST'
 export const CHECKOUT_SUCCESS = 'CHECKOUT_SUCCESS'
 export const CHECKOUT_FAILURE = 'CHECKOUT_FAILURE'
 
+//========================================
+
 export const CHECKOUT_REGISTRATION_REQUEST = 'CHECKOUT_REGISTRATION_REQUEST'
 export const CHECKOUT_REGISTRATION_SUCCESS = 'CHECKOUT_REGISTRATION_SUCCESS'
 export const CHECKOUT_REGISTRATION_FAILURE = 'CHECKOUT_REGISTRATION_FAILURE'
+
+// ========================================
+
+export const SET_AUTH = 'SET_AUTH'
+
+// ========================================
 
 export function checkout() {
   return {
@@ -26,6 +34,8 @@ export function checkoutFailure(error) {
   }
 }
 
+// ========================================
+
 export function checkoutRegistration() {
   return {
     type: CHECKOUT_REGISTRATION_REQUEST,
@@ -43,5 +53,14 @@ export function checkoutRegistrationFailure(error) {
   return {
     type: CHECKOUT_REGISTRATION_FAILURE,
     error,
+  }
+}
+
+// ========================================
+
+export function setAuth(auth) {
+  return {
+    type: SET_AUTH,
+    auth,
   }
 }

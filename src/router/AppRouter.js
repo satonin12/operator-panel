@@ -1,17 +1,18 @@
 import React from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 import { RouteNames, publicRoutes, privateRoutes } from './index'
+import { useSelector } from 'react-redux'
 
 const AppRouter = () => {
-  const auth = false
+  const { isAuth } = useSelector((state) => state)
 
-  return auth === true ? (
+  return isAuth ? (
     <Switch>
       {privateRoutes.map((route) => (
         <Route
           key={route.path}
           path={route.path}
-          // exact={route.exact}
+          exact={route.exact}
           component={route.component}
         />
       ))}

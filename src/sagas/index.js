@@ -11,6 +11,8 @@ function* signIn(action) {
     )
     yield put({ type: 'CHECKOUT_SUCCESS', user: action.user }) // save user data in our form
     // yield put({ type: 'CHECKOUT_SUCCESS', user: data }) // save user data in firebase response
+
+    yield put({ type: 'SET_AUTH', payload: true }) // save user data in our form
   } catch (e) {
     const e_msg = { code: e.code, message: e.message }
     yield put({ type: 'CHECKOUT_FAILURE', error: e_msg })
@@ -25,6 +27,7 @@ function* signUp(action) {
       action.user.password
     )
     yield put({ type: 'CHECKOUT_REGISTRATION_SUCCESS', user: action.user }) // save user data in our form
+    yield put({ type: 'SET_AUTH', payload: true }) // save user data in our form
   } catch (e) {
     const e_msg = { code: e.code, message: e.message }
     yield put({ type: 'CHECKOUT_REGISTRATION_FAILURE', error: e_msg })
