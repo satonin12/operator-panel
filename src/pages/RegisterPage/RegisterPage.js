@@ -17,8 +17,6 @@ const RegisterPage = () => {
     },
     validationSchema: RegisterSchema,
     onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2))
-      console.log(values)
       dispatch({
         type: 'CHECKOUT_REGISTRATION_REQUEST',
         user: {
