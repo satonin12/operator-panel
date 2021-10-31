@@ -25,11 +25,6 @@ export const publicRoutes = [
     component: RegisterPage,
   },
   {
-    path: RouteNames.REFRESH_PASSWORD,
-    exact: true,
-    component: RefreshPasswordPage,
-  },
-  {
     path: RouteNames.FORGOT_PASSWORD,
     exact: true,
     component: ForgotPasswordPage,
@@ -41,5 +36,10 @@ export const privateRoutes = [
     path: RouteNames.HOMEPAGE,
     exact: true,
     component: HoomRoom,
+  },
+  {
+    path: RouteNames.REFRESH_PASSWORD,
+    exact: true,
+    component: RefreshPasswordPage,
   },
 ]

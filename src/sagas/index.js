@@ -74,9 +74,38 @@ function* signUp(action) {
   }
 }
 
+function* forgotPassword(action) {
+  try {
+    console.log(action)
+    yield call(rsf.auth.sendPasswordResetEmail, action.user.email)
+
+    toast.success('🦄 Уведомление успешно отправлено, проверьте свой Email!', {
+      position: 'top-right',
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    })
+  } catch (e) {
+    const e_msg = { code: e.code, message: e.message }
+    yield put({ type: 'FORGOT_PASSWORD_FAILURE', error: e_msg })
+
+    toast.error('🦄 С возобновлением пароля возникли проблемы!', {
+      position: 'top-right',
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    })
+  }
+}
+
 export default function* rootSaga() {
   yield all([
     takeLatest('CHECKOUT_REQUEST', signIn),
     takeLatest('CHECKOUT_REGISTRATION_REQUEST', signUp),
+    takeLatest('FORGOT_PASSWORD_REQUEST', forgotPassword),
   ])
 }

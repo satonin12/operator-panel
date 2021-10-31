@@ -3,8 +3,10 @@ import { useFormik } from 'formik'
 
 import ForgotPasswordForm from '../../components/forms/ForgotPasswordForm'
 import { ForgotPasswordSchema } from '../../utils/validation'
+import { useDispatch } from 'react-redux'
 
 const ForgotPasswordPage = () => {
+  const dispatch = useDispatch()
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -12,6 +14,12 @@ const ForgotPasswordPage = () => {
     validationSchema: ForgotPasswordSchema,
     onSubmit: (values) => {
       alert(JSON.stringify(values, null, 2))
+      dispatch({
+        type: 'FORGOT_PASSWORD_REQUEST',
+        user: {
+          email: values.email,
+        },
+      })
     },
   })
   return (

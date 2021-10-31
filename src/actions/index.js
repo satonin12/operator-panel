@@ -14,6 +14,12 @@ export const SET_AUTH = 'SET_AUTH'
 
 // ========================================
 
+export const FORGOT_PASSWORD_REQUEST = 'FORGOT_PASSWORD_REQUEST'
+export const FORGOT_PASSWORD_SUCCESS = 'FORGOT_PASSWORD_SUCCESS'
+export const FORGOT_PASSWORD_FAILURE = 'FORGOT_PASSWORD_FAILURE'
+
+// ========================================
+
 export function checkout() {
   return {
     type: CHECKOUT_REQUEST,
@@ -64,3 +70,27 @@ export function setAuth(auth) {
     auth,
   }
 }
+
+// ========================================
+
+export function forgotPassword() {
+  return {
+    type: FORGOT_PASSWORD_REQUEST,
+  }
+}
+
+export function forgotPasswordSuccess(credential) {
+  return {
+    type: FORGOT_PASSWORD_SUCCESS,
+    credential,
+  }
+}
+
+export function forgotPasswordFailure(error) {
+  return {
+    type: FORGOT_PASSWORD_FAILURE,
+    error,
+  }
+}
+
+// ========================================
