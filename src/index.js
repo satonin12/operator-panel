@@ -18,7 +18,7 @@ import { BrowserRouter } from 'react-router-dom'
 const sagaMiddleware = createSagaMiddleware()
 
 // create a redux store with our reducer above and middleware
-let store = createStore(
+const store = createStore(
   reducer,
   composeWithDevTools(applyMiddleware(sagaMiddleware))
 )

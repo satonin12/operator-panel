@@ -7,7 +7,7 @@ const PasswordValidation = Yup.object().shape({
     .matches(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
       'Пароль должен содержать цифру, буквы в нижнем и верхнем регистре'
-    ),
+    )
 })
 
 const RepeatPasswordValidation = Yup.object().shape({
@@ -18,14 +18,14 @@ const RepeatPasswordValidation = Yup.object().shape({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
       'Пароль должен содержать цифру, буквы в нижнем и верхнем регистре'
     )
-    .oneOf([Yup.ref('password'), null], 'Пароли должны совпадать'),
+    .oneOf([Yup.ref('password'), null], 'Пароли должны совпадать')
 })
 
 export const LoginSchema = Yup.object()
   .shape({
     email: Yup.string()
       .required('Email должен быть введен')
-      .email('Email должен иметь общепринятый вид адреса электронной почты'),
+      .email('Email должен иметь общепринятый вид адреса электронной почты')
   })
   .concat(PasswordValidation)
 
@@ -37,7 +37,7 @@ export const RegisterSchema = Yup.object()
 export const ForgotPasswordSchema = Yup.object().shape({
   email: Yup.string()
     .required('Email должен быть введен')
-    .email('Email должен иметь общепринятый вид адреса электронной почты'),
+    .email('Email должен иметь общепринятый вид адреса электронной почты')
 })
 
 export const RefreshPasswordSchema = Yup.object()

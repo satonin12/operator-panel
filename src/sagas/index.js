@@ -3,7 +3,7 @@ import { takeLatest, put, call, all } from 'redux-saga/effects'
 import rsf from '../firebase'
 import { toast } from 'react-toastify'
 
-function* signIn(action) {
+function * signIn (action) {
   try {
     yield call(
       rsf.auth.signInWithEmailAndPassword,
@@ -22,11 +22,11 @@ function* signIn(action) {
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
-      progress: undefined,
+      progress: undefined
     })
   } catch (e) {
-    const e_msg = { code: e.code, message: e.message }
-    yield put({ type: 'CHECKOUT_FAILURE', error: e_msg })
+    const errorMessage = { code: e.code, message: e.message }
+    yield put({ type: 'CHECKOUT_FAILURE', error: errorMessage })
 
     toast.error('🦄 С авторизацией возникли проблемы!', {
       position: 'top-right',
@@ -35,12 +35,12 @@ function* signIn(action) {
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
-      progress: undefined,
+      progress: undefined
     })
   }
 }
 
-function* signUp(action) {
+function * signUp (action) {
   try {
     yield call(
       rsf.auth.createUserWithEmailAndPassword,
@@ -57,11 +57,11 @@ function* signUp(action) {
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
-      draggable: true,
+      draggable: true
     })
   } catch (e) {
-    const e_msg = { code: e.code, message: e.message }
-    yield put({ type: 'CHECKOUT_REGISTRATION_FAILURE', error: e_msg })
+    const errorMessage = { code: e.code, message: e.message }
+    yield put({ type: 'CHECKOUT_REGISTRATION_FAILURE', error: errorMessage })
 
     toast.error('🦄 С регистрацией возникли проблемы!', {
       position: 'top-right',
@@ -69,12 +69,12 @@ function* signUp(action) {
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
-      draggable: true,
+      draggable: true
     })
   }
 }
 
-function* forgotPassword(action) {
+function * forgotPassword (action) {
   try {
     console.log(action)
     yield call(rsf.auth.sendPasswordResetEmail, action.user.email)
@@ -85,11 +85,11 @@ function* forgotPassword(action) {
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
-      draggable: true,
+      draggable: true
     })
   } catch (e) {
-    const e_msg = { code: e.code, message: e.message }
-    yield put({ type: 'FORGOT_PASSWORD_FAILURE', error: e_msg })
+    const errorMessage = { code: e.code, message: e.message }
+    yield put({ type: 'FORGOT_PASSWORD_FAILURE', error: errorMessage })
 
     toast.error('🦄 С возобновлением пароля возникли проблемы!', {
       position: 'top-right',
@@ -97,15 +97,15 @@ function* forgotPassword(action) {
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
-      draggable: true,
+      draggable: true
     })
   }
 }
 
-export default function* rootSaga() {
+export default function * rootSaga () {
   yield all([
     takeLatest('CHECKOUT_REQUEST', signIn),
     takeLatest('CHECKOUT_REGISTRATION_REQUEST', signUp),
-    takeLatest('FORGOT_PASSWORD_REQUEST', forgotPassword),
+    takeLatest('FORGOT_PASSWORD_REQUEST', forgotPassword)
   ])
 }

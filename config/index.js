@@ -6,12 +6,14 @@
 
 if (process.env.NODE_ENV) {
   require('dotenv').config({
-    path: `${__dirname}/.env.${process.env.NODE_ENV}`,
+    // eslint-disable-next-line node/no-path-concat
+    path: `${__dirname}/.env.${process.env.NODE_ENV}`
   })
 } else {
   require('dotenv').config()
 }
 
+// eslint-disable-next-line node/no-path-concat
 console.log(`${__dirname}/.env.${process.env.NODE_ENV}`)
 console.log(process.env.MY_VAR_TEST)
 console.log(process.env.MY_TEST_NUMBER)

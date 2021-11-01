@@ -3,17 +3,17 @@ import { useFormik } from 'formik'
 import { useDispatch, useSelector } from 'react-redux'
 
 import LoginForm from '../../components/forms/LoginForm'
+import { LoginSchema } from '../../utils/validation'
 
 import './index.scss'
-import { LoginSchema } from '../../utils/validation'
 
 const LoginPage = () => {
   const dispatch = useDispatch()
-  const formError = useSelector((state) => state.error)
+  const { error } = useSelector((state) => state)
   const formik = useFormik({
     initialValues: {
       email: '',
-      password: '',
+      password: ''
     },
     validationSchema: LoginSchema,
     onSubmit: (values) => {
@@ -21,28 +21,28 @@ const LoginPage = () => {
         type: 'CHECKOUT_REQUEST',
         user: {
           email: values.email,
-          password: values.password,
-        },
+          password: values.password
+        }
       })
-    },
+    }
   })
 
   const handlerLoginWithGoogle = () => {
-    alert('Эта функциональность пока не работает')
+    window.alert('Эта функциональность пока не работает')
   }
 
   const handlerLoginWithVK = () => {
-    alert('Эта функциональность пока не работает')
+    window.alert('Эта функциональность пока не работает')
   }
 
   return (
     <main>
-      <div className="BaseLayout">
-        <div className="content">
-          <div className="Form">
+      <div className='BaseLayout'>
+        <div className='content'>
+          <div className='Form'>
             <h2>Авторизация</h2>
-            {formError && formik.isSubmitting && (
-              <span className="formPrompt formPrompt--error">
+            {error && formik.isSubmitting && (
+              <span className='formPrompt formPrompt--error'>
                 Ошибка входа, пожалуйста проверьте логин или пароль
               </span>
             )}

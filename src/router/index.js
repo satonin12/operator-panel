@@ -10,36 +10,36 @@ export const RouteNames = {
   REFRESH_PASSWORD: '/refresh-password',
   FORGOT_PASSWORD: '/forgot-password',
 
-  HOMEPAGE: '/',
+  HOMEPAGE: '/'
 }
 
 export const publicRoutes = [
   {
     path: RouteNames.LOGIN,
     exact: true,
-    component: LoginPage,
+    component: LoginPage
   },
   {
     path: RouteNames.REGISTER,
     exact: true,
-    component: RegisterPage,
+    component: RegisterPage
   },
   {
     path: RouteNames.FORGOT_PASSWORD,
     exact: true,
-    component: ForgotPasswordPage,
-  },
+    component: ForgotPasswordPage
+  }
 ]
 
 export const privateRoutes = [
   {
     path: RouteNames.HOMEPAGE,
     exact: true,
-    component: HoomRoom,
+    component: HoomRoom
   },
   {
     path: RouteNames.REFRESH_PASSWORD,
     exact: true,
-    component: RefreshPasswordPage,
-  },
+    component: RefreshPasswordPage
+  }
 ]
