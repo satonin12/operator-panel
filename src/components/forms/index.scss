@@ -13,7 +13,54 @@ form {
 
       &--item {
         color: #56597A;
-        //margin: 0 10px;
+      }
+
+      .signVK, .signGoogle {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+
+        border: 1px solid #007AFF;
+        box-sizing: border-box;
+        border-radius: 4px;
+        color: #000000;
+        background-color: #fff;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 16px;
+        line-height: 30px;
+        width: 230px;
+        height: 40px;
+
+        position: relative;
+        cursor: pointer;
+        overflow: hidden;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        vertical-align: middle;
+        z-index: 1;
+        transition: .3s ease-out;
+
+        a {
+          text-decoration: none;
+
+          display: flex;
+          flex-direction: row;
+          align-items: flex-start;
+          justify-content: inherit;
+          width: auto;
+          width: -moz-available;
+        }
+
+        img {
+          margin: 5px 10px;
+        }
+
+        &:hover, &:focus {
+          background-color: #0099FF4A;
+        }
       }
     }
   }

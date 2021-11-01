@@ -27,6 +27,14 @@ const LoginPage = () => {
     },
   })
 
+  const handlerLoginWithGoogle = () => {
+    alert('Эта функциональность пока не работает')
+  }
+
+  const handlerLoginWithVK = () => {
+    alert('Эта функциональность пока не работает')
+  }
+
   return (
     <main>
       <div className="BaseLayout">
@@ -38,7 +46,11 @@ const LoginPage = () => {
                 Ошибка входа, пожалуйста проверьте логин или пароль
               </span>
             )}
-            <LoginForm formik={formik} />
+            <LoginForm
+              formik={formik}
+              handlerClickVK={handlerLoginWithVK}
+              handlerClickGoogle={handlerLoginWithGoogle}
+            />
           </div>
         </div>
       </div>

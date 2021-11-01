@@ -5,9 +5,12 @@ import LabelInput from '../Inputs/LabelInput/LabelInput'
 import Button from '../Button/Button'
 import { RouteNames } from '../../router'
 
+import VKIcon from '../../img/vk_icon.svg'
+import GoogleIcon from '../../img/google_icon.svg'
+
 import './index.scss'
 
-const LoginForm = ({ formik }) => {
+const LoginForm = ({ formik, handlerClickVK, handlerClickGoogle }) => {
   return (
     <>
       <form onSubmit={formik.handleSubmit}>
@@ -25,7 +28,6 @@ const LoginForm = ({ formik }) => {
               {formik.errors.email}
             </span>
           ) : null}
-
           <LabelInput
             name="password"
             type="password"
@@ -39,10 +41,36 @@ const LoginForm = ({ formik }) => {
               {formik.errors.password}
             </span>
           ) : null}
-
           <Button type="submit" styleButton="primary">
             Войти
           </Button>
+
+          <div className="formLinks">
+            <div className="signVK">
+              <Link onClick={handlerClickVK} to="#">
+                <img
+                  className="material-icons prefix"
+                  src={VKIcon}
+                  alt="VK Icon"
+                  width={18}
+                  height={18}
+                />
+                Войти через VK
+              </Link>
+            </div>
+            <div className="signGoogle">
+              <Link onClick={handlerClickGoogle} to="#">
+                <img
+                  className="material-icons prefix"
+                  src={GoogleIcon}
+                  alt="Google Icon"
+                  width={18}
+                  height={18}
+                />
+                Войти через Google
+              </Link>
+            </div>
+          </div>
 
           <div className="formLinks">
             <Link className="formLinks--item" to={RouteNames.REGISTER}>
