@@ -5,12 +5,12 @@ import './App.scss'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
-function App() {
+function App () {
   return (
-    <div className="App">
+    <div className='App'>
       <AppRouter />
       <ToastContainer
-        position="top-right"
+        position='top-right'
         autoClose={5000}
         hideProgressBar={false}
         newestOnTop={false}
