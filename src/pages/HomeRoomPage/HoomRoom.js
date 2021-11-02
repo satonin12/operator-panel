@@ -12,6 +12,66 @@ import Button from '../../components/Button/Button'
 import './index.scss'
 import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
 import { Offcanvas, OffcanvasBody, OffcanvasHeader } from 'reactstrap'
+import Messageitem from '../../components/MessageItem/Messageitem'
+
+const dataMessage = [
+  {
+    avatar:
+      'https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg',
+    name: 'Zachary Zachary Gray',
+    message: 'Hey',
+    date: '12 минут назад'
+  },
+  {
+    avatar:
+      'https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg',
+    name: 'Carter Kyle Ward',
+    message: 'How are you?',
+    date: 'полчаса назад'
+  },
+  {
+    avatar:
+      'https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg',
+    name: 'Adam David Perry',
+    message: 'I just came from Mars',
+    date: 'только что'
+  },
+  {
+    avatar:
+      'https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg',
+    name: 'Jayden Adrian Evans',
+    message: "Hey! Everything's fine, how're you?",
+    date: 'два часа назад'
+  },
+  {
+    avatar:
+      'https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg',
+    name: 'Jesus Aidan Kelly',
+    message: 'Ahh yes I heard',
+    date: '3 дня назад'
+  },
+  {
+    avatar:
+      'https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg',
+    name: 'John Jake Hughes',
+    message: 'Cool',
+    date: 'вчера в 23:15'
+  },
+  {
+    avatar:
+      'https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg',
+    name: 'Jayden Evan Robinson',
+    message: 'Is the flight normal?',
+    date: 'позавчера в 15:42'
+  },
+  {
+    avatar:
+      'https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg',
+    name: 'Timothy Jack Harris',
+    message: 'Yes, everything is cool. But do not tell anyone) ',
+    date: 'сегодня в 18:10'
+  }
+]
 
 const HoomRoom = () => {
   const { TabPane } = Tabs
@@ -52,269 +112,15 @@ const HoomRoom = () => {
                 key='1'
               >
                 <div className='MessageList'>
-                  <div className='Message'>
-                    <div className='MessageItem MessageItem--Avatar'>
-                      <img
-                        src='https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg'
-                        className='item--avatar'
-                        alt='AvatarPicture'
-                        width={60}
-                        height={60}
-                      />
-                    </div>
-                    <div className='MessageItem MessageItem--Text'>
-                      <div className='MessageItem MessageItem--Name'>
-                        Richards Hendrics
-                      </div>
-                      <div className='MessageItem MessageItem--Message'>
-                        are you sure about ( lorem ipsum lorem ipsum lorem ipsum
-                        ) ???
-                      </div>
-                    </div>
-                    <div className='MessageItem MessageItem--Time'>
-                      12 минут назад
-                    </div>
-                  </div>
-
-                  <div className='Message'>
-                    <div className='MessageItem MessageItem--Avatar'>
-                      <img
-                        src='https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg'
-                        className='item--avatar'
-                        alt='AvatarPicture'
-                        width={60}
-                        height={60}
-                      />
-                    </div>
-                    <div className='MessageItem MessageItem--Text'>
-                      <div className='MessageItem MessageItem--Name'>
-                        Richards Hendrics
-                      </div>
-                      <div className='MessageItem MessageItem--Message'>
-                        are you sure about ( lorem ipsum lorem ipsum lorem ipsum
-                        ) ???
-                      </div>
-                    </div>
-                    <div className='MessageItem MessageItem--Time'>
-                      12 минут назад
-                    </div>
-                  </div>
-
-                  <div className='Message'>
-                    <div className='MessageItem MessageItem--Avatar'>
-                      <img
-                        src='https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg'
-                        className='item--avatar'
-                        alt='AvatarPicture'
-                        width={60}
-                        height={60}
-                      />
-                    </div>
-                    <div className='MessageItem MessageItem--Text'>
-                      <div className='MessageItem MessageItem--Name'>
-                        Richards Hendrics
-                      </div>
-                      <div className='MessageItem MessageItem--Message'>
-                        are you sure about ( lorem ipsum lorem ipsum lorem ipsum
-                        ) ???
-                      </div>
-                    </div>
-                    <div className='MessageItem MessageItem--Time'>
-                      12 минут назад
-                    </div>
-                  </div>
-
-                  <div className='Message'>
-                    <div className='MessageItem MessageItem--Avatar'>
-                      <img
-                        src='https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg'
-                        className='item--avatar'
-                        alt='AvatarPicture'
-                        width={60}
-                        height={60}
-                      />
-                    </div>
-                    <div className='MessageItem MessageItem--Text'>
-                      <div className='MessageItem MessageItem--Name'>
-                        Richards Hendrics
-                      </div>
-                      <div className='MessageItem MessageItem--Message'>
-                        are you sure about ( lorem ipsum lorem ipsum lorem ipsum
-                        ) ???
-                      </div>
-                    </div>
-                    <div className='MessageItem MessageItem--Time'>
-                      12 минут назад
-                    </div>
-                  </div>
-
-                  <div className='Message'>
-                    <div className='MessageItem MessageItem--Avatar'>
-                      <img
-                        src='https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg'
-                        className='item--avatar'
-                        alt='AvatarPicture'
-                        width={60}
-                        height={60}
-                      />
-                    </div>
-                    <div className='MessageItem MessageItem--Text'>
-                      <div className='MessageItem MessageItem--Name'>
-                        Richards Hendrics
-                      </div>
-                      <div className='MessageItem MessageItem--Message'>
-                        are you sure about ( lorem ipsum lorem ipsum lorem ipsum
-                        ) ???
-                      </div>
-                    </div>
-                    <div className='MessageItem MessageItem--Time'>
-                      12 минут назад
-                    </div>
-                  </div>
-
-                  <div className='Message'>
-                    <div className='MessageItem MessageItem--Avatar'>
-                      <img
-                        src='https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg'
-                        className='item--avatar'
-                        alt='AvatarPicture'
-                        width={60}
-                        height={60}
-                      />
-                    </div>
-                    <div className='MessageItem MessageItem--Text'>
-                      <div className='MessageItem MessageItem--Name'>
-                        Richards Hendrics
-                      </div>
-                      <div className='MessageItem MessageItem--Message'>
-                        are you sure about ( lorem ipsum lorem ipsum lorem ipsum
-                        ) ???
-                      </div>
-                    </div>
-                    <div className='MessageItem MessageItem--Time'>
-                      12 минут назад
-                    </div>
-                  </div>
-
-                  <div className='Message'>
-                    <div className='MessageItem MessageItem--Avatar'>
-                      <img
-                        src='https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg'
-                        className='item--avatar'
-                        alt='AvatarPicture'
-                        width={60}
-                        height={60}
-                      />
-                    </div>
-                    <div className='MessageItem MessageItem--Text'>
-                      <div className='MessageItem MessageItem--Name'>
-                        Richards Hendrics
-                      </div>
-                      <div className='MessageItem MessageItem--Message'>
-                        are you sure about ( lorem ipsum lorem ipsum lorem ipsum
-                        ) ???
-                      </div>
-                    </div>
-                    <div className='MessageItem MessageItem--Time'>
-                      12 минут назад
-                    </div>
-                  </div>
-
-                  <div className='Message'>
-                    <div className='MessageItem MessageItem--Avatar'>
-                      <img
-                        src='https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg'
-                        className='item--avatar'
-                        alt='AvatarPicture'
-                        width={60}
-                        height={60}
-                      />
-                    </div>
-                    <div className='MessageItem MessageItem--Text'>
-                      <div className='MessageItem MessageItem--Name'>
-                        Richards Hendrics
-                      </div>
-                      <div className='MessageItem MessageItem--Message'>
-                        are you sure about ( lorem ipsum lorem ipsum lorem ipsum
-                        ) ???
-                      </div>
-                    </div>
-                    <div className='MessageItem MessageItem--Time'>
-                      12 минут назад
-                    </div>
-                  </div>
-
-                  <div className='Message'>
-                    <div className='MessageItem MessageItem--Avatar'>
-                      <img
-                        src='https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg'
-                        className='item--avatar'
-                        alt='AvatarPicture'
-                        width={60}
-                        height={60}
-                      />
-                    </div>
-                    <div className='MessageItem MessageItem--Text'>
-                      <div className='MessageItem MessageItem--Name'>
-                        Richards Hendrics
-                      </div>
-                      <div className='MessageItem MessageItem--Message'>
-                        are you sure about ( lorem ipsum lorem ipsum lorem ipsum
-                        ) ???
-                      </div>
-                    </div>
-                    <div className='MessageItem MessageItem--Time'>
-                      12 минут назад
-                    </div>
-                  </div>
-
-                  <div className='Message'>
-                    <div className='MessageItem MessageItem--Avatar'>
-                      <img
-                        src='https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg'
-                        className='item--avatar'
-                        alt='AvatarPicture'
-                        width={60}
-                        height={60}
-                      />
-                    </div>
-                    <div className='MessageItem MessageItem--Text'>
-                      <div className='MessageItem MessageItem--Name'>
-                        Richards Hendrics
-                      </div>
-                      <div className='MessageItem MessageItem--Message'>
-                        are you sure about ( lorem ipsum lorem ipsum lorem ipsum
-                        ) ???
-                      </div>
-                    </div>
-                    <div className='MessageItem MessageItem--Time'>
-                      12 минут назад
-                    </div>
-                  </div>
-
-                  <div className='Message'>
-                    <div className='MessageItem MessageItem--Avatar'>
-                      <img
-                        src='https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg'
-                        className='item--avatar'
-                        alt='AvatarPicture'
-                        width={60}
-                        height={60}
-                      />
-                    </div>
-                    <div className='MessageItem MessageItem--Text'>
-                      <div className='MessageItem MessageItem--Name'>
-                        Richards Hendrics
-                      </div>
-                      <div className='MessageItem MessageItem--Message'>
-                        are you sure about ( lorem ipsum lorem ipsum lorem ipsum
-                        ) ???
-                      </div>
-                    </div>
-                    <div className='MessageItem MessageItem--Time'>
-                      12 минут назад
-                    </div>
-                  </div>
+                  {dataMessage.map((message) => (
+                    <Messageitem
+                      key={message.name}
+                      avatar={message.avatar}
+                      name={message.name}
+                      date={message.date}
+                      message={message.message}
+                    />
+                  ))}
                 </div>
               </TabPane>
 
@@ -368,7 +174,6 @@ const HoomRoom = () => {
                 <p>Media</p>
               </OffcanvasBody>
             </Offcanvas>
-
           </div>
         </div>
       </div>
