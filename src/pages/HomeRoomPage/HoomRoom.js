@@ -20,56 +20,63 @@ const dataMessage = [
       'https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg',
     name: 'Zachary Zachary Gray',
     message: 'Hey',
-    date: '12 минут назад'
+    date: '2021-11-02T13:16:04.712Z'
+  },
+  {
+    avatar:
+      'https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg',
+    name: 'Zachary Zachary Gray',
+    message: 'Hey',
+    date: '2021-11-02T13:09:04.712Z'
   },
   {
     avatar:
       'https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg',
     name: 'Carter Kyle Ward',
     message: 'How are you?',
-    date: 'полчаса назад'
+    date: '2021-11-02T12:19:04.712Z'
   },
   {
     avatar:
       'https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg',
     name: 'Adam David Perry',
     message: 'I just came from Mars',
-    date: 'только что'
+    date: '2021-11-02T11:24:04.712Z'
   },
   {
     avatar:
       'https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg',
     name: 'Jayden Adrian Evans',
     message: "Hey! Everything's fine, how're you?",
-    date: 'два часа назад'
+    date: '2021-11-02T11:09:04.712Z'
   },
   {
     avatar:
       'https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg',
     name: 'Jesus Aidan Kelly',
     message: 'Ahh yes I heard',
-    date: '3 дня назад'
+    date: '2021-11-02T12:09:04.712Z'
   },
   {
     avatar:
       'https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg',
     name: 'John Jake Hughes',
     message: 'Cool',
-    date: 'вчера в 23:15'
+    date: '2021-11-01T13:01:04.712Z'
   },
   {
     avatar:
       'https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg',
     name: 'Jayden Evan Robinson',
     message: 'Is the flight normal?',
-    date: 'позавчера в 15:42'
+    date: '2021-11-01T14:09:07.712Z'
   },
   {
     avatar:
       'https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg',
     name: 'Timothy Jack Harris',
     message: 'Yes, everything is cool. But do not tell anyone) ',
-    date: 'сегодня в 18:10'
+    date: '2021-11-01T15:09:04.712Z'
   }
 ]
 

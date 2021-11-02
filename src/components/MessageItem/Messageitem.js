@@ -1,6 +1,7 @@
 import React from 'react'
 
 import './index.scss'
+import Time from '../Time/Time'
 
 const Messageitem = ({ avatar, name, date, message }) => {
   return (
@@ -23,7 +24,7 @@ const Messageitem = ({ avatar, name, date, message }) => {
         </div>
       </div>
       <div className='MessageItem MessageItem--Time'>
-        {date}
+        <Time date={date} />
       </div>
     </div>
   )
