@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import { Result, Tabs } from 'antd'
 import {
@@ -11,9 +11,15 @@ import Button from '../../components/Button/Button'
 
 import './index.scss'
 import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
+import { Offcanvas, OffcanvasBody, OffcanvasHeader } from 'reactstrap'
 
 const HoomRoom = () => {
   const { TabPane } = Tabs
+
+  const [isOpen, setIsOpen] = useState(false)
+
+  const handleClose = () => setIsOpen(false)
+  const handleShow = () => setIsOpen(true)
 
   return (
     <>
@@ -339,16 +345,32 @@ const HoomRoom = () => {
             <Result
               icon={<SmileOutlined />}
               title='Выберите диалог чтобы начать!'
+              extra={<Button onClick={handleShow}>Открыть окно профиля</Button>}
             />
           </div>
           <div className='HomePage--item RightPanel'>
-            <p>Avatar image</p>
-            <p>Author name</p>
-            <p>Author small information</p>
-            <p>Contact</p>
-            <p>Media</p>
+            <Offcanvas
+              backdrop={false}
+              fade={false}
+              direction='end'
+              isOpen={isOpen}
+              onEnter={handleClose}
+              onExit={handleClose}
+              toggle={handleClose}
+            >
+              <OffcanvasHeader toggle={handleClose}>
+                <p>Avatar image</p>
+                <p>Author name</p>
+              </OffcanvasHeader>
+              <OffcanvasBody>
+                <p>Author small information</p>
+                <p>Contact</p>
+                <p>Media</p>
+              </OffcanvasBody>
+            </Offcanvas>
+
           </div>
-        </div>including c
+        </div>
       </div>
     </>
   )

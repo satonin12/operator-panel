@@ -23,8 +23,10 @@
       //background-color: #007AFF;
       //color: #fff;
       color: black;
-      width: 70%;
+      width: 25%;
       height: inherit;
+
+      border-right: 1px solid #0000ff6e;
 
       overflow-y: auto; /* Добавляем полосы прокрутки */
       -ms-overflow-style: none;
@@ -115,15 +117,13 @@
     }
 
     .MainPanel {
-      border: 1px solid purple;
-
       display: flex;
       justify-content: center;
       align-items: center;
     }
 
     .RightPanel {
-
+      width: auto;
     }
   }
 
