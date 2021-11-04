@@ -119,9 +119,9 @@ const HoomRoom = () => {
                 key='1'
               >
                 <div className='MessageList'>
-                  {dataMessage.map((message) => (
+                  {dataMessage.map((message, index) => (
                     <Messageitem
-                      key={message.name}
+                      key={index + message.name}
                       avatar={message.avatar}
                       name={message.name}
                       date={message.date}
