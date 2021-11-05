@@ -14,6 +14,10 @@ export const SET_AUTH = 'SET_AUTH'
 
 // ========================================
 
+export const SET_TOKEN = 'SET_TOKEN'
+
+// ========================================
+
 export const FORGOT_PASSWORD_REQUEST = 'FORGOT_PASSWORD_REQUEST'
 export const FORGOT_PASSWORD_SUCCESS = 'FORGOT_PASSWORD_SUCCESS'
 export const FORGOT_PASSWORD_FAILURE = 'FORGOT_PASSWORD_FAILURE'
@@ -68,6 +72,15 @@ export function setAuth (auth) {
   return {
     type: SET_AUTH,
     auth
+  }
+}
+
+// ========================================
+
+export function setToken (token) {
+  return {
+    type: SET_TOKEN,
+    token
   }
 }
 
