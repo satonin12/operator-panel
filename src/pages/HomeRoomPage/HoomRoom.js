@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { Result, Tabs } from 'antd'
 import {
@@ -13,6 +13,8 @@ import './index.scss'
 import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
 import { Offcanvas, OffcanvasBody, OffcanvasHeader } from 'reactstrap'
 import Messageitem from '../../components/MessageItem/Messageitem'
+import firebase from 'firebase/app'
+import { useDispatch, useSelector } from 'react-redux'
 
 const dataMessage = [
   {
@@ -81,12 +83,29 @@ const dataMessage = [
 ]
 
 const HoomRoom = () => {
+  const dispatch = useDispatch()
+  const { token } = useSelector((state) => state)
+
   const { TabPane } = Tabs
 
   const [isOpen, setIsOpen] = useState(false)
 
   const handleClose = () => setIsOpen(false)
   const handleShow = () => setIsOpen(true)
+
+  useEffect(() => {
+    const checkToken = async () => {
+      await firebase.auth().onAuthStateChanged((user) => {
+        if (user.refreshToken !== token) {
+        // возвращаем пользователя на страницу авторизации с помощью setAuth = false
+          dispatch({ type: 'SET_AUTH', payload: false })
+          // TODO: dispatch clear all store values
+        }
+      })
+    }
+
+    checkToken()
+  }, [])
 
   return (
     <>
