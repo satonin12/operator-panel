@@ -2,7 +2,7 @@ import {
   CHECKOUT_FAILURE,
   CHECKOUT_REGISTRATION_REQUEST,
   CHECKOUT_REQUEST,
-  CHECKOUT_SUCCESS,
+  CHECKOUT_SUCCESS, RESET_STORE,
   SET_AUTH, SET_TOKEN
 } from '../actions'
 
@@ -53,6 +53,8 @@ export function reducer (state = initialState, action) {
         ...state,
         token: action.payload
       }
+    case RESET_STORE:
+      return initialState
     default:
       return state
   }

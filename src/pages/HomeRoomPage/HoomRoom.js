@@ -97,9 +97,9 @@ const HoomRoom = () => {
     const checkToken = async () => {
       await firebase.auth().onAuthStateChanged((user) => {
         if (user.refreshToken !== token) {
-        // возвращаем пользователя на страницу авторизации с помощью setAuth = false
-          dispatch({ type: 'SET_AUTH', payload: false })
-          // TODO: dispatch clear all store values
+          // возвращаем пользователя на страницу авторизации с помощью setAuth = false
+          // dispatch({ type: 'SET_AUTH', payload: false })
+          dispatch({ type: 'RESET_STORE' })
         }
       })
     }
