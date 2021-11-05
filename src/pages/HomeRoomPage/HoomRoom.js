@@ -104,6 +104,7 @@ const HoomRoom = () => {
     }
 
     checkToken()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
