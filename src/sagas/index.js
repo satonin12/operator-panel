@@ -13,11 +13,10 @@ function * signIn (action) {
 
     const token = data.user.refreshToken
 
+    yield put({ type: 'SET_TOKEN', payload: token }) // save user token in our response
     yield put({ type: 'CHECKOUT_SUCCESS', user: action.user }) // save user data in our form
     // yield put({ type: 'CHECKOUT_SUCCESS', user: data }) // save user data in firebase response
-
     yield put({ type: 'SET_AUTH', payload: true }) // save user data in our form
-    yield put({ type: 'SET_TOKEN', payload: token }) // save user token in our response
 
     toast.success('🦄 Вы успешно авторизовались!', {
       position: 'top-right',

@@ -107,6 +107,11 @@ const HoomRoom = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const handlerExit = () => {
+    const answer = window.confirm('Вы точно хотите выйти ?')
+    if (answer) dispatch({ type: 'RESET_STORE' })
+  }
+
   return (
     <>
       <div className='MainLayout'>
@@ -115,7 +120,7 @@ const HoomRoom = () => {
             <div className='TitleBlock'>
               <div className='TitleBlock--Name'>operator@mail.ru</div>
               <div className='TitleBlock--Exit'>
-                <Button styleButton='primary'>Выйти</Button>
+                <Button styleButton='primary' onClick={handlerExit}>Выйти</Button>
               </div>
             </div>
             <div className='SearchBlock'>
