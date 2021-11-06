@@ -211,9 +211,7 @@ const dataMessage = [
 const HoomRoom = () => {
   const dispatch = useDispatch()
   const { token } = useSelector((state) => state)
-
   const { TabPane } = Tabs
-
   const [isOpen, setIsOpen] = useState(false)
 
   const handleClose = () => setIsOpen(false)
