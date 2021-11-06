@@ -18,6 +18,20 @@ import { useDispatch, useSelector } from 'react-redux'
 
 const dataMessage = [
   {
+    status: 'active',
+    operatorId: '123',
+    messages: {
+      0: {
+        writtenBy: 'client',
+        content: 'Здравствуйте, я столкнулся с проблемой...',
+        timestamp: ''
+      },
+      1: {
+        writtenBy: 'operator',
+        content: 'Здравствуйте, Иван Иваночич. Сейчас вам поможем',
+        timestamp: ''
+      }
+    },
     avatar:
       'https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg',
     name: 'Zachary Zachary Gray',
@@ -25,6 +39,20 @@ const dataMessage = [
     date: '2021-11-02T13:16:04.712Z'
   },
   {
+    status: 'active',
+    operatorId: '123',
+    messages: {
+      0: {
+        writtenBy: 'client',
+        content: 'Здравствуйте, я столкнулся с проблемой...',
+        timestamp: ''
+      },
+      1: {
+        writtenBy: 'operator',
+        content: 'Здравствуйте, Иван Иваночич. Сейчас вам поможем',
+        timestamp: ''
+      }
+    },
     avatar:
       'https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg',
     name: 'Zachary Zachary Gray',
@@ -32,6 +60,20 @@ const dataMessage = [
     date: '2021-11-02T13:09:04.712Z'
   },
   {
+    status: 'active',
+    operatorId: '123',
+    messages: {
+      0: {
+        writtenBy: 'client',
+        content: 'Здравствуйте, я столкнулся с проблемой...',
+        timestamp: ''
+      },
+      1: {
+        writtenBy: 'operator',
+        content: 'Здравствуйте, Иван Иваночич. Сейчас вам поможем',
+        timestamp: ''
+      }
+    },
     avatar:
       'https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg',
     name: 'Carter Kyle Ward',
@@ -39,6 +81,20 @@ const dataMessage = [
     date: '2021-11-02T12:19:04.712Z'
   },
   {
+    status: 'active',
+    operatorId: '123',
+    messages: {
+      0: {
+        writtenBy: 'client',
+        content: 'Здравствуйте, я столкнулся с проблемой...',
+        timestamp: ''
+      },
+      1: {
+        writtenBy: 'operator',
+        content: 'Здравствуйте, Иван Иваночич. Сейчас вам поможем',
+        timestamp: ''
+      }
+    },
     avatar:
       'https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg',
     name: 'Adam David Perry',
@@ -46,6 +102,20 @@ const dataMessage = [
     date: '2021-11-02T11:24:04.712Z'
   },
   {
+    status: 'active',
+    operatorId: '123',
+    messages: {
+      0: {
+        writtenBy: 'client',
+        content: 'Здравствуйте, я столкнулся с проблемой...',
+        timestamp: ''
+      },
+      1: {
+        writtenBy: 'operator',
+        content: 'Здравствуйте, Иван Иваночич. Сейчас вам поможем',
+        timestamp: ''
+      }
+    },
     avatar:
       'https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg',
     name: 'Jayden Adrian Evans',
@@ -53,6 +123,20 @@ const dataMessage = [
     date: '2021-11-02T11:09:04.712Z'
   },
   {
+    status: 'active',
+    operatorId: '123',
+    messages: {
+      0: {
+        writtenBy: 'client',
+        content: 'Здравствуйте, я столкнулся с проблемой...',
+        timestamp: ''
+      },
+      1: {
+        writtenBy: 'operator',
+        content: 'Здравствуйте, Иван Иваночич. Сейчас вам поможем',
+        timestamp: ''
+      }
+    },
     avatar:
       'https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg',
     name: 'Jesus Aidan Kelly',
@@ -60,6 +144,20 @@ const dataMessage = [
     date: '2021-11-02T12:09:04.712Z'
   },
   {
+    status: 'active',
+    operatorId: '123',
+    messages: {
+      0: {
+        writtenBy: 'client',
+        content: 'Здравствуйте, я столкнулся с проблемой...',
+        timestamp: ''
+      },
+      1: {
+        writtenBy: 'operator',
+        content: 'Здравствуйте, Иван Иваночич. Сейчас вам поможем',
+        timestamp: ''
+      }
+    },
     avatar:
       'https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg',
     name: 'John Jake Hughes',
@@ -67,6 +165,20 @@ const dataMessage = [
     date: '2021-11-01T13:01:04.712Z'
   },
   {
+    status: 'active',
+    operatorId: '123',
+    messages: {
+      0: {
+        writtenBy: 'client',
+        content: 'Здравствуйте, я столкнулся с проблемой...',
+        timestamp: ''
+      },
+      1: {
+        writtenBy: 'operator',
+        content: 'Здравствуйте, Иван Иваночич. Сейчас вам поможем',
+        timestamp: ''
+      }
+    },
     avatar:
       'https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg',
     name: 'Jayden Evan Robinson',
@@ -74,6 +186,20 @@ const dataMessage = [
     date: '2021-11-01T14:09:07.712Z'
   },
   {
+    status: 'active',
+    operatorId: '123',
+    messages: {
+      0: {
+        writtenBy: 'client',
+        content: 'Здравствуйте, я столкнулся с проблемой...',
+        timestamp: ''
+      },
+      1: {
+        writtenBy: 'operator',
+        content: 'Здравствуйте, Иван Иваночич. Сейчас вам поможем',
+        timestamp: ''
+      }
+    },
     avatar:
       'https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg',
     name: 'Timothy Jack Harris',
