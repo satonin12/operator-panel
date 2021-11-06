@@ -231,6 +231,21 @@ const HoomRoom = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const handlerSearch = (e) => {
+    const value = e.target.value.toLowerCase()
+
+    // поиск по имени, сообщению
+    const filteredData1 = dataMessage.filter((item) => {
+      return (
+        item.name.toLowerCase().includes(value) ||
+        item.message.toLowerCase().includes(value)
+      )
+    })
+
+    // TODO: фильтруем сообщения
+    console.log(filteredData1)
+  }
+
   const handlerExit = () => {
     const answer = window.confirm('Вы точно хотите выйти ?')
     if (answer) dispatch({ type: 'RESET_STORE' })
@@ -254,6 +269,7 @@ const HoomRoom = () => {
                   name='searchUser'
                   type='text'
                   placeholder=''
+                  onChange={handlerSearch}
                 />
               </div>
             </div>
