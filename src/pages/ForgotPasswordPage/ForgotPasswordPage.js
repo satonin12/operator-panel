@@ -4,6 +4,7 @@ import { useFormik } from 'formik'
 import ForgotPasswordForm from '../../components/forms/ForgotPasswordForm'
 import { ForgotPasswordSchema } from '../../utils/validation'
 import { useDispatch, useSelector } from 'react-redux'
+import BaseLayouts from '../../lauouts/BaseLayouts/BaseLayouts'
 
 const ForgotPasswordPage = () => {
   const dispatch = useDispatch()
@@ -24,22 +25,17 @@ const ForgotPasswordPage = () => {
     }
   })
   return (
-    <main>
-      <div className='BaseLayout'>
-        <div className='content'>
-          <div className='Form'>
-            <h2>Забыли пароль</h2>
-            {error && formik.isSubmitting && (
-              <span className='formPrompt formPrompt--error'>
-                Ошибка отправки ссылки, пожалуйста проверьте правильность Email
-                или перезагрузите страницу
-              </span>
-            )}
-            <ForgotPasswordForm formik={formik} />
-          </div>
-        </div>
-      </div>
-    </main>
+    <BaseLayouts>
+      <h2>Забыли пароль</h2>
+      {error && formik.isSubmitting && (
+        <span className='formPrompt formPrompt--error'>
+          Ошибка отправки ссылки, пожалуйста проверьте правильность Email
+          или перезагрузите страницу
+        </span>
+      )}
+      <ForgotPasswordForm formik={formik} />
+    </BaseLayouts>
+
   )
 }
 
