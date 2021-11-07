@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Result, Tabs } from 'antd'
 import {
   HomeTwoTone,
@@ -8,6 +8,8 @@ import {
 } from '@ant-design/icons'
 import firebase from 'firebase/app'
 import { useDispatch, useSelector } from 'react-redux'
+import debounce from 'lodash.debounce'
+// import throttle from 'lodash.throttle'
 
 import Button from '../../components/Button/Button'
 import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
@@ -18,15 +20,15 @@ import dataMesage from '../../utils/dataMessage.json'
 import './index.scss'
 
 const HoomRoom = () => {
+  const { TabPane } = Tabs
   const dispatch = useDispatch()
   const { token } = useSelector((state) => state)
-  const { TabPane } = Tabs
-  const [isOpen, setIsOpen] = useState(false)
-  const [messages, setMessages] = useState([])
-  const initialDataMessage = dataMesage
 
-  const handleClose = () => setIsOpen(false)
-  const handleShow = () => setIsOpen(true)
+  const [isOpen, setIsOpen] = useState(false) // открыть-закрыть окно профиля
+  const [messages, setMessages] = useState([]) // состояние для сообщений с сервера
+  const [filteredMessages, setFilteredMessages] = useState(dataMesage) // состояние для отфильтрованные сообщений
+
+  const handleShowProfile = () => setIsOpen(prevState => !prevState)
 
   useEffect(() => {
     const checkToken = async () => {
@@ -57,11 +59,8 @@ const HoomRoom = () => {
   }, [])
 
   const handlerSearch = (e) => {
+    console.log(e)
     const value = e.target.value.toLowerCase()
-    if (value === '') {
-      setMessages(initialDataMessage)
-      return
-    }
     // поиск по имени, сообщению
     const filteredData = messages.filter((item) => {
       return (
@@ -69,8 +68,24 @@ const HoomRoom = () => {
         item.message.toLowerCase().includes(value)
       )
     })
-    setMessages(filteredData)
+    setFilteredMessages(filteredData)
   }
+
+  /* Различия использования между debounce & throttle
+    * Наша функцию debouncedHandlerSearch вызовется несколько раз, но она вызовет функцию handleSearch лишь раз после того, как закончится wait, который мы передаем вторым параметром debounce -> (_, wait: 300)
+    * её будем использовать для поиска необходимого нам сообщения, дабы не фильтровать сообщения каждый раз при вводе её пользователем
+    *
+    * Функцию throttledHandlerSearch используем для связи с сервером т.к. она вызовется не более чем одного раза в заданное время ожидания (пока что не требуется)
+    *
+    * обе функции требуют, чтобы отлаженная функия должна оставаться неизменной -> для этого оборачиваем в useMemo
+  */
+  const debouncedHandlerSearch = useMemo(() => {
+    return debounce(handlerSearch, 500)
+  })
+
+  // const throttledHandlerSearch = useMemo(() => {
+  //   return throttle(handlerSearch, 300)
+  // })
 
   const handlerExit = () => {
     const answer = window.confirm('Вы точно хотите выйти ?')
@@ -95,7 +110,7 @@ const HoomRoom = () => {
                   name='searchUser'
                   type='text'
                   placeholder=''
-                  onChange={handlerSearch}
+                  onChange={debouncedHandlerSearch}
                 />
               </div>
             </div>
@@ -109,7 +124,7 @@ const HoomRoom = () => {
                 key='1'
               >
                 <div className='MessageList'>
-                  {messages.map((message, index) => (
+                  {filteredMessages.map((message, index) => (
                     <Messageitem
                       key={index + message.name}
                       avatar={message.avatar}
@@ -148,7 +163,7 @@ const HoomRoom = () => {
             <Result
               icon={<SmileOutlined />}
               title='Выберите диалог чтобы начать!'
-              extra={<Button onClick={handleShow}>Открыть окно профиля</Button>}
+              extra={<Button onClick={handleShowProfile}>Открыть окно профиля</Button>}
             />
           </div>
           <div className='HomePage--item RightPanel'>
@@ -157,11 +172,9 @@ const HoomRoom = () => {
               fade={false}
               direction='end'
               isOpen={isOpen}
-              onEnter={handleClose}
-              onExit={handleClose}
-              toggle={handleClose}
+              toggle={handleShowProfile}
             >
-              <OffcanvasHeader toggle={handleClose}>
+              <OffcanvasHeader toggle={handleShowProfile}>
                 <p>Avatar image</p>
                 <p>Author name</p>
               </OffcanvasHeader>
