@@ -18,6 +18,7 @@ import Messageitem from '../../components/MessageItem/Messageitem'
 import dataMesage from '../../utils/dataMessage.json'
 
 import './index.scss'
+import Dialog from '../../components/Dialog/Dialog'
 
 const HoomRoom = () => {
   const { TabPane } = Tabs
@@ -27,6 +28,8 @@ const HoomRoom = () => {
   const [isOpen, setIsOpen] = useState(false) // открыть-закрыть окно профиля
   const [messages, setMessages] = useState([]) // состояние для сообщений с сервера
   const [filteredMessages, setFilteredMessages] = useState(dataMesage) // состояние для отфильтрованные сообщений
+
+  const [isOpenDialog, setIsOpenDialog] = useState(false) // состояние для определения открыт ли диалог или нет
 
   const handleShowProfile = () => setIsOpen(prevState => !prevState)
 
@@ -93,6 +96,12 @@ const HoomRoom = () => {
     if (answer) dispatch({ type: 'RESET_STORE' })
   }
 
+  const handlerSetActiveDialog = (e) => {
+    console.log('нажали на диалог')
+    console.log(e)
+    setIsOpenDialog(prevState => !prevState)
+  }
+
   return (
     <>
       <div className='MainLayout'>
@@ -132,6 +141,7 @@ const HoomRoom = () => {
                       name={message.name}
                       date={message.date}
                       message={message.message}
+                      onClick={() => handlerSetActiveDialog(index + message.name)}
                     />
                   ))}
                 </div>
@@ -161,11 +171,17 @@ const HoomRoom = () => {
             </Tabs>
           </div>
           <div className='HomePage--item MainPanel'>
-            <Result
-              icon={<SmileOutlined />}
-              title='Выберите диалог чтобы начать!'
-              extra={<Button onClick={handleShowProfile}>Открыть окно профиля</Button>}
-            />
+            {isOpenDialog
+              ? (
+                <Dialog />
+                )
+              : (
+                <Result
+                  icon={<SmileOutlined />}
+                  title='Выберите диалог чтобы начать!'
+                  extra={<Button onClick={handleShowProfile}>Открыть окно профиля</Button>}
+                />
+                )}
           </div>
           <div className='HomePage--item RightPanel'>
             <Offcanvas
