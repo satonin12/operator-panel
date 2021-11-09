@@ -59,7 +59,6 @@ const HoomRoom = () => {
   }, [])
 
   const handlerSearch = (e) => {
-    console.log(e)
     const value = e.target.value.toLowerCase()
     // поиск по имени, сообщению
     const filteredData = messages.filter((item) => {
@@ -79,6 +78,8 @@ const HoomRoom = () => {
     *
     * обе функции требуют, чтобы отлаженная функия должна оставаться неизменной -> для этого оборачиваем в useMemo
   */
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedHandlerSearch = useMemo(() => {
     return debounce(handlerSearch, 500)
   })
