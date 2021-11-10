@@ -54,6 +54,18 @@ const Dialog = () => {
       <div className='Dialog--item DialogContent'>
         <DialogMessage avatar='https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg' messages={messages} />
         <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
+        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
+        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
+        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
+        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
+        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
+        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
+        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
+        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
+        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
+        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
+        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
+        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
       </div>
       <div className='Dialog--item FooterBlock'>
         <div className='AnswerBlock'>
