@@ -40,11 +40,13 @@ const messages = [
   }
 ]
 
-const Dialog = () => {
+const Dialog = (props) => {
+  console.log(props)
+
   return (
     <div className='Dialog'>
       <div className='Dialog--item HeaderBlock'>
-        <div className='HeaderBlock--item DialogName'>Elizabeth Turner</div>
+        <div className='HeaderBlock--item DialogName'>{props.obj.message.name}</div>
         <div className='HeaderBlock--item'>
           <div className='HeaderBlock--search'>
             <Input placeholder='Найти сообщение' />

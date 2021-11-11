@@ -14,8 +14,8 @@ import debounce from 'lodash.debounce'
 import Button from '../../components/Button/Button'
 import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
 import { Offcanvas, OffcanvasBody, OffcanvasHeader } from 'reactstrap'
-import Messageitem from '../../components/MessageItem/Messageitem'
-import dataMesage from '../../utils/dataMessage.json'
+import MessageItem from '../../components/MessageItem/MessageItem'
+import dataMessage from '../../utils/dataMessage.json'
 
 import './index.scss'
 import Dialog from '../../components/Dialog/Dialog'
@@ -27,9 +27,10 @@ const HoomRoom = () => {
 
   const [isOpen, setIsOpen] = useState(false) // открыть-закрыть окно профиля
   const [messages, setMessages] = useState([]) // состояние для сообщений с сервера
-  const [filteredMessages, setFilteredMessages] = useState(dataMesage) // состояние для отфильтрованные сообщений
+  const [filteredMessages, setFilteredMessages] = useState(dataMessage) // состояние для отфильтрованные сообщений
 
   const [isOpenDialog, setIsOpenDialog] = useState(false) // состояние для определения открыт ли диалог или нет
+  const [activeDialog, setActiveDialog] = useState({})
 
   const handleShowProfile = () => setIsOpen(prevState => !prevState)
 
@@ -47,7 +48,7 @@ const HoomRoom = () => {
 
     try {
       setTimeout(async () => {
-        const responce = await dataMesage
+        const responce = await dataMessage
         const mockData = responce
 
         if (mockData) {
@@ -97,8 +98,8 @@ const HoomRoom = () => {
   }
 
   const handlerSetActiveDialog = (e) => {
-    console.log('нажали на диалог')
     console.log(e)
+    setActiveDialog(e)
     setIsOpenDialog(prevState => !prevState)
   }
 
@@ -135,13 +136,13 @@ const HoomRoom = () => {
               >
                 <div className='MessageList'>
                   {filteredMessages.map((message, index) => (
-                    <Messageitem
+                    <MessageItem
                       key={index + message.name}
                       avatar={message.avatar}
                       name={message.name}
                       date={message.date}
                       message={message.message}
-                      onClick={() => handlerSetActiveDialog(index + message.name)}
+                      onClick={() => handlerSetActiveDialog({ index, message })}
                     />
                   ))}
                 </div>
@@ -173,7 +174,7 @@ const HoomRoom = () => {
           <div className='HomePage--item MainPanel'>
             {isOpenDialog
               ? (
-                <Dialog />
+                <Dialog obj={activeDialog} />
                 )
               : (
                 <Result

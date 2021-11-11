@@ -3,7 +3,7 @@ import React from 'react'
 import './index.scss'
 import Time from '../Time/Time'
 
-const Messageitem = ({ avatar, name, date, message, onClick }) => {
+const MessageItem = ({ avatar, name, date, message, onClick }) => {
   return (
     <div className='Message' onClick={onClick}>
       <div className='MessageItem MessageItem--Avatar'>
@@ -30,4 +30,4 @@ const Messageitem = ({ avatar, name, date, message, onClick }) => {
   )
 }
 
-export default Messageitem
+export default MessageItem
