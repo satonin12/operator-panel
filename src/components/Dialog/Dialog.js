@@ -9,13 +9,16 @@ import Button from '../Button/Button'
 import firebase from 'firebase'
 
 const Dialog = (props) => {
+  const status = props.obj.status
   const index = props.obj.index
-  let messagesLength = props.obj.message.messages.length
+  // let messagesLength = props.obj.message.messages.length
+
   const [messages, setMessages] = useState([])
   const [value, setValue] = useState('')
+  const [messagesLength, setMessageLength] = useState(props.obj.message.messages.length || 0)
 
   const getMessages = () => {
-    firebase.database().ref(`chat/${index}/messages/`).once('value', (snapshot) => {
+    firebase.database().ref(`chat/${status}/${index}/messages/`).once('value', (snapshot) => {
       const tmp = snapshot.val()
       setMessages(tmp)
     })
@@ -28,7 +31,7 @@ const Dialog = (props) => {
   const handlerSendMessage = async () => {
     const timestamp = Date.now()
     const timestampServer = firebase.firestore.FieldValue.serverTimestamp() // можно использовать ф-ию firebase т.к. время компьютера клиента не всегда может быть правильное
-    firebase.database().ref(`chat/${index}/messages/${messagesLength}`).set({
+    firebase.database().ref(`chat/${status}/${index}/messages/${messagesLength}`).set({
       content: value,
       timestamp: timestamp || timestampServer,
       writtenBy: 'operator'
@@ -37,11 +40,11 @@ const Dialog = (props) => {
         console.log(error)//
       } else {
         console.log('все прошло удачно')
-        messagesLength++
+        setMessageLength(prevState => prevState + 1)
       }
     })
-
     setValue('')
+    console.log(status, index, messagesLength)
   }
 
   useEffect(() => {
@@ -76,7 +79,7 @@ const Dialog = (props) => {
       </div>
       <div className='Dialog--item FooterBlock'>
         <div className='AnswerBlock'>
-          <LabelInput label='Введите ответ' onChange={e => setValue(e.target.value)} />
+          <LabelInput label='Введите ответ' onChange={e => setValue(e.target.value)} value={value} />
           <Button onClick={handlerSendMessage}>Отправить сообщение</Button>
           <select>
             <option>1</option>

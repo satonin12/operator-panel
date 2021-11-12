@@ -18,8 +18,6 @@ import Dialog from '../../components/Dialog/Dialog'
 
 import firebase from 'firebase'
 
-import dataMessage from '../../utils/dataMessage.json'
-
 import './index.scss'
 
 const HoomRoom = () => {
@@ -30,24 +28,20 @@ const HoomRoom = () => {
   const { token } = useSelector((state) => state)
 
   const [dialogs, setDialogs] = useState([])
-  const [messages, setMessages] = useState([]) // состояние для сообщений с сервера
   const [isOpen, setIsOpen] = useState(false) // открыть-закрыть окно профиля
   // TODO: сделать фильтрацию элементов, после ее получения из firebase
-  const [filteredMessages, setFilteredMessages] = useState(dataMessage) // состояние для отфильтрованные сообщений
+  const [filteredMessages, setFilteredMessages] = useState({ active: [], complete: [], save: [] }) // состояние для отфильтрованные сообщений
 
   const [isOpenDialog, setIsOpenDialog] = useState(false) // состояние для определения открыт ли диалог или нет
   const [activeDialog, setActiveDialog] = useState({})
 
   const handleShowProfile = () => setIsOpen(prevState => !prevState)
 
-  const getData = () => {
-    db.once('value', (snapshot) => {
+  const getData = async () => {
+    await db.once('value', (snapshot) => {
       const tmp = snapshot.val()
-      // console.log(tmp)
-      // const test = Object.values(tmp.reduce((acc, c) => (c.status in acc ? acc[c.status].push(c) : acc[c.status] = [c], acc), {}))
-      // console.log(test)
       setDialogs(tmp)
-      // console.log(tmp)
+      setFilteredMessages(tmp)
     })
   }
 
@@ -68,11 +62,14 @@ const HoomRoom = () => {
 
   const handlerSearch = (e) => {
     const value = e.target.value.toLowerCase()
+
     // поиск по имени, сообщению
-    const filteredData = messages.filter((item) => {
+    const filteredData = dialogs.filter((item) => {
+      // const res = item.messages.filter(obj => Object.values(obj).some(val => val.includes(value)))
+
       return (
-        item.name.toLowerCase().includes(value) ||
-        item.message.toLowerCase().includes(value)
+        item.name.toLowerCase().includes(value)
+        // item.messages.toLowerCase().includes(value)
       )
     })
     setFilteredMessages(filteredData)
@@ -102,7 +99,6 @@ const HoomRoom = () => {
   }
 
   const handlerSetActiveDialog = (e) => {
-    // console.log(e)
     setActiveDialog(e)
     setIsOpenDialog(prevState => !prevState)
   }
@@ -129,6 +125,7 @@ const HoomRoom = () => {
                 />
               </div>
             </div>
+
             <Tabs defaultActiveKey='1' size='large' centered type='line'>
 
               <TabPane
@@ -136,25 +133,20 @@ const HoomRoom = () => {
                   <span>
                     <HomeTwoTone twoToneColor='#585FEB' />
                   </span>
-                }
+                    }
                 key='1'
               >
                 <div className='MessageList'>
-                  {/* eslint-disable-next-line array-callback-return */}
-                  {dialogs.map((message, index) => {
-                    if (message.status === 'active') {
-                      return (
-                        <MessageItem
-                          key={index + message.name}
-                          avatar={message.avatar}
-                          name={message.name}
-                          date={message.date}
-                          message={message.messages[0].content}
-                          onClick={() => handlerSetActiveDialog({ index, message })}
-                        />
-                      )
-                    }
-                  })}
+                  {filteredMessages.active.map((message, index) => (
+                    <MessageItem
+                      key={index + message.name}
+                      avatar={message.avatar}
+                      name={message.name}
+                      date={message.date}
+                      message={message.messages[0].content}
+                      onClick={() => handlerSetActiveDialog({ status: 'active', index, message })}
+                    />
+                  ))}
                 </div>
               </TabPane>
 
@@ -163,25 +155,20 @@ const HoomRoom = () => {
                   <span>
                     <CheckSquareTwoTone twoToneColor='#7FEB8F' />
                   </span>
-                }
+                    }
                 key='2'
               >
                 <div className='MessageList'>
-                  {/* eslint-disable-next-line array-callback-return */}
-                  {dialogs.map((message, index) => {
-                    if (message.status === 'complete') {
-                      return (
-                        <MessageItem
-                          key={index + message.name}
-                          avatar={message.avatar}
-                          name={message.name}
-                          date={message.date}
-                          message={message.messages[0].content}
-                          onClick={() => handlerSetActiveDialog({ index, message })}
-                        />
-                      )
-                    }
-                  })}
+                  {filteredMessages.complete.map((message, index) => (
+                    <MessageItem
+                      key={index + message.name}
+                      avatar={message.avatar}
+                      name={message.name}
+                      date={message.date}
+                      message={message.messages[0].content}
+                      onClick={() => handlerSetActiveDialog({ status: 'complete', index, message })}
+                    />
+                  ))}
                 </div>
               </TabPane>
 
@@ -190,28 +177,24 @@ const HoomRoom = () => {
                   <span>
                     <SaveTwoTone twoToneColor='#EBE097' />
                   </span>
-                }
+                    }
                 key='3'
               >
                 <div className='MessageList'>
-                  {/* eslint-disable-next-line array-callback-return */}
-                  {dialogs.map((message, index) => {
-                    if (message.status === 'save') {
-                      return (
-                        <MessageItem
-                          key={index + message.name}
-                          avatar={message.avatar}
-                          name={message.name}
-                          date={message.date}
-                          message={message.messages[0].content}
-                          onClick={() => handlerSetActiveDialog({ index, message })}
-                        />
-                      )
-                    }
-                  })}
+                  {filteredMessages.save.map((message, index) => (
+                    <MessageItem
+                      key={index + message.name}
+                      avatar={message.avatar}
+                      name={message.name}
+                      date={message.date}
+                      message={message.messages[0].content}
+                      onClick={() => handlerSetActiveDialog({ status: 'save', index, message })}
+                    />
+                  ))}
                 </div>
               </TabPane>
             </Tabs>
+
           </div>
           <div className='HomePage--item MainPanel'>
             {isOpenDialog
