@@ -6,7 +6,6 @@ import {
   SaveTwoTone,
   SmileOutlined
 } from '@ant-design/icons'
-import firebase from 'firebase/app'
 import { useDispatch, useSelector } from 'react-redux'
 import debounce from 'lodash.debounce'
 // import throttle from 'lodash.throttle'
@@ -15,15 +14,22 @@ import Button from '../../components/Button/Button'
 import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
 import { Offcanvas, OffcanvasBody, OffcanvasHeader } from 'reactstrap'
 import MessageItem from '../../components/MessageItem/MessageItem'
+import Dialog from '../../components/Dialog/Dialog'
+
+import firebase from 'firebase'
+
 import dataMessage from '../../utils/dataMessage.json'
 
 import './index.scss'
-import Dialog from '../../components/Dialog/Dialog'
 
 const HoomRoom = () => {
+  const db = firebase.database().ref('chat/')
+
   const { TabPane } = Tabs
   const dispatch = useDispatch()
   const { token } = useSelector((state) => state)
+
+  const [dialogs, setDialogs] = useState([])
 
   const [isOpen, setIsOpen] = useState(false) // открыть-закрыть окно профиля
   const [messages, setMessages] = useState([]) // состояние для сообщений с сервера
@@ -33,6 +39,16 @@ const HoomRoom = () => {
   const [activeDialog, setActiveDialog] = useState({})
 
   const handleShowProfile = () => setIsOpen(prevState => !prevState)
+
+  const getData = () => {
+    db.once('value', (snapshot) => {
+      const tmp = snapshot.val()
+      // console.log(tmp)
+      // const test = Object.values(tmp.reduce((acc, c) => (c.status in acc ? acc[c.status].push(c) : acc[c.status] = [c], acc), {}))
+      // console.log(test)
+      setDialogs(tmp)
+    })
+  }
 
   useEffect(() => {
     const checkToken = async () => {
@@ -45,20 +61,7 @@ const HoomRoom = () => {
     }
 
     checkToken()
-
-    try {
-      setTimeout(async () => {
-        const responce = await dataMessage
-        const mockData = responce
-
-        if (mockData) {
-          setMessages(mockData)
-          // TODO: в будущем dispatch
-        }
-      }, 1000)
-    } catch (e) {
-      console.log(e)
-    }
+    getData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -98,7 +101,7 @@ const HoomRoom = () => {
   }
 
   const handlerSetActiveDialog = (e) => {
-    console.log(e)
+    // console.log(e)
     setActiveDialog(e)
     setIsOpenDialog(prevState => !prevState)
   }
@@ -126,6 +129,7 @@ const HoomRoom = () => {
               </div>
             </div>
             <Tabs defaultActiveKey='1' size='large' centered type='line'>
+
               <TabPane
                 tab={
                   <span>
@@ -135,16 +139,20 @@ const HoomRoom = () => {
                 key='1'
               >
                 <div className='MessageList'>
-                  {filteredMessages.map((message, index) => (
-                    <MessageItem
-                      key={index + message.name}
-                      avatar={message.avatar}
-                      name={message.name}
-                      date={message.date}
-                      message={message.message}
-                      onClick={() => handlerSetActiveDialog({ index, message })}
-                    />
-                  ))}
+                  {dialogs.map((message, index) => {
+                    if (message.status === 'complete') {
+                      return (
+                        <MessageItem
+                          key={index + message.name}
+                          avatar={message.avatar}
+                          name={message.name}
+                          date={message.date}
+                          message={message.messages[0].content}
+                          onClick={() => handlerSetActiveDialog({ index, message })}
+                        />
+                      )
+                    }
+                  })}
                 </div>
               </TabPane>
 
@@ -156,7 +164,22 @@ const HoomRoom = () => {
                 }
                 key='2'
               >
-                <div className='LeftPanel__Completed'>2</div>
+                <div className='MessageList'>
+                  {dialogs.map((message, index) => {
+                    if (message.status === 'save') {
+                      return (
+                        <MessageItem
+                          key={index + message.name}
+                          avatar={message.avatar}
+                          name={message.name}
+                          date={message.date}
+                          message={message.messages[0].content}
+                          onClick={() => handlerSetActiveDialog({ index, message })}
+                        />
+                      )
+                    }
+                  })}
+                </div>
               </TabPane>
 
               <TabPane
@@ -167,7 +190,22 @@ const HoomRoom = () => {
                 }
                 key='3'
               >
-                <div className='LeftPanel__Saved'>3</div>
+                <div className='MessageList'>
+                  {dialogs.map((message, index) => {
+                    if (message.status === 'active') {
+                      return (
+                        <MessageItem
+                          key={index + message.name}
+                          avatar={message.avatar}
+                          name={message.name}
+                          date={message.date}
+                          message={message.messages[0].content}
+                          onClick={() => handlerSetActiveDialog({ index, message })}
+                        />
+                      )
+                    }
+                  })}
+                </div>
               </TabPane>
             </Tabs>
           </div>

@@ -3,8 +3,11 @@ import classNames from 'classnames'
 import { IoIosTrash } from 'react-icons/io'
 
 import './index.scss'
+import Time from '../../Time/Time'
 
 const DialogMessage = ({ isReverse, isRemovable, messages, avatar }) => {
+  console.log(messages)
+
   return (
     <div className='dialogMessage'>
       <div
@@ -13,35 +16,28 @@ const DialogMessage = ({ isReverse, isRemovable, messages, avatar }) => {
           removable: isRemovable
         })}
       >
-        <img
-          src={avatar}
-          className='item--avatar'
-          alt='AvatarPicture'
-          width={20}
-          height={20}
-        />
+        <span>{messages.writtenBy === 'client' ? 'Клиент: ' : 'Вы: '}</span>
         <div className='list'>
-          {messages.map((item, index) => (
-            <div className='list--item' key={index}>
-              <div className='item--text'>{item.message}</div>
-              <div className='item--time'>{item.date}</div>
-              <img
-                src={item.avatar}
-                className='item--message item--message__status'
-                name={
-                  item.status === 'sended' ? 'MessageSended' : 'MessageReaded'
-                }
-                alt='AvatarPicture'
-                width={20}
-                height={20}
-              />
-              <IoIosTrash
-                data-id={item.id}
-                size={18}
-                className='item--message item--message__remove-message'
-              />
+          <div className='list--item'>
+            <div className='item--text'>{messages.content}</div>
+            <div className='item--time'>
+              <Time date={messages.timestamp} />
             </div>
-          ))}
+            <img
+              src={avatar}
+              className='item--message item--message__status'
+              name={
+                  messages.status === 'sended' ? 'MessageSended' : 'MessageReaded'
+                }
+              alt='AvatarPicture'
+              width={20}
+              height={20}
+            />
+            <IoIosTrash
+              size={18}
+              className='item--message item--message__remove-message'
+            />
+          </div>
         </div>
       </div>
     </div>

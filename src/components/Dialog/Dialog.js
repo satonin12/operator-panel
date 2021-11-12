@@ -1,52 +1,34 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import './index.scss'
 import LabelInput from '../Inputs/LabelInput/LabelInput'
 import Input from '../Inputs/Input/Input'
 import DialogMessage from './DialogMessage/DialogMessage'
-
-const messages = [
-  {
-    message: 'Привет',
-    avatar: 'https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg'
-  },
-  {
-    message: 'Как дела?',
-    avatar: 'https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg'
-  },
-  {
-    message: 'Я только приехал с Марса',
-    avatar: 'https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg'
-  },
-  {
-    message: 'Привет! Все хорошо, ты как?',
-    avatar: 'https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg'
-  },
-  {
-    message: 'Ааа, да, я слышал',
-    avatar: 'https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg'
-  },
-  {
-    message: 'Круто',
-    avatar: 'https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg'
-  },
-  {
-    message: 'Полет нормальный?',
-    avatar: 'https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg'
-  },
-  {
-    message: 'Да, все круто. Только никому не говори)',
-    avatar: 'https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg'
-  }
-]
+import Button from '../Button/Button'
 
 const Dialog = (props) => {
-  console.log(props)
+  const message = props.obj.message
+  const [value, setValue] = useState('')
+
+  const handlerSendMessage = async () => {
+    console.log(value)
+  }
 
   return (
     <div className='Dialog'>
       <div className='Dialog--item HeaderBlock'>
-        <div className='HeaderBlock--item DialogName'>{props.obj.message.name}</div>
+        <div className='HeaderBlock--item DialogUserBlock'>
+          <div className='DialogAvatar'>
+            <img
+              src={props.obj.message.avatar}
+              alt='AvatarPicture'
+              width={60}
+              height={60}
+            />
+          </div>
+          <div className='DialogName'>{props.obj.message.name}</div>
+        </div>
+
         <div className='HeaderBlock--item'>
           <div className='HeaderBlock--search'>
             <Input placeholder='Найти сообщение' />
@@ -54,24 +36,14 @@ const Dialog = (props) => {
         </div>
       </div>
       <div className='Dialog--item DialogContent'>
-        <DialogMessage avatar='https://sun9-2.userapi.com/c638729/v638729951/1d0ea/f9V7aJyh6tw.jpg' messages={messages} />
-        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
-        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
-        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
-        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
-        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
-        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
-        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
-        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
-        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
-        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
-        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
-        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
-        <DialogMessage avatar='https://sun9-58.userapi.com/c836638/v836638514/867c/SPMigNB8gw0.jpg' messages={messages} />
+        {message.messages.map((item, index) => (
+          <DialogMessage key={index} messages={item} />
+        ))}
       </div>
       <div className='Dialog--item FooterBlock'>
         <div className='AnswerBlock'>
-          <LabelInput label='Введите ответ' />
+          <LabelInput label='Введите ответ' onChange={e => setValue(e.target.value)} />
+          <Button onClick={handlerSendMessage}>Отправить сообщение</Button>
           <select>
             <option>1</option>
             <option>2</option>
