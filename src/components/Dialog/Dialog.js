@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import './index.scss'
 import LabelInput from '../Inputs/LabelInput/LabelInput'
@@ -6,13 +6,47 @@ import Input from '../Inputs/Input/Input'
 import DialogMessage from './DialogMessage/DialogMessage'
 import Button from '../Button/Button'
 
+import firebase from 'firebase'
+
 const Dialog = (props) => {
-  const message = props.obj.message
+  const index = props.obj.index
+  let messagesLength = props.obj.message.messages.length
+  const [messages, setMessages] = useState([])
   const [value, setValue] = useState('')
 
-  const handlerSendMessage = async () => {
-    console.log(value)
+  const getMessages = () => {
+    firebase.database().ref(`chat/${index}/messages/`).once('value', (snapshot) => {
+      const tmp = snapshot.val()
+      setMessages(tmp)
+    })
   }
+
+  useEffect(() => {
+    getMessages()
+  }, [])
+
+  const handlerSendMessage = async () => {
+    const timestamp = Date.now()
+    const timestampServer = firebase.firestore.FieldValue.serverTimestamp() // можно использовать ф-ию firebase т.к. время компьютера клиента не всегда может быть правильное
+    firebase.database().ref(`chat/${index}/messages/${messagesLength}`).set({
+      content: value,
+      timestamp: timestamp || timestampServer,
+      writtenBy: 'operator'
+    }, (error) => {
+      if (error) {
+        console.log(error)//
+      } else {
+        console.log('все прошло удачно')
+        messagesLength++
+      }
+    })
+
+    setValue('')
+  }
+
+  useEffect(() => {
+    getMessages()
+  }, [value])
 
   return (
     <div className='Dialog'>
@@ -36,7 +70,7 @@ const Dialog = (props) => {
         </div>
       </div>
       <div className='Dialog--item DialogContent'>
-        {message.messages.map((item, index) => (
+        {messages.map((item, index) => (
           <DialogMessage key={index} messages={item} />
         ))}
       </div>

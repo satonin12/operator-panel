@@ -30,9 +30,9 @@ const HoomRoom = () => {
   const { token } = useSelector((state) => state)
 
   const [dialogs, setDialogs] = useState([])
-
-  const [isOpen, setIsOpen] = useState(false) // открыть-закрыть окно профиля
   const [messages, setMessages] = useState([]) // состояние для сообщений с сервера
+  const [isOpen, setIsOpen] = useState(false) // открыть-закрыть окно профиля
+  // TODO: сделать фильтрацию элементов, после ее получения из firebase
   const [filteredMessages, setFilteredMessages] = useState(dataMessage) // состояние для отфильтрованные сообщений
 
   const [isOpenDialog, setIsOpenDialog] = useState(false) // состояние для определения открыт ли диалог или нет
@@ -47,6 +47,7 @@ const HoomRoom = () => {
       // const test = Object.values(tmp.reduce((acc, c) => (c.status in acc ? acc[c.status].push(c) : acc[c.status] = [c], acc), {}))
       // console.log(test)
       setDialogs(tmp)
+      // console.log(tmp)
     })
   }
 
@@ -139,8 +140,9 @@ const HoomRoom = () => {
                 key='1'
               >
                 <div className='MessageList'>
+                  {/* eslint-disable-next-line array-callback-return */}
                   {dialogs.map((message, index) => {
-                    if (message.status === 'complete') {
+                    if (message.status === 'active') {
                       return (
                         <MessageItem
                           key={index + message.name}
@@ -165,8 +167,9 @@ const HoomRoom = () => {
                 key='2'
               >
                 <div className='MessageList'>
+                  {/* eslint-disable-next-line array-callback-return */}
                   {dialogs.map((message, index) => {
-                    if (message.status === 'save') {
+                    if (message.status === 'complete') {
                       return (
                         <MessageItem
                           key={index + message.name}
@@ -191,8 +194,9 @@ const HoomRoom = () => {
                 key='3'
               >
                 <div className='MessageList'>
+                  {/* eslint-disable-next-line array-callback-return */}
                   {dialogs.map((message, index) => {
-                    if (message.status === 'active') {
+                    if (message.status === 'save') {
                       return (
                         <MessageItem
                           key={index + message.name}

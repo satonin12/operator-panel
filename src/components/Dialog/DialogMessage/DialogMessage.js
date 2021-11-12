@@ -6,7 +6,7 @@ import './index.scss'
 import Time from '../../Time/Time'
 
 const DialogMessage = ({ isReverse, isRemovable, messages, avatar }) => {
-  console.log(messages)
+  // console.log(messages)
 
   return (
     <div className='dialogMessage'>
@@ -21,7 +21,7 @@ const DialogMessage = ({ isReverse, isRemovable, messages, avatar }) => {
           <div className='list--item'>
             <div className='item--text'>{messages.content}</div>
             <div className='item--time'>
-              <Time date={messages.timestamp} />
+              {/* <Time date={messages.timestamp} /> */}
             </div>
             <img
               src={avatar}
