@@ -4,6 +4,7 @@ import './index.scss'
 import Time from '../Time/Time'
 
 const MessageItem = ({ avatar, name, date, message, onClick }) => {
+  console.log(date)
   return (
     <div className='Message' onClick={onClick}>
       <div className='MessageItem MessageItem--Avatar'>

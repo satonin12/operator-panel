@@ -20,6 +20,40 @@ import firebase from 'firebase'
 
 import './index.scss'
 
+const activeTabIcon = (
+  <span>
+    <HomeTwoTone twoToneColor='#585FEB' />
+  </span>
+)
+const completeTabIcon = (
+  <span>
+    <CheckSquareTwoTone twoToneColor='#7FEB8F' />
+  </span>
+)
+const saveTabIcon = (
+  <span>
+    <SaveTwoTone twoToneColor='#EBE097' />
+  </span>
+)
+
+const tabPanelArray = [
+  {
+    status: 'active',
+    key: 1,
+    componentIcon: activeTabIcon
+  },
+  {
+    status: 'complete',
+    key: 2,
+    componentIcon: completeTabIcon
+  },
+  {
+    status: 'save',
+    key: 3,
+    componentIcon: saveTabIcon
+  }
+]
+
 const HoomRoom = () => {
   const db = firebase.database().ref('chat/')
 
@@ -40,6 +74,7 @@ const HoomRoom = () => {
   const getData = async () => {
     await db.once('value', (snapshot) => {
       const tmp = snapshot.val()
+      console.log(tmp)
       setDialogs(tmp)
       setFilteredMessages(tmp)
     })
@@ -129,71 +164,28 @@ const HoomRoom = () => {
 
             <Tabs defaultActiveKey='1' size='large' centered type='line'>
 
-              <TabPane
-                tab={
-                  <span>
-                    <HomeTwoTone twoToneColor='#585FEB' />
-                  </span>
-                    }
-                key='1'
-              >
-                <div className='MessageList'>
-                  {filteredMessages.active.map((message, index) => (
+              {tabPanelArray.map((tabPane) => (
+                <TabPane
+                  tab={tabPane.componentIcon}
+                  key={tabPane.key}
+                >
+                  {filteredMessages[tabPane.status].map((message, index) => (
                     <MessageItem
-                      key={index + message.name}
+                      key={index + Date.now()}
                       avatar={message.avatar}
                       name={message.name}
-                      date={message.date}
+                      date={message.messages[0].timestamp}
                       message={message.messages[0].content}
-                      onClick={() => handlerSetActiveDialog({ status: 'active', index, message })}
+                      onClick={() =>
+                        handlerSetActiveDialog({
+                          status: 'active',
+                          index,
+                          message
+                        })}
                     />
                   ))}
-                </div>
-              </TabPane>
-
-              <TabPane
-                tab={
-                  <span>
-                    <CheckSquareTwoTone twoToneColor='#7FEB8F' />
-                  </span>
-                    }
-                key='2'
-              >
-                <div className='MessageList'>
-                  {filteredMessages.complete.map((message, index) => (
-                    <MessageItem
-                      key={index + message.name}
-                      avatar={message.avatar}
-                      name={message.name}
-                      date={message.date}
-                      message={message.messages[0].content}
-                      onClick={() => handlerSetActiveDialog({ status: 'complete', index, message })}
-                    />
-                  ))}
-                </div>
-              </TabPane>
-
-              <TabPane
-                tab={
-                  <span>
-                    <SaveTwoTone twoToneColor='#EBE097' />
-                  </span>
-                    }
-                key='3'
-              >
-                <div className='MessageList'>
-                  {filteredMessages.save.map((message, index) => (
-                    <MessageItem
-                      key={index + message.name}
-                      avatar={message.avatar}
-                      name={message.name}
-                      date={message.date}
-                      message={message.messages[0].content}
-                      onClick={() => handlerSetActiveDialog({ status: 'save', index, message })}
-                    />
-                  ))}
-                </div>
-              </TabPane>
+                </TabPane>
+              ))}
             </Tabs>
 
           </div>
