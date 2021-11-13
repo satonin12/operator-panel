@@ -63,12 +63,13 @@ const HoomRoom = () => {
   const handlerSearch = (e) => {
     const value = e.target.value.toLowerCase()
 
-    // поиск по имени, сообщению
     const filteredData = dialogs.filter((item) => {
       // const res = item.messages.filter(obj => Object.values(obj).some(val => val.includes(value)))
 
       return (
+        // поиск по имени
         item.name.toLowerCase().includes(value)
+        // сообщению
         // item.messages.toLowerCase().includes(value)
       )
     })
