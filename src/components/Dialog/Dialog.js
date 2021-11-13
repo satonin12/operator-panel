@@ -26,6 +26,7 @@ const Dialog = (props) => {
 
   useEffect(() => {
     getMessages()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handlerSendMessage = async () => {
@@ -49,6 +50,7 @@ const Dialog = (props) => {
 
   useEffect(() => {
     getMessages()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value])
 
   return (

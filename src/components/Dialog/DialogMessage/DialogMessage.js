@@ -3,7 +3,7 @@ import classNames from 'classnames'
 import { IoIosTrash } from 'react-icons/io'
 
 import './index.scss'
-import Time from '../../Time/Time'
+// import Time from '../../Time/Time'
 
 const DialogMessage = ({ isReverse, isRemovable, messages, avatar }) => {
   // console.log(messages)
