@@ -22,19 +22,13 @@ import firebase from 'firebase'
 import './index.scss'
 
 const activeTabIcon = (
-  <span>
-    <HomeTwoTone twoToneColor='#585FEB' />
-  </span>
+  <HomeTwoTone twoToneColor='#585FEB' />
 )
 const completeTabIcon = (
-  <span>
-    <CheckSquareTwoTone twoToneColor='#7FEB8F' />
-  </span>
+  <CheckSquareTwoTone twoToneColor='#7FEB8F' />
 )
 const saveTabIcon = (
-  <span>
-    <SaveTwoTone twoToneColor='#EBE097' />
-  </span>
+  <SaveTwoTone twoToneColor='#EBE097' />
 )
 
 const tabPanelArray = [
@@ -102,7 +96,6 @@ const HoomRoom = () => {
       chatStatus.save = snapshot.val()
     })
 
-    console.log(chatStatus)
     setLengthDialogs(prevState => ({
       ...prevState,
       active: chatStatus.active.length,
@@ -177,11 +170,14 @@ const HoomRoom = () => {
 
   const handlerSetActiveDialog = (e) => {
     setActiveDialog(e)
-    setIsOpenDialog(prevState => !prevState)
+
+    if (activeDialog.index === e.index) {
+      setIsOpenDialog(false)
+    }
+    setIsOpenDialog(true)
   }
 
   const fetchMoreData = async (status = 'active') => {
-    console.log('зашли сюда')
     // let moreStatusDialog
     // await firebase.database().ref('chat/active/').limitToFirst(lengthDialogs.active + 5).once('value', (snapshot) => {
     //   moreStatusDialog = snapshot.val()
@@ -232,7 +228,7 @@ const HoomRoom = () => {
             <Tabs defaultActiveKey={activeTab} size='large' centered type='line' onChange={(e) => setActiveTab(e)}>
               {tabPanelArray.map((tabPane) => (
                 <TabPane
-                  tab={tabPane.componentIcon}
+                  tab={<span>{tabPane.componentIcon}</span>}
                   key={tabPane.status}
                 >
                   <InfiniteScroll
@@ -251,7 +247,7 @@ const HoomRoom = () => {
                       // eslint-disable-next-line react/jsx-key
                         <>
                           <MessageItem
-                            key={Date.now()}
+                            key={index}
                             avatar={message.avatar}
                             name={message.name}
                             date={message.messages[0].timestamp}
@@ -275,7 +271,7 @@ const HoomRoom = () => {
           <div className='HomePage--item MainPanel'>
             {isOpenDialog
               ? (
-                <Dialog obj={activeDialog} />
+                <Dialog obj={activeDialog} key={activeDialog.index} />
                 )
               : (
                 <Result

@@ -9,9 +9,11 @@ import Button from '../Button/Button'
 import firebase from 'firebase'
 
 const Dialog = (props) => {
+  console.log(props)
   const status = props.obj.status
   const index = props.obj.index
-  // let messagesLength = props.obj.message.messages.length
+
+  const [indexProps, setIndexProps] = useState(null)
 
   const [messages, setMessages] = useState([])
   const [value, setValue] = useState('')
@@ -20,14 +22,27 @@ const Dialog = (props) => {
   const getMessages = () => {
     firebase.database().ref(`chat/${status}/${index}/messages/`).once('value', (snapshot) => {
       const tmp = snapshot.val()
+      // console.log('получили сообщения')
+      // console.log(tmp)
       setMessages(tmp)
     })
   }
 
   useEffect(() => {
+    console.log('получаем сообщения - первый раз')
     getMessages()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    // console.log('получаем сообщения - при изменении value')
+    getMessages()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value])
+
+  useEffect(() => {
+    setIndexProps(props.key)
+  }, [indexProps])
 
   const handlerSendMessage = async () => {
     const timestamp = Date.now()
@@ -38,20 +53,13 @@ const Dialog = (props) => {
       writtenBy: 'operator'
     }, (error) => {
       if (error) {
-        console.log(error)//
+        console.log(error)
       } else {
-        console.log('все прошло удачно')
         setMessageLength(prevState => prevState + 1)
       }
     })
     setValue('')
-    console.log(status, index, messagesLength)
   }
-
-  useEffect(() => {
-    getMessages()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value])
 
   return (
     <div className='Dialog'>
