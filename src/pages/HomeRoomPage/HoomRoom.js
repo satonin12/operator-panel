@@ -9,6 +9,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 import debounce from 'lodash.debounce'
 // import throttle from 'lodash.throttle'
+import InfiniteScroll from 'react-infinite-scroll-component'
 
 import Button from '../../components/Button/Button'
 import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
@@ -55,29 +56,62 @@ const tabPanelArray = [
 ]
 
 const HoomRoom = () => {
-  const db = firebase.database().ref('chat/')
+  const db = firebase.database()
 
   const { TabPane } = Tabs
   const dispatch = useDispatch()
   const { token } = useSelector((state) => state)
 
-  const [dialogs, setDialogs] = useState([])
+  const hasMore = true
+
+  const [dialogs, setDialogs] = useState({ active: [], complete: [], save: [] })
   const [isOpen, setIsOpen] = useState(false) // открыть-закрыть окно профиля
   // TODO: сделать фильтрацию элементов, после ее получения из firebase
   const [filteredMessages, setFilteredMessages] = useState({ active: [], complete: [], save: [] }) // состояние для отфильтрованные сообщений
 
+  // понадобится позже при пагинации диалогов
+  const [lengthDialogs, setLengthDialogs] = useState({
+    active: 0,
+    complete: 0,
+    save: 0
+  })
+
   const [isOpenDialog, setIsOpenDialog] = useState(false) // состояние для определения открыт ли диалог или нет
   const [activeDialog, setActiveDialog] = useState({})
+  const [activeTab, setActiveTab] = useState('active')
 
   const handleShowProfile = () => setIsOpen(prevState => !prevState)
 
   const getData = async () => {
-    await db.once('value', (snapshot) => {
-      const tmp = snapshot.val()
-      console.log(tmp)
-      setDialogs(tmp)
-      setFilteredMessages(tmp)
+    const chatStatus = {
+      active: [],
+      complete: [],
+      save: []
+    }
+
+    // TODO: after react-infinitive-scroll add .limitToFirst(3)
+    await db.ref('chat/active/').once('value', (snapshot) => {
+      chatStatus.active = snapshot.val()
     })
+
+    await db.ref('chat/complete/').once('value', (snapshot) => {
+      chatStatus.complete = snapshot.val()
+    })
+
+    await db.ref('chat/save/').once('value', (snapshot) => {
+      chatStatus.save = snapshot.val()
+    })
+
+    console.log(chatStatus)
+    setLengthDialogs(prevState => ({
+      ...prevState,
+      active: chatStatus.active.length,
+      complete: chatStatus.complete.length,
+      save: chatStatus.save.length
+    }))
+
+    setDialogs(chatStatus)
+    setFilteredMessages(chatStatus)
   }
 
   useEffect(() => {
@@ -98,17 +132,24 @@ const HoomRoom = () => {
   const handlerSearch = (e) => {
     const value = e.target.value.toLowerCase()
 
-    const filteredData = dialogs.filter((item) => {
-      // const res = item.messages.filter(obj => Object.values(obj).some(val => val.includes(value)))
+    const filteredData = dialogs[activeTab].filter((dialog) => {
+      // получить здесь массив всех сообщений из item с проверкой на включение value
+      const entryValueInMessages = Object.values(dialog.messages).map((messages) => {
+        return messages.content.toLowerCase().includes(value)
+      }).some(e => e)
 
       return (
         // поиск по имени
-        item.name.toLowerCase().includes(value)
+        dialog.name.toLowerCase().includes(value) ||
         // сообщению
-        // item.messages.toLowerCase().includes(value)
+        entryValueInMessages
       )
     })
-    setFilteredMessages(filteredData)
+
+    setFilteredMessages(prevState => ({
+      ...prevState,
+      [activeTab]: filteredData
+    }))
   }
 
   /* Различия использования между debounce & throttle
@@ -139,6 +180,32 @@ const HoomRoom = () => {
     setIsOpenDialog(prevState => !prevState)
   }
 
+  const fetchMoreData = async (status = 'active') => {
+    console.log('зашли сюда')
+    // let moreStatusDialog
+    // await firebase.database().ref('chat/active/').limitToFirst(lengthDialogs.active + 5).once('value', (snapshot) => {
+    //   moreStatusDialog = snapshot.val()
+    // })
+
+    // setLengthDialogs(prevState => ({
+    //   ...prevState,
+    //   [status]: prevState[status] + 1
+    // }))
+    //
+    // hasMore = false
+
+    // setDialogs(prevState => [
+    //   ...prevState,
+    //   [status]: prevState[status].moreStatusDialog
+    // ])
+
+    // setFilteredMessages(prevState => [
+    //   ...prevState,
+    //   [status]: prevState[status].moreStatusDialog
+    // ])
+    // debugger
+  }
+
   return (
     <>
       <div className='MainLayout'>
@@ -162,28 +229,44 @@ const HoomRoom = () => {
               </div>
             </div>
 
-            <Tabs defaultActiveKey='1' size='large' centered type='line'>
-
+            <Tabs defaultActiveKey={activeTab} size='large' centered type='line' onChange={(e) => setActiveTab(e)}>
               {tabPanelArray.map((tabPane) => (
                 <TabPane
                   tab={tabPane.componentIcon}
-                  key={tabPane.key}
+                  key={tabPane.status}
                 >
-                  {filteredMessages[tabPane.status].map((message, index) => (
-                    <MessageItem
-                      key={index + Date.now()}
-                      avatar={message.avatar}
-                      name={message.name}
-                      date={message.messages[0].timestamp}
-                      message={message.messages[0].content}
-                      onClick={() =>
-                        handlerSetActiveDialog({
-                          status: 'active',
-                          index,
-                          message
-                        })}
-                    />
-                  ))}
+                  <InfiniteScroll
+                    dataLength={lengthDialogs.active}
+                    pageStart={0}
+                    loadMore={() => fetchMoreData(tabPane.status)}
+                    hasMore={hasMore}
+                    useWindow={false}
+                    initialLoad={false}
+                    // loadMore={() => fetchMoreData(tabPane.status)}
+                    loader={<div className='loader' style={{ clear: 'both' }} key={0}>Loading ... </div>}
+                  >
+                    {/* eslint-disable-next-line array-callback-return */}
+                    {filteredMessages[tabPane.status].map((message, index) => {
+                      return (
+                      // eslint-disable-next-line react/jsx-key
+                        <>
+                          <MessageItem
+                            key={Date.now()}
+                            avatar={message.avatar}
+                            name={message.name}
+                            date={message.messages[0].timestamp}
+                            message={message.messages[0].content}
+                            onClick={() =>
+                              handlerSetActiveDialog({
+                                status: 'active',
+                                index,
+                                message
+                              })}
+                          />
+                        </>
+                      )
+                    })}
+                  </InfiniteScroll>
                 </TabPane>
               ))}
             </Tabs>

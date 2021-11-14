@@ -6,7 +6,7 @@
     width: inherit;
     height: inherit;
 
-    overflow: hidden;
+    //overflow: hidden;
 
     display: flex;
     flex-direction: row;
@@ -29,6 +29,7 @@
       border-right: 1px solid #0000ff6e;
 
       overflow-y: auto; /* Добавляем полосы прокрутки */
+
       -ms-overflow-style: none;
       scrollbar-width: none;
 
@@ -37,8 +38,8 @@
         height: 0;
       }
 
-      max-height: 100vh;
-      max-width: 30%;
+      //max-height: 100vh;
+      //max-width: 30%;
 
       .TitleBlock {
         margin-top: 5px;
