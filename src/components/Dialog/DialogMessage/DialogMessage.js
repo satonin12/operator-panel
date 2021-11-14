@@ -6,8 +6,6 @@ import './index.scss'
 // import Time from '../../Time/Time'
 
 const DialogMessage = ({ isReverse, isRemovable, messages, avatar }) => {
-  // console.log(messages)
-
   return (
     <div className='dialogMessage'>
       <div
@@ -17,7 +15,10 @@ const DialogMessage = ({ isReverse, isRemovable, messages, avatar }) => {
         })}
       >
         <span>{messages.writtenBy === 'client' ? 'Клиент: ' : 'Вы: '}</span>
-        <div className='list'>
+        <div className={classNames('list', {
+          operator: (messages.writtenBy === 'operator')
+        })}
+        >
           <div className='list--item'>
             <div className='item--text'>{messages.content}</div>
             <div className='item--time'>

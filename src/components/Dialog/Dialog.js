@@ -9,7 +9,6 @@ import Button from '../Button/Button'
 import firebase from 'firebase'
 
 const Dialog = (props) => {
-  console.log(props)
   const status = props.obj.status
   const index = props.obj.index
 
@@ -22,8 +21,6 @@ const Dialog = (props) => {
   const getMessages = () => {
     firebase.database().ref(`chat/${status}/${index}/messages/`).once('value', (snapshot) => {
       const tmp = snapshot.val()
-      // console.log('получили сообщения')
-      // console.log(tmp)
       setMessages(tmp)
     })
   }
