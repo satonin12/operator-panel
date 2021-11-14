@@ -4,7 +4,8 @@ import {
   HomeTwoTone,
   CheckSquareTwoTone,
   SaveTwoTone,
-  SmileOutlined
+  SmileOutlined,
+  MailTwoTone
 } from '@ant-design/icons'
 import { useDispatch, useSelector } from 'react-redux'
 import debounce from 'lodash.debounce'
@@ -21,66 +22,71 @@ import firebase from 'firebase'
 
 import './index.scss'
 
-const activeTabIcon = (
-  <HomeTwoTone twoToneColor='#585FEB' />
-)
-const completeTabIcon = (
-  <CheckSquareTwoTone twoToneColor='#7FEB8F' />
-)
-const saveTabIcon = (
-  <SaveTwoTone twoToneColor='#EBE097' />
-)
+const startTabicon = <MailTwoTone twoToneColor='#f5222d' />
+const activeTabIcon = <HomeTwoTone twoToneColor='#585FEB' />
+const completeTabIcon = <CheckSquareTwoTone twoToneColor='#7FEB8F' />
+const saveTabIcon = <SaveTwoTone twoToneColor='#EBE097' />
 
 const tabPanelArray = [
   {
+    status: 'start',
+    key: 0,
+    componentIcon: startTabicon,
+    text: 'Очередь'
+  },
+  {
     status: 'active',
     key: 1,
-    componentIcon: activeTabIcon
+    componentIcon: activeTabIcon,
+    text: 'Активные'
   },
   {
     status: 'complete',
     key: 2,
-    componentIcon: completeTabIcon
+    componentIcon: completeTabIcon,
+    text: 'Завершенные'
   },
   {
     status: 'save',
     key: 3,
-    componentIcon: saveTabIcon
+    componentIcon: saveTabIcon,
+    text: 'Сохранённые'
   }
 ]
 
 const HoomRoom = () => {
+  // * Variable declaration block ======================================================================================
+
   const db = firebase.database()
 
+  const hasMore = true
   const { TabPane } = Tabs
   const dispatch = useDispatch()
   const { token } = useSelector((state) => state)
 
-  const hasMore = true
-
-  const [dialogs, setDialogs] = useState({ active: [], complete: [], save: [] })
   const [isOpen, setIsOpen] = useState(false) // открыть-закрыть окно профиля
-  // TODO: сделать фильтрацию элементов, после ее получения из firebase
-  const [filteredMessages, setFilteredMessages] = useState({ active: [], complete: [], save: [] }) // состояние для отфильтрованные сообщений
-
+  const [dialogs, setDialogs] = useState({ active: [], complete: [], save: [], start: [] })
+  const [filteredMessages, setFilteredMessages] = useState({ active: [], complete: [], save: [], start: [] }) // состояние для отфильтрованные сообщений
   // понадобится позже при пагинации диалогов
   const [lengthDialogs, setLengthDialogs] = useState({
     active: 0,
     complete: 0,
-    save: 0
+    save: 0,
+    start: 0
   })
 
-  const [isOpenDialog, setIsOpenDialog] = useState(false) // состояние для определения открыт ли диалог или нет
+  const [activeTab, setActiveTab] = useState('start')
   const [activeDialog, setActiveDialog] = useState({})
-  const [activeTab, setActiveTab] = useState('active')
+  const [isOpenDialog, setIsOpenDialog] = useState(false) // состояние для определения открыт ли диалог или нет
 
-  const handleShowProfile = () => setIsOpen(prevState => !prevState)
+  // ? Function declaration block ======================================================================================
 
   const getData = async () => {
     const chatStatus = {
       active: [],
       complete: [],
-      save: []
+      save: [],
+      start: []
     }
 
     // TODO: after react-infinitive-scroll add .limitToFirst(3)
@@ -96,13 +102,19 @@ const HoomRoom = () => {
       chatStatus.save = snapshot.val()
     })
 
+    await db.ref('chat/start/').once('value', (snapshot) => {
+      chatStatus.start = snapshot.val()
+    })
+
+    console.log(chatStatus)
+
     setLengthDialogs(prevState => ({
       ...prevState,
       active: chatStatus.active.length,
       complete: chatStatus.complete.length,
-      save: chatStatus.save.length
+      save: chatStatus.save.length,
+      start: chatStatus.start.length
     }))
-
     setDialogs(chatStatus)
     setFilteredMessages(chatStatus)
   }
@@ -121,6 +133,8 @@ const HoomRoom = () => {
     getData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const handleShowProfile = () => setIsOpen(prevState => !prevState)
 
   const handlerSearch = (e) => {
     const value = e.target.value.toLowerCase()
@@ -169,6 +183,7 @@ const HoomRoom = () => {
   }
 
   const handlerSetActiveDialog = (e) => {
+    console.log(e)
     setActiveDialog(e)
 
     if (activeDialog.index === e.index) {
@@ -202,6 +217,7 @@ const HoomRoom = () => {
     // debugger
   }
 
+  // ! Component render block (return) ======================================================================================
   return (
     <>
       <div className='MainLayout'>
@@ -225,10 +241,15 @@ const HoomRoom = () => {
               </div>
             </div>
 
-            <Tabs defaultActiveKey={activeTab} size='large' centered type='line' onChange={(e) => setActiveTab(e)}>
+            <Tabs defaultActiveKey={activeTab} size='small' centered type='line' onChange={(e) => setActiveTab(e)}>
               {tabPanelArray.map((tabPane) => (
                 <TabPane
-                  tab={<span>{tabPane.componentIcon}</span>}
+                  tab={
+                    <span>
+                      {/* {tabPane.text} */}
+                      {tabPane.componentIcon}
+                    </span>
+                  }
                   key={tabPane.status}
                 >
                   <InfiniteScroll
@@ -254,7 +275,7 @@ const HoomRoom = () => {
                             message={message.messages[0].content}
                             onClick={() =>
                               handlerSetActiveDialog({
-                                status: 'active',
+                                status: tabPane.status,
                                 index,
                                 message
                               })}

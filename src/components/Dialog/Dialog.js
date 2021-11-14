@@ -25,9 +25,50 @@ const Dialog = (props) => {
     })
   }
 
+  const checkDialogOperatorId = () => {
+    console.log(props)
+    firebase.database().ref(`chat/${status}/${index}/operatorId`).once('value', snapshot => {
+      if (snapshot.val() === 0) {
+        // const transferObject = props.obj.message
+        // сразу же закрепляем оператора за диалогом
+        // (средствами realtime database firebase) - это означает удалить данную запись полностью и создать новую в путе chat/active/${LastIndex} + 1 с новыми данными operatorId и status
+        // let lengthActiveDialogs
+        //  создаем запись
+        //  для этого узнаем длину последнего элемента в активных чатах
+        // firebase.database().ref('chat/active/').limitToLast(1).once('value', snapshot => {
+        //   lengthActiveDialogs = Number(Object.keys(snapshot.val())[0]) + 1
+        //   // TODO: id оператора брать из контекста после входа
+        //   const newObject = {
+        //     ...transferObject,
+        //     operatorId: 123,
+        //     status: 'active'
+        //   }
+        //   firebase.database().ref(`chat/active/${lengthActiveDialogs}`).set(newObject,
+        //     (error) => {
+        //       if (error) {
+        //         console.log(error)
+        //       } else {
+        //         console.log('добавление прошло удачно - смотри firebase')
+        //       }
+        //     })
+        // })
+        // //  удаляем запись
+        // firebase.database().ref(`chat/${status}/${index}`).remove((error) => {
+        //   console.log(error)
+        //   console.log('вроде как удалили - смотри firebase')
+        // })
+
+        //  после всего этого нужно перерендерить компонент homepage, чтобы текущий диалог встал в карточку 'active'
+        //  для этого вручную кладём текущий dialogItem в массив active
+      }
+    })
+  }
+
   useEffect(() => {
     console.log('получаем сообщения - первый раз')
     getMessages()
+    // проверка, если этот диалог без operatorId в firebase -> значит переводим в активный за текущим оператором (пока что константа 123)
+    checkDialogOperatorId()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
