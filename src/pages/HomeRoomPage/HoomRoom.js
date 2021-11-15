@@ -65,7 +65,7 @@ const HoomRoom = () => {
   const { token } = useSelector((state) => state)
 
   const [isOpen, setIsOpen] = useState(false) // открыть-закрыть окно профиля
-  const [isSelected, setIsSelected] = useState(null) // подсвечивать диалог, при его выборе
+  const [isSelected, setIsSelected] = useState({ }) // подсвечивать диалог, при его выборе
   const [dialogs, setDialogs] = useState({ active: [], complete: [], save: [], start: [] })
   const [filteredMessages, setFilteredMessages] = useState({ active: [], complete: [], save: [], start: [] }) // состояние для отфильтрованные сообщений
   // понадобится позже при пагинации диалогов
@@ -216,8 +216,12 @@ const HoomRoom = () => {
   }
 
   const handlerSetActiveDialog = (e) => {
+    console.log(e)
     setActiveDialog(e)
-    setIsSelected(e.index)
+
+    if (activeTab === e.status) {
+      setIsSelected({ index: e.index, tab: activeTab })
+    }
 
     if (activeDialog.index === e.index) {
       setIsOpenDialog(false)
@@ -306,6 +310,7 @@ const HoomRoom = () => {
                           date={message.messages[0].timestamp}
                           message={message.messages[0].content}
                           isSelected={isSelected}
+                          activeTab={activeTab}
                           onClick={() =>
                             handlerSetActiveDialog({
                               status: tabPane.status,

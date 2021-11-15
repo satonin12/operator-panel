@@ -4,11 +4,12 @@ import './index.scss'
 import Time from '../Time/Time'
 import classNames from 'classnames'
 
-const MessageItem = ({ index, avatar, name, date, message, onClick, isSelected = false }) => {
+const MessageItem = ({ activeTab, index, avatar, name, date, message, onClick, isSelected = false }) => {
   return (
     <div
       className={classNames('Message', {
-        active: isSelected === index
+        active: (activeTab === isSelected.tab && isSelected.index === index)
+        // active: isSelected === index
       })}
       onClick={onClick}
     >
