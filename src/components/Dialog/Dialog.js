@@ -12,7 +12,7 @@ const Dialog = (props) => {
   const status = props.obj.status
   const index = props.obj.index
 
-  if (typeof index === 'undefined') return
+  if (typeof index === 'undefined') throw Error('ошибка индексации - in Dialog props')
 
   const [value, setValue] = useState('')
   const [messages, setMessages] = useState([])
