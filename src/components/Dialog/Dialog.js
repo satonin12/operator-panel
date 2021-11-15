@@ -103,7 +103,7 @@ const Dialog = (props) => {
 
   useEffect(() => {
     setIndexProps(props.key)
-  }, [indexProps])
+  }, [props.key, indexProps])
 
   const handlerSendMessage = async () => {
     const timestamp = Date.now()
