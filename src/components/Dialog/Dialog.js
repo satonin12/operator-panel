@@ -77,11 +77,11 @@ const Dialog = (props) => {
         message: newObject,
         status: 'active'
       }
-      // удаляем запись
-      await firebase.database().ref(`chat/${status}/${index}`).remove((error) => {
-        console.log(error)
-        console.log('вроде как удалили - смотри firebase')
-      })
+      // ! удаляем запись - пока что закоментиовано, чтобы не создавать каждый раз диалог в firebase
+      // await firebase.database().ref(`chat/${status}/${index}`).remove((error) => {
+      //   console.log(error)
+      //   console.log('вроде как удалили - смотри firebase')
+      // })
       //  после всего этого нужно перерендерить компонент homepage, чтобы текущий диалог встал в карточку 'active'
       //  для этого вручную кладём текущий dialogItem в массив active
       props.transferToActive(newObjectFromDialogsItem)

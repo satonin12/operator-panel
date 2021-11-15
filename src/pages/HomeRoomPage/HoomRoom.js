@@ -145,10 +145,8 @@ const HoomRoom = () => {
   }, [])
 
   const addDialogToActive = (dialog) => {
-    // console.log(dialog)
-
-    setActiveDialog(dialog)
     setActiveTab('active')
+    setActiveDialog(dialog)
 
     setDialogs(prevState => ({
       ...prevState,
@@ -158,13 +156,12 @@ const HoomRoom = () => {
       ...prevState,
       active: [...prevState.active, dialog.message]
     }))
-
     setLengthDialogs(prevState => ({
       ...prevState,
       active: prevState.active + 1
     }))
 
-    // debugger
+    setIsSelected({ index: dialog.index, tab: 'active' })
   }
 
   const handleShowProfile = () => setIsOpen(prevState => !prevState)
@@ -216,13 +213,11 @@ const HoomRoom = () => {
   }
 
   const handlerSetActiveDialog = (e) => {
-    console.log(e)
     setActiveDialog(e)
-
     if (activeTab === e.status) {
+      console.log('совпадает')
       setIsSelected({ index: e.index, tab: activeTab })
     }
-
     if (activeDialog.index === e.index) {
       setIsOpenDialog(false)
     }
