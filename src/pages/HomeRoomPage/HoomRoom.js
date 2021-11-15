@@ -90,22 +90,27 @@ const HoomRoom = () => {
       start: []
     }
 
-    // TODO: after react-infinitive-scroll add .limitToFirst(3)
-    await db.ref('chat/active/').once('value', (snapshot) => {
-      chatStatus.active = snapshot.val()
-    })
+    try {
+      // TODO: after react-infinitive-scroll add .limitToFirst(3)
+      await db.ref('chat/active/').once('value', (snapshot) => {
+        chatStatus.active = snapshot.val()
+      })
 
-    await db.ref('chat/complete/').once('value', (snapshot) => {
-      chatStatus.complete = snapshot.val()
-    })
+      await db.ref('chat/complete/').once('value', (snapshot) => {
+        chatStatus.complete = snapshot.val()
+      })
 
-    await db.ref('chat/save/').once('value', (snapshot) => {
-      chatStatus.save = snapshot.val()
-    })
+      await db.ref('chat/save/').once('value', (snapshot) => {
+        chatStatus.save = snapshot.val()
+      })
 
-    await db.ref('chat/start/').once('value', (snapshot) => {
-      chatStatus.start = snapshot.val()
-    })
+      await db.ref('chat/start/').once('value', (snapshot) => {
+        chatStatus.start = snapshot.val()
+      })
+    } catch (e) {
+      console.log(e)
+      throw Error('Ошибка в получении данных с firebase: ' + e)
+    }
 
     for (const key in chatStatus) {
       if (!Array.isArray(chatStatus[key])) {
@@ -130,12 +135,17 @@ const HoomRoom = () => {
   }
 
   const checkToken = async () => {
-    await firebase.auth().onAuthStateChanged((user) => {
-      if (user.refreshToken !== token) {
-        // возвращаем пользователя на страницу авторизации с помощью setAuth = false
-        dispatch({ type: 'RESET_STORE' })
-      }
-    })
+    try {
+      await firebase.auth().onAuthStateChanged((user) => {
+        if (user.refreshToken !== token) {
+          // возвращаем пользователя на страницу авторизации с помощью setAuth = false
+          dispatch({ type: 'RESET_STORE' })
+        }
+      })
+    } catch (e) {
+      console.log(e)
+      throw Error('Ошибка в проверке токена: ' + e)
+    }
   }
 
   useEffect(() => {
