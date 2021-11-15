@@ -106,7 +106,16 @@ const HoomRoom = () => {
       chatStatus.start = snapshot.val()
     })
 
-    console.log(chatStatus)
+    for (const key in chatStatus) {
+      if (!Array.isArray(chatStatus[key])) {
+        const wrapped = []
+        for (const nestedKey in chatStatus[key]) {
+          // wrapped.push(chatStatus[key][nestedKey])
+          wrapped[nestedKey] = (chatStatus[key][nestedKey])
+        }
+        chatStatus[key] = wrapped
+      }
+    }
 
     setLengthDialogs(prevState => ({
       ...prevState,
@@ -119,20 +128,43 @@ const HoomRoom = () => {
     setFilteredMessages(chatStatus)
   }
 
-  useEffect(() => {
-    const checkToken = async () => {
-      await firebase.auth().onAuthStateChanged((user) => {
-        if (user.refreshToken !== token) {
-          // возвращаем пользователя на страницу авторизации с помощью setAuth = false
-          dispatch({ type: 'RESET_STORE' })
-        }
-      })
-    }
+  const checkToken = async () => {
+    await firebase.auth().onAuthStateChanged((user) => {
+      if (user.refreshToken !== token) {
+        // возвращаем пользователя на страницу авторизации с помощью setAuth = false
+        dispatch({ type: 'RESET_STORE' })
+      }
+    })
+  }
 
+  useEffect(() => {
     checkToken()
     getData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const addDialogToActive = (dialog) => {
+    // console.log(dialog)
+
+    setActiveDialog(dialog)
+    setActiveTab('active')
+
+    setDialogs(prevState => ({
+      ...prevState,
+      active: [...prevState.active, dialog.message]
+    }))
+    setFilteredMessages(prevState => ({
+      ...prevState,
+      active: [...prevState.active, dialog.message]
+    }))
+
+    setLengthDialogs(prevState => ({
+      ...prevState,
+      active: prevState.active + 1
+    }))
+
+    // debugger
+  }
 
   const handleShowProfile = () => setIsOpen(prevState => !prevState)
 
@@ -183,7 +215,6 @@ const HoomRoom = () => {
   }
 
   const handlerSetActiveDialog = (e) => {
-    console.log(e)
     setActiveDialog(e)
 
     if (activeDialog.index === e.index) {
@@ -260,29 +291,25 @@ const HoomRoom = () => {
                     useWindow={false}
                     initialLoad={false}
                     // loadMore={() => fetchMoreData(tabPane.status)}
-                    loader={<div className='loader' style={{ clear: 'both' }} key={0}>Loading ... </div>}
+                    // loader={<div className='loader' style={{ clear: 'both' }} key={0}>Loading ... </div>}
                   >
-                    {/* eslint-disable-next-line array-callback-return */}
-                    {filteredMessages[tabPane.status].map((message, index) => {
-                      return (
-                      // eslint-disable-next-line react/jsx-key
-                        <>
-                          <MessageItem
-                            key={index}
-                            avatar={message.avatar}
-                            name={message.name}
-                            date={message.messages[0].timestamp}
-                            message={message.messages[0].content}
-                            onClick={() =>
-                              handlerSetActiveDialog({
-                                status: tabPane.status,
-                                index,
-                                message
-                              })}
-                          />
-                        </>
-                      )
-                    })}
+                    {filteredMessages[tabPane.status].length === 0
+                      ? <h5>Список сообщений пуст</h5>
+                      : filteredMessages[tabPane.status].map((message, index) => (
+                        <MessageItem
+                          key={index}
+                          avatar={message.avatar}
+                          name={message.name}
+                          date={message.messages[0].timestamp}
+                          message={message.messages[0].content}
+                          onClick={() =>
+                            handlerSetActiveDialog({
+                              status: tabPane.status,
+                              index,
+                              message
+                            })}
+                        />
+                      ))}
                   </InfiniteScroll>
                 </TabPane>
               ))}
@@ -292,7 +319,7 @@ const HoomRoom = () => {
           <div className='HomePage--item MainPanel'>
             {isOpenDialog
               ? (
-                <Dialog obj={activeDialog} key={activeDialog.index} />
+                <Dialog obj={activeDialog} key={activeDialog.index} transferToActive={addDialogToActive} />
                 )
               : (
                 <Result
