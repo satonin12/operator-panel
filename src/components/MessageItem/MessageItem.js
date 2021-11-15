@@ -2,10 +2,16 @@ import React from 'react'
 
 import './index.scss'
 import Time from '../Time/Time'
+import classNames from 'classnames'
 
-const MessageItem = ({ avatar, name, date, message, onClick }) => {
+const MessageItem = ({ index, avatar, name, date, message, onClick, isSelected = false }) => {
   return (
-    <div className='Message' onClick={onClick}>
+    <div
+      className={classNames('Message', {
+        active: isSelected === index
+      })}
+      onClick={onClick}
+    >
       <div className='MessageItem MessageItem--Avatar'>
         <img
           src={avatar}
