@@ -272,7 +272,7 @@ const HoomRoom = () => {
               </div>
             </div>
 
-            <Tabs defaultActiveKey={activeTab} size='small' centered type='line' onChange={(e) => setActiveTab(e)}>
+            <Tabs defaultActiveKey={activeTab} activeKey={activeTab} size='small' centered type='line' onChange={(e) => setActiveTab(e)}>
               {tabPanelArray.map((tabPane) => (
                 <TabPane
                   tab={
