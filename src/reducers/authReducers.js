@@ -4,44 +4,39 @@ import {
   CHECKOUT_REQUEST,
   CHECKOUT_SUCCESS, RESET_STORE,
   SET_AUTH, SET_TOKEN
-} from '../actions'
+} from '../actions/authAction'
 
 const initialState = {
   fetching: false,
   error: null,
   user: null,
-  createUser: null,
   isAuth: false,
   token: null
 }
 
-export function reducer (state = initialState, action) {
+export function authReducer (state = initialState, action) {
   switch (action.type) {
     case CHECKOUT_REQUEST:
-      return { ...state, fetching: true, createUser: null, error: null }
+      return {
+        ...state,
+        fetching: true
+      }
     case CHECKOUT_SUCCESS:
       return {
         ...state,
-        fetching: true,
-        createUser: null,
-        user: action.user,
-        error: null
+        fetching: false,
+        user: action.user
       }
     case CHECKOUT_FAILURE:
       return {
         ...state,
         fetching: false,
-        createUser: null,
-        user: null,
         error: action.error
       }
     case CHECKOUT_REGISTRATION_REQUEST:
       return {
         ...state,
-        fetching: false,
-        createUser: action,
-        user: action,
-        error: null
+        user: action
       }
     case SET_AUTH:
       return {

@@ -22,7 +22,7 @@ import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
 
 import './index.scss'
 
-const startTabicon = <MailTwoTone twoToneColor='#f5222d' />
+const startTabIcon = <MailTwoTone twoToneColor='#f5222d' />
 const activeTabIcon = <HomeTwoTone twoToneColor='#585FEB' />
 const completeTabIcon = <CheckSquareTwoTone twoToneColor='#7FEB8F' />
 const saveTabIcon = <SaveTwoTone twoToneColor='#EBE097' />
@@ -31,7 +31,7 @@ const tabPanelArray = [
   {
     status: 'start',
     key: 0,
-    componentIcon: startTabicon,
+    componentIcon: startTabIcon,
     text: 'Очередь'
   },
   {
@@ -57,92 +57,25 @@ const tabPanelArray = [
 const HoomRoom = () => {
   // * Variable declaration block ======================================================================================
 
-  const db = firebase.database()
-
+  let clicked = '' // отслеживаем куда именно нажал пользователь в компоненту MessageItem (на сам диалог или кнопку "Сохранить"/"Удалить")
   const hasMore = true
   const { TabPane } = Tabs
-  const dispatch = useDispatch()
-  const { token } = useSelector((state) => state)
-  let clicked = '' // отслеживаем куда именно нажал пользователь в компоненту MessageItem (на сам диалог или кнопку "Сохранить"/"Удалить")
 
+  const dispatch = useDispatch()
+  const { token } = useSelector((state) => state.auth)
+  const { dialogs, filteredMessages, lengthDialogs } = useSelector((state) => state.dialog)
+
+  // нижние 5 состояния не сохраняем в dispatch т.к не хотим чтобы диалоги и вкладки оставались открытыми, они будут открыватся по умолчанию
+  // ! они есть в dispatch так что при желании их можно будет оставлять открытыми даже после перезагрузки
   const [isOpen, setIsOpen] = useState(false) // открыть-закрыть окно профиля
   const [isSelected, setIsSelected] = useState({}) // подсвечивать диалог, при его выборе
-  const [dialogs, setDialogs] = useState({
-    active: [],
-    complete: [],
-    save: [],
-    start: []
-  })
-  const [lengthDialogs, setLengthDialogs] = useState({
-    active: 0,
-    complete: 0,
-    save: 0,
-    start: 0
-  }) // понадобится позже при пагинации диалогов
-  const [filteredMessages, setFilteredMessages] = useState({
-    active: [],
-    complete: [],
-    save: [],
-    start: []
-  }) // состояние для отфильтрованные сообщений
-
   const [activeTab, setActiveTab] = useState('start')
   const [activeDialog, setActiveDialog] = useState({})
   const [isOpenDialog, setIsOpenDialog] = useState(false) // состояние для определения открыт ли диалог или нет
 
   // ? Function declaration block ======================================================================================
 
-  const getData = async () => {
-    const chatStatus = {
-      active: [],
-      complete: [],
-      save: [],
-      start: []
-    }
-
-    try {
-      // TODO: after react-infinitive-scroll add .limitToFirst(3)
-      await db.ref('chat/active/').once('value', (snapshot) => {
-        chatStatus.active = snapshot.val()
-      })
-
-      await db.ref('chat/complete/').once('value', (snapshot) => {
-        chatStatus.complete = snapshot.val()
-      })
-
-      await db.ref('chat/save/').once('value', (snapshot) => {
-        chatStatus.save = snapshot.val()
-      })
-
-      await db.ref('chat/start/').once('value', (snapshot) => {
-        chatStatus.start = snapshot.val()
-      })
-    } catch (e) {
-      console.log(e)
-      throw Error('Ошибка в получении данных с firebase: ' + e)
-    }
-
-    for (const key in chatStatus) {
-      if (!Array.isArray(chatStatus[key])) {
-        const wrapped = []
-        for (const nestedKey in chatStatus[key]) {
-          // wrapped.push(chatStatus[key][nestedKey])
-          wrapped[nestedKey] = chatStatus[key][nestedKey]
-        }
-        chatStatus[key] = wrapped
-      }
-    }
-
-    setLengthDialogs((prevState) => ({
-      ...prevState,
-      active: chatStatus.active.length,
-      complete: chatStatus.complete.length,
-      save: chatStatus.save.length,
-      start: chatStatus.start.length
-    }))
-    setDialogs(chatStatus)
-    setFilteredMessages(chatStatus)
-  }
+  const getData = () => (dispatch({ type: 'GET_DIALOGS_REQUEST' }))
 
   const checkToken = async () => {
     try {
@@ -221,51 +154,20 @@ const HoomRoom = () => {
   const addDialogToActive = (dialog) => {
     setActiveTab('active')
     setActiveDialog(dialog)
-
-    setDialogs((prevState) => ({
-      ...prevState,
-      active: [...prevState.active, dialog.message]
-    }))
-    setFilteredMessages((prevState) => ({
-      ...prevState,
-      active: [...prevState.active, dialog.message]
-    }))
-    setLengthDialogs((prevState) => ({
-      ...prevState,
-      active: prevState.active + 1
-    }))
-
     setIsSelected({ index: dialog.index, tab: 'active' })
   }
 
   const addDialogToSave = (dialog) => {
     setActiveTab('save')
     setActiveDialog(dialog)
-
-    setDialogs((prevState) => ({
-      ...prevState,
-      save: [...prevState.save, dialog.message]
-    }))
-    setFilteredMessages((prevState) => ({
-      ...prevState,
-      save: [...prevState.save, dialog.message]
-    }))
-    setLengthDialogs((prevState) => ({
-      ...prevState,
-      save: prevState.save + 1
-    }))
-
     setIsSelected({ index: dialog.index, tab: 'save' })
   }
 
   // TODO: обернуть в useCallback
   const transferDialogToSave = (obj) => {
     clicked = 'Button'
-    // переводим диалог в сохраненные
-    transferDialog(obj)
+    transferDialog(obj) // переводим диалог в сохраненные
   }
-
-  const handleShowProfile = () => setIsOpen((prevState) => !prevState)
 
   const handlerSearch = (e) => {
     const value = e.target.value.toLowerCase()
@@ -286,10 +188,13 @@ const HoomRoom = () => {
       )
     })
 
-    setFilteredMessages((prevState) => ({
-      ...prevState,
-      [activeTab]: filteredData
-    }))
+    dispatch({
+      type: 'SET_FILTERED_DIALOGS',
+      payload: {
+        tab: activeTab,
+        dialogs: filteredData
+      }
+    })
   }
 
   /* Различия использования между debounce & throttle
@@ -312,17 +217,21 @@ const HoomRoom = () => {
 
   const handlerExit = () => {
     const answer = window.confirm('Вы точно хотите выйти ?')
-    if (answer) dispatch({ type: 'RESET_STORE' })
+    if (answer) {
+      // TODO: добавить общий сброс store
+      dispatch({ type: 'RESET_STORE' })
+      dispatch({ type: 'RESET_DIALOGS_STORE' })
+    }
   }
 
   // TODO: поправить баг при клике на тот же диалог
   const handlerSetActiveDialog = (e) => {
     if (clicked !== 'Button') {
-      console.log('нажали на кнопочку перейти в диалог')
       setActiveDialog(e)
       setIsOpenDialog(true)
+
       if (activeDialog.index === e.index) setIsOpenDialog(false)
-      if (activeTab === e.status) { setIsSelected({ index: e.index, tab: activeTab }) }
+      if (activeTab === e.status) setIsSelected({ index: e.index, tab: activeTab })
     }
     // reset
     clicked = ''
@@ -401,34 +310,37 @@ const HoomRoom = () => {
                     hasMore={hasMore}
                     useWindow={false}
                     initialLoad={false}
-                    // loadMore={() => fetchMoreData(tabPane.status)}
-                    // loader={<div className='loader' style={{ clear: 'both' }} key={0}>Loading ... </div>}
                   >
                     {filteredMessages[tabPane.status].length === 0
                       ? (
                         <h5>Список сообщений пуст</h5>
                         )
                       : (
-                          filteredMessages[tabPane.status].map((message, index) => (
-                            <MessageItem
-                              key={index}
-                              index={index}
-                              avatar={message.avatar}
-                              name={message.name}
-                              date={message.messages[0].timestamp}
-                              message={message.messages[0].content}
-                              isSelected={isSelected}
-                              activeTab={activeTab}
-                              handlerButton={() =>
-                                transferDialogToSave({ status: tabPane.status, index, dialog: message })}
-                              onClick={() =>
-                                handlerSetActiveDialog({
-                                  status: tabPane.status,
-                                  index,
-                                  message
-                                })}
-                            />
-                          ))
+                        // eslint-disable-next-line array-callback-return
+                          filteredMessages[tabPane.status].map((message, index) => {
+                            if (message !== null) {
+                              return (
+                                <MessageItem
+                                  key={index}
+                                  index={index}
+                                  avatar={message.avatar}
+                                  name={message.name}
+                                  date={message.messages[0].timestamp}
+                                  message={message.messages[0].content}
+                                  isSelected={isSelected}
+                                  activeTab={activeTab}
+                                  handlerButton={() =>
+                                    transferDialogToSave({ status: tabPane.status, index, dialog: message })}
+                                  onClick={() =>
+                                    handlerSetActiveDialog({
+                                      status: tabPane.status,
+                                      index,
+                                      message
+                                    })}
+                                />
+                              )
+                            }
+                          })
                         )}
                   </InfiniteScroll>
                 </TabPane>
@@ -449,7 +361,7 @@ const HoomRoom = () => {
                   icon={<SmileOutlined />}
                   title='Выберите диалог чтобы начать!'
                   extra={
-                    <Button onClick={handleShowProfile}>
+                    <Button onClick={() => setIsOpen((prevState) => !prevState)}>
                       Открыть окно профиля
                     </Button>
                 }
@@ -462,9 +374,9 @@ const HoomRoom = () => {
               fade={false}
               direction='end'
               isOpen={isOpen}
-              toggle={handleShowProfile}
+              toggle={() => setIsOpen((prevState) => !prevState)}
             >
-              <OffcanvasHeader toggle={handleShowProfile}>
+              <OffcanvasHeader toggle={() => setIsOpen((prevState) => !prevState)}>
                 <p>Avatar image</p>
                 <p>Author name</p>
               </OffcanvasHeader>

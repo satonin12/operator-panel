@@ -3,6 +3,8 @@ import { takeLatest, put, call, all } from 'redux-saga/effects'
 import rsf from '../firebase'
 import { toast } from 'react-toastify'
 
+// * auth Saga's
+
 function * signIn (action) {
   try {
     const data = yield call(
@@ -105,10 +107,46 @@ function * forgotPassword (action) {
   }
 }
 
+// * dialogs Saga's
+
+function * getDialogs () {
+  try {
+    const tmpDialogs = {
+      active: [],
+      complete: [],
+      start: [],
+      save: []
+    }
+
+    tmpDialogs.active = yield call(rsf.database.read, 'chat/active/')
+    tmpDialogs.complete = yield call(rsf.database.read, 'chat/complete/')
+    tmpDialogs.start = yield call(rsf.database.read, 'chat/start/')
+
+    const length = {
+      active: tmpDialogs.active.length,
+      complete: tmpDialogs.complete.length,
+      start: tmpDialogs.start.length,
+      save: 0
+    }
+
+    Object.keys(tmpDialogs).filter(item => {
+      return item !== null
+    })
+
+    yield put({ type: 'GET_DIALOGS_SUCCESS', payload: { dialogs: tmpDialogs, length } })
+  } catch (e) {
+    const errorMessage = { code: e.code, message: e.message }
+    console.log(errorMessage)
+    yield put({ type: 'GET_DIALOGS_FAILURE', error: errorMessage })
+  }
+}
+
 export default function * rootSaga () {
   yield all([
     takeLatest('CHECKOUT_REQUEST', signIn),
     takeLatest('CHECKOUT_REGISTRATION_REQUEST', signUp),
-    takeLatest('FORGOT_PASSWORD_REQUEST', forgotPassword)
+    takeLatest('FORGOT_PASSWORD_REQUEST', forgotPassword),
+
+    takeLatest('GET_DIALOGS_REQUEST', getDialogs)
   ])
 }
