@@ -12,7 +12,7 @@ const LabelInput = ({
   ...props
 }) => {
   return (
-    <div className="LabelInput">
+    <div className='LabelInput'>
       <Input type={type} name={name} required={required} {...props} />
       <label>{label}</label>
     </div>
