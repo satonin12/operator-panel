@@ -6,11 +6,16 @@
   border: 1px solid #0000ff69;
   border-radius: 10px;
   cursor: pointer;
-
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
+
+  .wrapper {
+    width: auto;
+    height: 100%;
+
+  }
 
   .MessageItem {
     width: 100%;
@@ -35,7 +40,7 @@
       align-items: center;
       justify-content: center;
 
-      width: 210px;
+      width: 235px;
     }
     &--Name {
       font-size: 18px;
@@ -46,6 +51,14 @@
       text-overflow: ellipsis; /* Добавляем многоточие */
 
     }
+    &--Block {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      width: auto;
+    }
     &--Time {
       width: 120px;
       height: inherit;
@@ -54,13 +67,32 @@
       justify-content: center;
       align-items: center;
     }
+    &--Button {
+      width: auto;
+      margin: 5px 0;
+      color: white;
+
+      button {
+        width: 100px;
+        height: 24px;
+        font-size: 10px;
+        padding: 3px;
+      }
+
+      &:hover {
+        button {
+          //background-color: #1890FF;
+          background-color: #9e90ff45;
+        }
+      }
+    }
   }
 
   &.active {
     background-color: #1890ff45;
   }
 
-  &:hover {
+  &:not(.active):hover {
     background-color: #9e90ff45;
   }
 }

@@ -1,6 +1,8 @@
+//noinspection ALL
 .Dialog {
-  width: auto;
-  width: -moz-available;
+  width: 100%;
+  width: -moz-available;          /* For Mozzila */
+  width: -webkit-fill-available;  /* For Chrome */
   height: inherit;
 
   display: flex;
@@ -14,8 +16,9 @@
   }
 
   .HeaderBlock {
-    width: auto;
-    width: -moz-available;
+    width: 100%;
+    width: -moz-available;          /* For Mozzila */
+    width: -webkit-fill-available;  /* For Chrome */
     height: 100px;
     box-shadow: 5px 5px 16px 2px rgba(0, 122, 255, 0.31);
 
@@ -76,14 +79,16 @@
   }
 
   .FooterBlock {
-    width: auto;
-    width: -moz-available;
-    height: 150px;
+    width: 100%;
+    width: -moz-available;          /* For Mozzila */
+    width: -webkit-fill-available;  /* For Chrome */
+    height: 110px;
     background-color: #EBEBEB;
 
     .AnswerBlock {
-      padding: 15px;
-      margin: 5px;
+      padding: 15px 15px 25px 15px;
+      margin-bottom: 30px;
+      height: inherit;
 
       display: flex;
       justify-content: center;
@@ -91,17 +96,23 @@
 
       input {
         width: 100%;
-        width: -moz-available;
+        width: -moz-available;          /* For Mozzila */
+        width: -webkit-fill-available;  /* For Chrome */
       }
       select {
-        width: 100%;
         height: 30px;
-        width: -moz-available;
+        width: 100%;
+        width: -moz-available;          /* For Mozzila */
+        width: -webkit-fill-available;  /* For Chrome */
         border: 2px solid #1890FF;
         background-color: #EBEBEB;
       }
       button {
         width: auto;
+      }
+
+      & * {
+        margin: 0 5px;
       }
     }
 

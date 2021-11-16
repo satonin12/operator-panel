@@ -1,13 +1,15 @@
 form {
   .FormContent {
+    //noinspection ALL
     .formLinks {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
       align-items: center;
 
-      width: auto;
-      width: -moz-available;
+      width: 100%;
+      width: -moz-available;          /* For Mozzila */
+      width: -webkit-fill-available;  /* For Chrome */
 
       margin-top: 30px;
 
@@ -50,8 +52,9 @@ form {
           flex-direction: row;
           align-items: flex-start;
           justify-content: inherit;
-          width: auto;
-          width: -moz-available;
+          width: 100%;
+          width: -moz-available;          /* For Mozzila */
+          width: -webkit-fill-available;  /* For Chrome */
         }
 
         img {

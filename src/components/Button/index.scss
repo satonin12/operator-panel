@@ -1,6 +1,8 @@
+//noinspection CssInvalidPropertyValue
 .Button {
-  width: auto;
-  width: -moz-available;
+  width: 100%;
+  width: -moz-available;          /* For Mozzila */
+  width: -webkit-fill-available;  /* For Chrome */
   border-radius: 2px;
   font-size: 14px;
   padding: 4px 15px;
