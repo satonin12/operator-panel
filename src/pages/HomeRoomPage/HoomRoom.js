@@ -7,18 +7,18 @@ import {
   SmileOutlined,
   MailTwoTone
 } from '@ant-design/icons'
-import { useDispatch, useSelector } from 'react-redux'
-import debounce from 'lodash.debounce'
+import firebase from 'firebase'
 // import throttle from 'lodash.throttle'
+import debounce from 'lodash.debounce'
+import { useDispatch, useSelector } from 'react-redux'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
-import Button from '../../components/Button/Button'
-import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
 import { Offcanvas, OffcanvasBody, OffcanvasHeader } from 'reactstrap'
-import MessageItem from '../../components/MessageItem/MessageItem'
+import Button from '../../components/Button/Button'
 import Dialog from '../../components/Dialog/Dialog'
+import MessageItem from '../../components/MessageItem/MessageItem'
 
-import firebase from 'firebase'
+import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
 
 import './index.scss'
 
@@ -63,18 +63,28 @@ const HoomRoom = () => {
   const { TabPane } = Tabs
   const dispatch = useDispatch()
   const { token } = useSelector((state) => state)
+  let clicked = '' // отслеживаем куда именно нажал пользователь в компоненту MessageItem (на сам диалог или кнопку "Сохранить"/"Удалить")
 
   const [isOpen, setIsOpen] = useState(false) // открыть-закрыть окно профиля
-  const [isSelected, setIsSelected] = useState({ }) // подсвечивать диалог, при его выборе
-  const [dialogs, setDialogs] = useState({ active: [], complete: [], save: [], start: [] })
-  const [filteredMessages, setFilteredMessages] = useState({ active: [], complete: [], save: [], start: [] }) // состояние для отфильтрованные сообщений
-  // понадобится позже при пагинации диалогов
+  const [isSelected, setIsSelected] = useState({}) // подсвечивать диалог, при его выборе
+  const [dialogs, setDialogs] = useState({
+    active: [],
+    complete: [],
+    save: [],
+    start: []
+  })
   const [lengthDialogs, setLengthDialogs] = useState({
     active: 0,
     complete: 0,
     save: 0,
     start: 0
-  })
+  }) // понадобится позже при пагинации диалогов
+  const [filteredMessages, setFilteredMessages] = useState({
+    active: [],
+    complete: [],
+    save: [],
+    start: []
+  }) // состояние для отфильтрованные сообщений
 
   const [activeTab, setActiveTab] = useState('start')
   const [activeDialog, setActiveDialog] = useState({})
@@ -117,13 +127,13 @@ const HoomRoom = () => {
         const wrapped = []
         for (const nestedKey in chatStatus[key]) {
           // wrapped.push(chatStatus[key][nestedKey])
-          wrapped[nestedKey] = (chatStatus[key][nestedKey])
+          wrapped[nestedKey] = chatStatus[key][nestedKey]
         }
         chatStatus[key] = wrapped
       }
     }
 
-    setLengthDialogs(prevState => ({
+    setLengthDialogs((prevState) => ({
       ...prevState,
       active: chatStatus.active.length,
       complete: chatStatus.complete.length,
@@ -148,25 +158,79 @@ const HoomRoom = () => {
     }
   }
 
+  // TODO: объеденить в одну функцию с checkDialogOperatorId из Dialog.js
+  const transferDialog = async ({ status, index, dialog }) => {
+    const newObject = {
+      ...dialog,
+      status: 'save'
+    }
+    // переводим диалог в сохранненые
+    // (средствами realtime database firebase) - это означает удалить данную запись полностью и создать новую в путе chat/save/${LastIndex} + 1 с новым status
+    let lengthSaveDialogs = null
+    // создаем запись
+    // для этого узнаем длину последнего элемента в сохраненных чатах
+    await firebase
+      .database()
+      .ref('chat/save/')
+      .limitToLast(1)
+      .once('value', (snapshot) => {
+        lengthSaveDialogs = Number(Object.keys(snapshot.val())[0]) + 1
+      })
+
+    if (lengthSaveDialogs) {
+      // TODO: id оператора брать из контекста после входа
+      await firebase
+        .database()
+        .ref(`chat/save/${lengthSaveDialogs}`)
+        .set(newObject, (error) => {
+          if (error) {
+            console.log(error)
+          } else {
+            console.log('добавление прошло удачно - смотри firebase')
+          }
+        })
+    } else {
+      throw Error('Ошибка lengthActiveDialogs!!!')
+    }
+
+    const newObjectFromDialogs = {
+      index: lengthSaveDialogs,
+      message: newObject,
+      status: 'save'
+    }
+    // ! удаляем запись из активных
+    // await firebase
+    //   .database()
+    //   .ref(`chat/${status}/${index}`)
+    //   .remove((error) => {
+    //     console.log(error)
+    //     console.log('вроде как удалили - смотри firebase')
+    //   })
+    //  после всего этого нужно перерендерить компонент homepage, чтобы текущий диалог встал в карточку 'active'
+    //  для этого вручную кладём текущий dialogItem в массив active
+    addDialogToSave(newObjectFromDialogs)
+  }
+
   useEffect(() => {
     checkToken()
     getData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
   }, [])
 
+  // TODO: объеденить в одну функцию нижние две
   const addDialogToActive = (dialog) => {
     setActiveTab('active')
     setActiveDialog(dialog)
 
-    setDialogs(prevState => ({
+    setDialogs((prevState) => ({
       ...prevState,
       active: [...prevState.active, dialog.message]
     }))
-    setFilteredMessages(prevState => ({
+    setFilteredMessages((prevState) => ({
       ...prevState,
       active: [...prevState.active, dialog.message]
     }))
-    setLengthDialogs(prevState => ({
+    setLengthDialogs((prevState) => ({
       ...prevState,
       active: prevState.active + 1
     }))
@@ -174,16 +238,45 @@ const HoomRoom = () => {
     setIsSelected({ index: dialog.index, tab: 'active' })
   }
 
-  const handleShowProfile = () => setIsOpen(prevState => !prevState)
+  const addDialogToSave = (dialog) => {
+    setActiveTab('save')
+    setActiveDialog(dialog)
+
+    setDialogs((prevState) => ({
+      ...prevState,
+      save: [...prevState.save, dialog.message]
+    }))
+    setFilteredMessages((prevState) => ({
+      ...prevState,
+      save: [...prevState.save, dialog.message]
+    }))
+    setLengthDialogs((prevState) => ({
+      ...prevState,
+      save: prevState.save + 1
+    }))
+
+    setIsSelected({ index: dialog.index, tab: 'save' })
+  }
+
+  // TODO: обернуть в useCallback
+  const transferDialogToSave = (obj) => {
+    clicked = 'Button'
+    // переводим диалог в сохраненные
+    transferDialog(obj)
+  }
+
+  const handleShowProfile = () => setIsOpen((prevState) => !prevState)
 
   const handlerSearch = (e) => {
     const value = e.target.value.toLowerCase()
 
     const filteredData = dialogs[activeTab].filter((dialog) => {
       // получить здесь массив всех сообщений из item с проверкой на включение value
-      const entryValueInMessages = Object.values(dialog.messages).map((messages) => {
-        return messages.content.toLowerCase().includes(value)
-      }).some(e => e)
+      const entryValueInMessages = Object.values(dialog.messages)
+        .map((messages) => {
+          return messages.content.toLowerCase().includes(value)
+        })
+        .some((e) => e)
 
       return (
         // поиск по имени
@@ -193,22 +286,22 @@ const HoomRoom = () => {
       )
     })
 
-    setFilteredMessages(prevState => ({
+    setFilteredMessages((prevState) => ({
       ...prevState,
       [activeTab]: filteredData
     }))
   }
 
   /* Различия использования между debounce & throttle
-    * Наша функцию debouncedHandlerSearch вызовется несколько раз, но она вызовет функцию handleSearch лишь раз после того, как закончится wait, который мы передаем вторым параметром debounce -> (_, wait: 300)
-    * её будем использовать для поиска необходимого нам сообщения, дабы не фильтровать сообщения каждый раз при вводе её пользователем
-    *
-    * Функцию throttledHandlerSearch используем для связи с сервером т.к. она вызовется не более чем одного раза в заданное время ожидания (пока что не требуется)
-    *
-    * обе функции требуют, чтобы отлаженная функия должна оставаться неизменной -> для этого оборачиваем в useMemo
-  */
+   * Наша функцию debouncedHandlerSearch вызовется несколько раз, но она вызовет функцию handleSearch лишь раз после того, как закончится wait, который мы передаем вторым параметром debounce -> (_, wait: 300)
+   * её будем использовать для поиска необходимого нам сообщения, дабы не фильтровать сообщения каждый раз при вводе её пользователем
+   *
+   * Функцию throttledHandlerSearch используем для связи с сервером т.к. она вызовется не более чем одного раза в заданное время ожидания (пока что не требуется)
+   *
+   * обе функции требуют, чтобы отлаженная функия должна оставаться неизменной -> для этого оборачиваем в useMemo
+   */
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line
   const debouncedHandlerSearch = useMemo(() => {
     return debounce(handlerSearch, 500)
   })
@@ -222,16 +315,17 @@ const HoomRoom = () => {
     if (answer) dispatch({ type: 'RESET_STORE' })
   }
 
+  // TODO: поправить баг при клике на тот же диалог
   const handlerSetActiveDialog = (e) => {
-    setActiveDialog(e)
-    if (activeTab === e.status) {
-      console.log('совпадает')
-      setIsSelected({ index: e.index, tab: activeTab })
+    if (clicked !== 'Button') {
+      console.log('нажали на кнопочку перейти в диалог')
+      setActiveDialog(e)
+      setIsOpenDialog(true)
+      if (activeDialog.index === e.index) setIsOpenDialog(false)
+      if (activeTab === e.status) { setIsSelected({ index: e.index, tab: activeTab }) }
     }
-    if (activeDialog.index === e.index) {
-      setIsOpenDialog(false)
-    }
-    setIsOpenDialog(true)
+    // reset
+    clicked = ''
   }
 
   const fetchMoreData = async (status = 'active') => {
@@ -239,19 +333,16 @@ const HoomRoom = () => {
     // await firebase.database().ref('chat/active/').limitToFirst(lengthDialogs.active + 5).once('value', (snapshot) => {
     //   moreStatusDialog = snapshot.val()
     // })
-
     // setLengthDialogs(prevState => ({
     //   ...prevState,
     //   [status]: prevState[status] + 1
     // }))
     //
     // hasMore = false
-
     // setDialogs(prevState => [
     //   ...prevState,
     //   [status]: prevState[status].moreStatusDialog
     // ])
-
     // setFilteredMessages(prevState => [
     //   ...prevState,
     //   [status]: prevState[status].moreStatusDialog
@@ -268,22 +359,31 @@ const HoomRoom = () => {
             <div className='TitleBlock'>
               <div className='TitleBlock--Name'>operator@mail.ru</div>
               <div className='TitleBlock--Exit'>
-                <Button styleButton='primary' onClick={handlerExit}>Выйти</Button>
+                <Button styleButton='primary' onClick={handlerExit}>
+                  Выйти
+                </Button>
               </div>
             </div>
             <div className='SearchBlock'>
               <div className='SearchBlock--Search'>
                 <LabelInput
-                  label='Search here...'
+                  label='Search here ...'
                   name='searchUser'
                   type='text'
-                  placeholder=''
+                  placeholder=' '
                   onChange={debouncedHandlerSearch}
                 />
               </div>
             </div>
 
-            <Tabs defaultActiveKey={activeTab} activeKey={activeTab} size='small' centered type='line' onChange={(e) => setActiveTab(e)}>
+            <Tabs
+              defaultActiveKey={activeTab}
+              activeKey={activeTab}
+              size='small'
+              centered
+              type='line'
+              onChange={(e) => setActiveTab(e)}
+            >
               {tabPanelArray.map((tabPane) => (
                 <TabPane
                   tab={
@@ -305,41 +405,54 @@ const HoomRoom = () => {
                     // loader={<div className='loader' style={{ clear: 'both' }} key={0}>Loading ... </div>}
                   >
                     {filteredMessages[tabPane.status].length === 0
-                      ? <h5>Список сообщений пуст</h5>
-                      : filteredMessages[tabPane.status].map((message, index) => (
-                        <MessageItem
-                          key={index}
-                          index={index}
-                          avatar={message.avatar}
-                          name={message.name}
-                          date={message.messages[0].timestamp}
-                          message={message.messages[0].content}
-                          isSelected={isSelected}
-                          activeTab={activeTab}
-                          onClick={() =>
-                            handlerSetActiveDialog({
-                              status: tabPane.status,
-                              index,
-                              message
-                            })}
-                        />
-                      ))}
+                      ? (
+                        <h5>Список сообщений пуст</h5>
+                        )
+                      : (
+                          filteredMessages[tabPane.status].map((message, index) => (
+                            <MessageItem
+                              key={index}
+                              index={index}
+                              avatar={message.avatar}
+                              name={message.name}
+                              date={message.messages[0].timestamp}
+                              message={message.messages[0].content}
+                              isSelected={isSelected}
+                              activeTab={activeTab}
+                              handlerButton={() =>
+                                transferDialogToSave({ status: tabPane.status, index, dialog: message })}
+                              onClick={() =>
+                                handlerSetActiveDialog({
+                                  status: tabPane.status,
+                                  index,
+                                  message
+                                })}
+                            />
+                          ))
+                        )}
                   </InfiniteScroll>
                 </TabPane>
               ))}
             </Tabs>
-
           </div>
           <div className='HomePage--item MainPanel'>
             {isOpenDialog
               ? (
-                <Dialog obj={activeDialog} key={activeDialog.index} transferToActive={addDialogToActive} />
+                <Dialog
+                  obj={activeDialog}
+                  key={activeDialog.index}
+                  transferToActive={addDialogToActive}
+                />
                 )
               : (
                 <Result
                   icon={<SmileOutlined />}
                   title='Выберите диалог чтобы начать!'
-                  extra={<Button onClick={handleShowProfile}>Открыть окно профиля</Button>}
+                  extra={
+                    <Button onClick={handleShowProfile}>
+                      Открыть окно профиля
+                    </Button>
+                }
                 />
                 )}
           </div>

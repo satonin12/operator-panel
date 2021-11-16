@@ -3,8 +3,9 @@ import React from 'react'
 import './index.scss'
 import Time from '../Time/Time'
 import classNames from 'classnames'
+import Button from '../Button/Button'
 
-const MessageItem = ({ activeTab, index, avatar, name, date, message, onClick, isSelected = false }) => {
+const MessageItem = ({ activeTab, index, avatar, name, date, message, onClick, isSelected = false, handlerButton }) => {
   return (
     <div
       className={classNames('Message', {
@@ -30,8 +31,22 @@ const MessageItem = ({ activeTab, index, avatar, name, date, message, onClick, i
           {message}
         </div>
       </div>
-      <div className='MessageItem MessageItem--Time'>
-        <Time date={date} />
+      <div className='MessageItem MessageItem--Block'>
+        <div className='MessageItem MessageItem--Time'>
+          <Time date={date} />
+        </div>
+        {activeTab === 'save'
+          ? (
+            <div className='MessageItem MessageItem--Button'>
+              <Button>Удалить</Button>
+            </div>
+            )
+          : (
+              activeTab !== 'start' &&
+                <div className='MessageItem MessageItem--Button'>
+                  <Button onClick={() => handlerButton(message)}>Сохранить</Button>
+                </div>
+            )}
       </div>
     </div>
   )
