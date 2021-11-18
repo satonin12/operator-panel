@@ -245,7 +245,7 @@ const HoomRoom = () => {
     clicked = ''
   }
 
-  // TODO: пока что не используется, нужно большге времени чтобы правильно настроить пагинацию и react-infinitive-scrolle
+  // TODO: пока что не используется, нужно большге времени чтобы правильно настроить пагинацию и react-infinitive-scroll
   const fetchMoreData = async (status = 'active') => {
     // let moreStatusDialog
     // await firebase.database().ref('chat/active/').limitToFirst(lengthDialogs.active + 5).once('value', (snapshot) => {
