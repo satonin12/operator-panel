@@ -10,7 +10,7 @@ import firebase from 'firebase'
 
 const Dialog = ({ obj, key, transferToActive }) => {
   const status = obj.status
-  const index = obj.index
+  const index = obj.message.indexBefore || obj.index
 
   if (typeof index === 'undefined') { throw Error('ошибка индексации - in Dialog props') }
 

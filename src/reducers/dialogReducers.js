@@ -1,5 +1,6 @@
 import {
-  ADD_TO_SAVE,
+  ADD_DIALOG_TO_ACTIVE,
+  ADD_TO_SAVE, DELETE_FROM_SAVE,
   GET_DIALOGS_FAILURE,
   GET_DIALOGS_REQUEST,
   GET_DIALOGS_SUCCESS,
@@ -80,14 +81,39 @@ export function dialogReducer (state = initialState, action) {
         ...state,
         filteredMessages: {
           ...state.filteredMessages,
-          save: [...state.filteredMessages.save, action.payload.dialog],
-          [action.payload.status]: state.filteredMessages[action.payload.status].filter((_, index) => index !== action.payload.index)
+          save: [...state.filteredMessages.save, action.payload.dialog], // добавляем в сохраненных
+          [action.payload.status]: state.filteredMessages[action.payload.status].filter((_, index) => index !== action.payload.index) // убираем из активных
         }
         // dialogs: {
         //   ...state.filteredMessages,
         //   save: [...state.filteredMessages.save, action.payload.dialog],
         //   [action.payload.status]: state.filteredMessages[action.payload.status].filter((_, index) => index !== action.payload.index)
         // }
+      }
+    case DELETE_FROM_SAVE:
+      return {
+        ...state,
+        filteredMessages: {
+          ...state.filteredMessages,
+          save: state.filteredMessages.save.filter((_, index) => index !== action.payload.index), // убираем из сохраненных
+          [action.payload.dialog.status]: [...state.filteredMessages[action.payload.dialog.status], action.payload.dialog] // добавляем откуда взяли
+        }
+      }
+    case ADD_DIALOG_TO_ACTIVE :
+      return {
+        ...state,
+        // dialogs: {
+        //   ...state.dialogs,
+        //   active: [...state.dialogs.active, action.payload.dialog]
+        // },
+        filteredMessages: {
+          ...state.filteredMessages,
+          active: [...state.filteredMessages.active, action.payload]
+        },
+        lengthDialogs: {
+          ...state.lengthDialogs,
+          active: state.lengthDialogs.active + 1
+        }
       }
     case SET_SELECTED_DIALOG:
       return {

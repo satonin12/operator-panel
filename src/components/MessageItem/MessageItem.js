@@ -5,7 +5,7 @@ import Time from '../Time/Time'
 import classNames from 'classnames'
 import Button from '../Button/Button'
 
-const MessageItem = ({ activeTab, index, avatar, name, date, message, onClick, isSelected = false, handlerButton }) => {
+const MessageItem = ({ activeTab, index, avatar, name, date, message, onClick, isSelected = false, handlerTransferToSave, handlerDeleteInSave }) => {
   return (
     <div
       className={classNames('Message', {
@@ -38,13 +38,13 @@ const MessageItem = ({ activeTab, index, avatar, name, date, message, onClick, i
         {activeTab === 'save'
           ? (
             <div className='MessageItem MessageItem--Button'>
-              <Button>Удалить</Button>
+              <Button onClick={() => handlerDeleteInSave(message)}>Удалить</Button>
             </div>
             )
           : (
               activeTab !== 'start' &&
                 <div className='MessageItem MessageItem--Button'>
-                  <Button onClick={() => handlerButton(message)}>Сохранить</Button>
+                  <Button onClick={() => handlerTransferToSave(message)}>Сохранить</Button>
                 </div>
             )}
       </div>

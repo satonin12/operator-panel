@@ -152,6 +152,7 @@ const HoomRoom = () => {
   const addDialogToActive = (dialog) => {
     setActiveTab('active')
     setActiveDialog(dialog)
+    dispatch({ type: 'ADD_DIALOG_TO_ACTIVE', payload: dialog.message })
     setIsSelected({ index: dialog.index, tab: 'active' })
   }
 
@@ -164,10 +165,15 @@ const HoomRoom = () => {
   // TODO: обернуть в useCallback
   const transferDialogToSave = (obj) => {
     clicked = 'Button'
+    // добавляем индекс где стоял элемент раньше
+    obj.dialog.indexBefore = obj.index
     dispatch({ type: 'ADD_TO_SAVE', payload: obj })
-
     // TODO: пока что не используется, понадобится если будет сохранять вкладку save в firebase
     // transferDialog(obj) // переводим диалог в сохраненные
+  }
+
+  const removeDialogFromSave = (obj) => {
+    dispatch({ type: 'DELETE_FROM_SAVE', payload: obj })
   }
 
   const handlerSearch = (e) => {
@@ -233,6 +239,7 @@ const HoomRoom = () => {
 
       if (activeDialog.index === e.index) setIsOpenDialog(false)
       if (activeTab === e.status) setIsSelected({ index: e.index, tab: activeTab })
+      setIsSelected({ index: e.index, tab: activeTab })
     }
     // reset
     clicked = ''
@@ -258,7 +265,6 @@ const HoomRoom = () => {
     //   ...prevState,
     //   [status]: prevState[status].moreStatusDialog
     // ])
-    // debugger
   }
 
   // ! Component render block (return) ======================================================================================
@@ -321,7 +327,7 @@ const HoomRoom = () => {
                       : (
                         // eslint-disable-next-line array-callback-return
                           filteredMessages[tabPane.status].map((message, index) => {
-                            if (message !== null) {
+                            if (message !== null && typeof message !== 'undefined') {
                               return (
                                 <MessageItem
                                   key={index}
@@ -332,11 +338,13 @@ const HoomRoom = () => {
                                   message={message.messages[0].content}
                                   isSelected={isSelected}
                                   activeTab={activeTab}
-                                  handlerButton={() =>
+                                  handlerTransferToSave={() =>
                                     transferDialogToSave({ status: tabPane.status, index, dialog: message })}
+                                  handlerDeleteInSave={() =>
+                                    removeDialogFromSave({ status: tabPane.status, index, dialog: message })}
                                   onClick={() =>
                                     handlerSetActiveDialog({
-                                      status: tabPane.status,
+                                      status: message.status,
                                       index,
                                       message
                                     })}
