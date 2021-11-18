@@ -1,4 +1,5 @@
 import {
+  ADD_TO_SAVE,
   GET_DIALOGS_FAILURE,
   GET_DIALOGS_REQUEST,
   GET_DIALOGS_SUCCESS,
@@ -67,13 +68,26 @@ export function dialogReducer (state = initialState, action) {
           [action.payload.tab]: action.payload.dialogs
         }
       }
-      // return tmp
     case RESET_DIALOGS_STORE:
       return initialState
     case SET_PROFILE_OPEN:
       return {
         ...state,
         isOpen: action.payload
+      }
+    case ADD_TO_SAVE:
+      return {
+        ...state,
+        filteredMessages: {
+          ...state.filteredMessages,
+          save: [...state.filteredMessages.save, action.payload.dialog],
+          [action.payload.status]: state.filteredMessages[action.payload.status].filter((_, index) => index !== action.payload.index)
+        }
+        // dialogs: {
+        //   ...state.filteredMessages,
+        //   save: [...state.filteredMessages.save, action.payload.dialog],
+        //   [action.payload.status]: state.filteredMessages[action.payload.status].filter((_, index) => index !== action.payload.index)
+        // }
       }
     case SET_SELECTED_DIALOG:
       return {

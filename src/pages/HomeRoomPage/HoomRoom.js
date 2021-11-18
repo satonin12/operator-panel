@@ -17,7 +17,6 @@ import { Offcanvas, OffcanvasBody, OffcanvasHeader } from 'reactstrap'
 import Button from '../../components/Button/Button'
 import Dialog from '../../components/Dialog/Dialog'
 import MessageItem from '../../components/MessageItem/MessageItem'
-
 import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
 
 import './index.scss'
@@ -74,8 +73,7 @@ const HoomRoom = () => {
   const [isOpenDialog, setIsOpenDialog] = useState(false) // состояние для определения открыт ли диалог или нет
 
   // ? Function declaration block ======================================================================================
-
-  const getData = () => (dispatch({ type: 'GET_DIALOGS_REQUEST' }))
+  const getData = () => { dispatch({ type: 'GET_DIALOGS_REQUEST' }) }
 
   const checkToken = async () => {
     try {
@@ -166,7 +164,10 @@ const HoomRoom = () => {
   // TODO: обернуть в useCallback
   const transferDialogToSave = (obj) => {
     clicked = 'Button'
-    transferDialog(obj) // переводим диалог в сохраненные
+    dispatch({ type: 'ADD_TO_SAVE', payload: obj })
+
+    // TODO: пока что не используется, понадобится если будет сохранять вкладку save в firebase
+    // transferDialog(obj) // переводим диалог в сохраненные
   }
 
   const handlerSearch = (e) => {
@@ -237,6 +238,7 @@ const HoomRoom = () => {
     clicked = ''
   }
 
+  // TODO: пока что не используется, нужно большге времени чтобы правильно настроить пагинацию и react-infinitive-scrolle
   const fetchMoreData = async (status = 'active') => {
     // let moreStatusDialog
     // await firebase.database().ref('chat/active/').limitToFirst(lengthDialogs.active + 5).once('value', (snapshot) => {
@@ -311,9 +313,10 @@ const HoomRoom = () => {
                     useWindow={false}
                     initialLoad={false}
                   >
+                    <h5>{tabPane.text}</h5>
                     {filteredMessages[tabPane.status].length === 0
                       ? (
-                        <h5>Список сообщений пуст</h5>
+                        <p>Список сообщений пуст</p>
                         )
                       : (
                         // eslint-disable-next-line array-callback-return

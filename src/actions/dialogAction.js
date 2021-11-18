@@ -6,7 +6,9 @@ export const SET_FILTERED_DIALOGS = 'SET_FILTERED_DIALOGS'
 
 export const RESET_DIALOGS_STORE = 'RESET_DIALOGS_STORE'
 
-// если хотим чтобы после перезагрузки сохранялись выбранные диалоги, вкладки, подсветка активной вкладки, окно профиля открытыми
+export const ADD_TO_SAVE = 'ADD_TO_SAVE'
+
+// используем - если хотим чтобы после перезагрузки сохранялись выбранные диалоги, вкладки, подсветка активной вкладки, окно профиля открытыми
 export const SET_ACTIVE_TAB = 'SET_ACTIVE_TAB'
 export const SET_OPEN_DIALOG = 'SET_OPEN_DIALOG'
 export const SET_PROFILE_OPEN = 'SET_PROFILE_OPEN'
@@ -49,6 +51,14 @@ export function setFilteredDialogs (dialogs) {
 export function resetDialogs () {
   return {
     type: RESET_DIALOGS_STORE
+  }
+}
+
+// =======================================
+
+export function addToSave () {
+  return {
+    type: ADD_TO_SAVE
   }
 }
 
