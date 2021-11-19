@@ -15,7 +15,6 @@ const ForgotPasswordPage = () => {
     },
     validationSchema: ForgotPasswordSchema,
     onSubmit: (values) => {
-      window.alert(JSON.stringify(values, null, 2))
       dispatch({
         type: 'FORGOT_PASSWORD_REQUEST',
         user: {
