@@ -11,9 +11,9 @@ import firebase from 'firebase'
 // import throttle from 'lodash.throttle'
 import debounce from 'lodash.debounce'
 import { useDispatch, useSelector } from 'react-redux'
-import InfiniteScroll from 'react-infinite-scroll-component'
-
 import { Offcanvas, OffcanvasBody, OffcanvasHeader } from 'reactstrap'
+
+import InfiniteScroll from 'react-infinite-scroll-component'
 import Button from '../../components/Button/Button'
 import Dialog from '../../components/Dialog/Dialog'
 import MessageItem from '../../components/MessageItem/MessageItem'
@@ -61,7 +61,7 @@ const HoomRoom = () => {
   const { TabPane } = Tabs
 
   const dispatch = useDispatch()
-  const { token } = useSelector((state) => state.auth)
+  const { token, user } = useSelector((state) => state.auth)
   const { dialogs, filteredMessages, lengthDialogs } = useSelector((state) => state.dialog)
 
   // нижние 5 состояния не сохраняем в dispatch т.к не хотим чтобы диалоги и вкладки оставались открытыми, они будут открыватся по умолчанию
@@ -73,6 +73,7 @@ const HoomRoom = () => {
   const [isOpenDialog, setIsOpenDialog] = useState(false) // состояние для определения открыт ли диалог или нет
 
   // ? Function declaration block ======================================================================================
+
   const getData = () => { dispatch({ type: 'GET_DIALOGS_REQUEST' }) }
 
   const checkToken = async () => {
@@ -239,9 +240,6 @@ const HoomRoom = () => {
     if (clicked !== 'Button') {
       setActiveDialog(e)
       setIsOpenDialog(true)
-
-      if (activeDialog.index === e.index) setIsOpenDialog(false)
-      if (activeTab === e.status) setIsSelected({ index: e.index, tab: activeTab })
       setIsSelected({ index: e.index, tab: activeTab })
     }
     // reset
@@ -277,7 +275,7 @@ const HoomRoom = () => {
         <div className='HomePage'>
           <div className='HomePage--item LeftPanel'>
             <div className='TitleBlock'>
-              <div className='TitleBlock--Name'>operator@mail.ru</div>
+              <div className='TitleBlock--Name'>{user.email}</div>
               <div className='TitleBlock--Exit'>
                 <Button styleButton='primary' onClick={handlerExit}>
                   Выйти
@@ -323,40 +321,40 @@ const HoomRoom = () => {
                     initialLoad={false}
                   >
                     <h5>{tabPane.text}</h5>
-                    {filteredMessages[tabPane.status].length === 0
-                      ? (
-                        <p>Список сообщений пуст</p>
-                        )
-                      : (
-                        // eslint-disable-next-line array-callback-return
-                          filteredMessages[tabPane.status].map((message, index) => {
-                            if (message !== null && typeof message !== 'undefined') {
-                              return (
-                                <MessageItem
-                                  key={index}
-                                  index={index}
-                                  avatar={message.avatar}
-                                  name={message.name}
-                                  date={message.messages[0].timestamp}
-                                  message={message.messages[0].content}
-                                  isSelected={isSelected}
-                                  activeTab={activeTab}
-                                  handlerTransferToSave={() =>
-                                    transferDialogToSave({ status: tabPane.status, index, dialog: message })}
-                                  handlerDeleteInSave={() =>
-                                    removeDialogFromSave({ status: tabPane.status, index, dialog: message })}
-                                  onClick={() =>
-                                    handlerSetActiveDialog({
-                                      status: message.status,
-                                      index,
-                                      message
-                                    })}
-                                />
-                              )
-                            }
-                          })
-                        )}
                   </InfiniteScroll>
+                  {filteredMessages[tabPane.status].length === 0
+                    ? (
+                      <p>Список сообщений пуст</p>
+                      )
+                    : (
+                      // eslint-disable-next-line array-callback-return
+                        filteredMessages[tabPane.status].map((message, index) => {
+                          if (message !== null && typeof message !== 'undefined') {
+                            return (
+                              <MessageItem
+                                key={index}
+                                index={index}
+                                avatar={message.avatar}
+                                name={message.name}
+                                date={message.messages[message.messages.length - 1].timestamp}
+                                message={message.messages[message.messages.length - 1].content}
+                                isSelected={isSelected}
+                                activeTab={activeTab}
+                                handlerTransferToSave={() =>
+                                  transferDialogToSave({ status: tabPane.status, index, dialog: message })}
+                                handlerDeleteInSave={() =>
+                                  removeDialogFromSave({ status: tabPane.status, index, dialog: message })}
+                                onClick={() =>
+                                  handlerSetActiveDialog({
+                                    status: message.status,
+                                    index,
+                                    message
+                                  })}
+                              />
+                            )
+                          }
+                        })
+                      )}
                 </TabPane>
               ))}
             </Tabs>
@@ -367,6 +365,7 @@ const HoomRoom = () => {
                 <Dialog
                   obj={activeDialog}
                   key={activeDialog.index}
+                  indexKey={activeDialog.index}
                   transferToActive={addDialogToActive}
                 />
                 )
