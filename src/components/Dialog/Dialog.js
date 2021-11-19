@@ -1,35 +1,50 @@
 import React, { useEffect, useState } from 'react'
+import { v4 as uuidv4 } from 'uuid'
+import firebase from 'firebase'
+import {
+  StarOutlined,
+  StarFilled
+} from '@ant-design/icons'
 
-import './index.scss'
 import LabelInput from '../Inputs/LabelInput/LabelInput'
-import Input from '../Inputs/Input/Input'
 import DialogMessage from './DialogMessage/DialogMessage'
 import Button from '../Button/Button'
 
-import firebase from 'firebase'
+import './index.scss'
 
-const Dialog = ({ obj, key, transferToActive }) => {
+const Dialog = ({ obj, indexKey, transferToActive }) => {
   const status = obj.status
-  const index = obj.message.indexBefore || obj.index
-
+  console.log(status)
+  let index
+  // eslint-disable-next-line no-prototype-builtins
+  if (obj.message.hasOwnProperty('indexBefore')) {
+    index = obj.message.indexBefore
+  } else {
+    index = obj.index
+  }
   if (typeof index === 'undefined') { throw Error('ошибка индексации - in Dialog props') }
 
   const [value, setValue] = useState('')
   const [messages, setMessages] = useState([])
   const [indexProps, setIndexProps] = useState(null)
+  const [indexFromDB, setIndexFromDB] = useState(null)
   const [messagesLength, setMessageLength] = useState(obj.message.messages.length || 0)
 
   const getMessages = async () => {
     try {
       await firebase
         .database()
-        .ref(`chat/${status}/${index}/messages/`)
+        .ref(`chat/${status}`).orderByChild('uuid')
+        .equalTo(obj.message.uuid)
         .once('value', (snapshot) => {
           const tmp = snapshot.val()
-          setMessages(tmp)
+          const keyArray = +Object.keys(tmp)
+          const tmpMessages = tmp[keyArray].messages
+          setMessages(tmpMessages)
+          setIndexFromDB(keyArray)
         })
     } catch (e) {
-      console.log(e)
+      console.log('ОШИБКА!!!', e)
     }
   }
 
@@ -50,7 +65,8 @@ const Dialog = ({ obj, key, transferToActive }) => {
       const newObject = {
         ...transferObject,
         operatorId: 123,
-        status: 'active'
+        status: 'active',
+        uuid: uuidv4()
       }
       // сразу же закрепляем оператора за диалогом
       // (средствами realtime database firebase) - это означает удалить данную запись полностью и создать новую в путе chat/active/${LastIndex} + 1 с новыми данными operatorId и status
@@ -98,7 +114,6 @@ const Dialog = ({ obj, key, transferToActive }) => {
   }
 
   useEffect(() => {
-    // console.log('получаем сообщения - первый раз')
     // проверка, если этот диалог без operatorId в firebase -> значит переводим в активный за текущим оператором (пока что константа 123)
     checkDialogOperatorId()
     getMessages()
@@ -111,29 +126,33 @@ const Dialog = ({ obj, key, transferToActive }) => {
   }, [value])
 
   useEffect(() => {
-    setIndexProps(key)
-  }, [key, indexProps])
+    setIndexProps(indexKey)
+  }, [indexKey, indexProps])
 
   const handlerSendMessage = async () => {
     const timestamp = Date.now()
     const timestampServer = firebase.firestore.FieldValue.serverTimestamp() // можно использовать ф-ию firebase т.к. время компьютера клиента не всегда может быть правильное
-    firebase
-      .database()
-      .ref(`chat/${status}/${index}/messages/${messagesLength}`)
-      .set(
-        {
-          content: value,
-          timestamp: timestamp || timestampServer,
-          writtenBy: 'operator'
-        },
-        (error) => {
-          if (error) {
-            console.log(error)
-          } else {
-            setMessageLength((prevState) => prevState + 1)
+    try {
+      firebase
+        .database()
+        .ref(`chat/${status}/${indexFromDB}/messages/${messagesLength}`)
+        .set(
+          {
+            content: value,
+            timestamp: '2021-11-02T12:09:04.712Z' || timestamp || timestampServer,
+            writtenBy: 'operator'
+          },
+          (error) => {
+            if (error) {
+              console.log(error)
+            } else {
+              setMessageLength((prevState) => prevState + 1)
+            }
           }
-        }
-      )
+        )
+    } catch (e) {
+      console.log(e)
+    }
     setValue('')
   }
 
@@ -154,7 +173,7 @@ const Dialog = ({ obj, key, transferToActive }) => {
 
         <div className='HeaderBlock--item'>
           <div className='HeaderBlock--search'>
-            <Input placeholder='Найти сообщение' />
+            {/* <Input placeholder='Найти сообщение' /> */}
           </div>
         </div>
       </div>
@@ -164,22 +183,38 @@ const Dialog = ({ obj, key, transferToActive }) => {
         ))}
       </div>
       <div className='Dialog--item FooterBlock'>
-        <div className='AnswerBlock'>
-          {/* TODO: заменить на textarea */}
-          <LabelInput
-            value={value}
-            placeholder=' '
-            label='Введите ответ'
-            onChange={(e) => setValue(e.target.value)}
-          />
-          <Button onClick={handlerSendMessage}>Отправить сообщение</Button>
-          <select>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-          </select>
-        </div>
+        {status === 'complete'
+          ? (
+            <div className='FeedbackBlock'>
+              <h5>Этот диалог завершился !!!</h5>
+              <div className='FeedbackBlock--Star'>
+                <StarFilled style={{ fontSize: '40px', color: '#DB0006' }} />
+                <StarFilled style={{ fontSize: '40px', color: '#DB0006' }} />
+                <StarFilled style={{ fontSize: '40px', color: '#DB0006' }} />
+                <StarOutlined style={{ fontSize: '40px', color: '#DB0006' }} />
+                <StarOutlined style={{ fontSize: '40px', color: '#DB0006' }} />
+              </div>
+            </div>
+            )
+          : (
+            <div className='AnswerBlock'>
+              {/* TODO: заменить на textarea */}
+              <LabelInput
+                value={value}
+                placeholder=' '
+                label='Введите ответ'
+                onChange={(e) => setValue(e.target.value)}
+              />
+              <Button onClick={handlerSendMessage}>Отправить сообщение</Button>
+              <select>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+              </select>
+            </div>
+            )}
+
       </div>
     </div>
   )
