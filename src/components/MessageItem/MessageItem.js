@@ -10,7 +10,6 @@ const MessageItem = ({ activeTab, index, avatar, name, date, message, onClick, i
     <div
       className={classNames('Message', {
         active: (activeTab === isSelected.tab && isSelected.index === index)
-        // active: isSelected === index
       })}
       onClick={onClick}
     >
