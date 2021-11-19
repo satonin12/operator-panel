@@ -90,6 +90,8 @@ const HoomRoom = () => {
   }
 
   // TODO: объеденить в одну функцию с checkDialogOperatorId из Dialog.js
+  // TODO: в текущей версии не используется
+  // eslint-disable-next-line no-unused-vars
   const transferDialog = async ({ status, index, dialog }) => {
     const newObject = {
       ...dialog,
@@ -156,6 +158,7 @@ const HoomRoom = () => {
     setIsSelected({ index: dialog.index, tab: 'active' })
   }
 
+  // eslint-disable-next-line no-unused-vars
   const addDialogToSave = (dialog) => {
     setActiveTab('save')
     setActiveDialog(dialog)
