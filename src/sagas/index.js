@@ -155,7 +155,7 @@ function * getMessages (action) {
 
     const keyArray = +Object.keys(tmpObject)
     const messages = tmpObject[keyArray].messages
-    yield put({ type: 'GET_MESSAGES_SUCCESS', payload: { messages, index: keyArray, length: messages.length } })
+    yield put({ type: 'GET_MESSAGES_SUCCESS', payload: { messages, index: keyArray, length: messages.length, id: uuid } })
   } catch (e) {
     const errorMessage = { code: e.code, message: e.message }
     console.log(errorMessage)

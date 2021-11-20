@@ -57,15 +57,14 @@ const HoomRoom = () => {
   // * Variable declaration block ======================================================================================
 
   let clicked = '' // отслеживаем куда именно нажал пользователь в компоненту MessageItem (на сам диалог или кнопку "Сохранить"/"Удалить")
+  let previewMessageOnDb = null
   const hasMore = true
   const { TabPane } = Tabs
 
   const dispatch = useDispatch()
   const { token, user } = useSelector((state) => state.auth)
   const { dialogs, filteredMessages, lengthDialogs } = useSelector((state) => state.dialog)
-  const { messages } = useSelector((state) => state.message)
-
-  console.log(messages)
+  const messagesState = useSelector((state) => state.message)
 
   // нижние 5 состояния не сохраняем в dispatch т.к не хотим чтобы диалоги и вкладки оставались открытыми, они будут открыватся по умолчанию
   // ! они есть в dispatch так что при желании их можно будет оставлять открытыми даже после перезагрузки
@@ -333,15 +332,17 @@ const HoomRoom = () => {
                     : (
                       // eslint-disable-next-line array-callback-return
                         filteredMessages[tabPane.status].map((message, index) => {
+                          previewMessageOnDb = true
                           if (message !== null && typeof message !== 'undefined') {
+                            if (message.uuid === messagesState.idDialogUser) previewMessageOnDb = false
                             return (
                               <MessageItem
                                 key={index}
                                 index={index}
                                 avatar={message.avatar}
                                 name={message.name}
-                                date={message.messages[message.messages.length - 1].timestamp}
-                                message={message.messages[message.messages.length - 1].content}
+                                date={previewMessageOnDb ? message.messages[message.messages.length - 1].timestamp : messagesState.messages[messagesState.messages.length - 1].timestamp}
+                                message={previewMessageOnDb ? message.messages[message.messages.length - 1].content : messagesState.messages[messagesState.messages.length - 1].content}
                                 isSelected={isSelected}
                                 activeTab={activeTab}
                                 handlerTransferToSave={() =>

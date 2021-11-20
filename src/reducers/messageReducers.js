@@ -10,6 +10,7 @@ const initialState = {
   messages: [],
   error: null,
   indexDialogUser: null,
+  idDialogUser: null,
   messageLength: null
 }
 
@@ -24,9 +25,10 @@ export function messageReducer (state = initialState, action) {
       return {
         ...state,
         loading: false,
+        idDialogUser: action.payload.id,
         messages: action.payload.messages,
-        indexDialogUser: action.payload.index,
-        messageLength: action.payload.length
+        messageLength: action.payload.length,
+        indexDialogUser: action.payload.index
       }
     case GET_MESSAGES_FAILURE:
       return {
