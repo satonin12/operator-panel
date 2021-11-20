@@ -82,6 +82,11 @@ export function dialogReducer (state = initialState, action) {
           ...state.filteredMessages,
           save: [...state.filteredMessages.save, action.payload.dialog], // добавляем в сохраненных
           [action.payload.status]: state.filteredMessages[action.payload.status].filter((_, index) => index !== action.payload.index) // убираем из активных
+        },
+        lengthDialogs: {
+          ...state.lengthDialogs,
+          save: state.lengthDialogs.save + 1,
+          [action.payload.dialog.status]: state.lengthDialogs[action.payload.dialog.status] - 1
         }
       }
     case DELETE_FROM_SAVE:
@@ -91,6 +96,11 @@ export function dialogReducer (state = initialState, action) {
           ...state.filteredMessages,
           save: state.filteredMessages.save.filter((_, index) => index !== action.payload.index), // убираем из сохраненных
           [action.payload.dialog.status]: [...state.filteredMessages[action.payload.dialog.status], action.payload.dialog] // добавляем откуда взяли
+        },
+        lengthDialogs: {
+          ...state.lengthDialogs,
+          save: state.lengthDialogs.save - 1,
+          [action.payload.dialog.status]: state.lengthDialogs[action.payload.dialog.status] + 1
         }
       }
     case ADD_DIALOG_TO_ACTIVE :

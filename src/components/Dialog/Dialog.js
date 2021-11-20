@@ -117,6 +117,7 @@ const Dialog = ({ obj, indexKey, transferToActive }) => {
   }, [indexKey, indexProps])
 
   const handlerSendMessage = async () => {
+    // TODO: добавить проверку на пустую строку
     const timestamp = new Date()
     try {
       dispatch({

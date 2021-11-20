@@ -31,25 +31,29 @@ const tabPanelArray = [
     status: 'start',
     key: 0,
     componentIcon: startTabIcon,
-    text: 'Очередь'
+    text: 'Очередь',
+    color: '#f5222d'
   },
   {
     status: 'active',
     key: 1,
     componentIcon: activeTabIcon,
-    text: 'Активные'
+    text: 'Активные',
+    color: '#585FEB'
   },
   {
     status: 'complete',
     key: 2,
     componentIcon: completeTabIcon,
-    text: 'Завершенные'
+    text: 'Завершенные',
+    color: '#7FEB8F'
   },
   {
     status: 'save',
     key: 3,
     componentIcon: saveTabIcon,
-    text: 'Сохранённые'
+    text: 'Сохранённые',
+    color: '#EBE097'
   }
 ]
 
@@ -64,7 +68,7 @@ const HoomRoom = () => {
   const dispatch = useDispatch()
   const { token, user } = useSelector((state) => state.auth)
   const { dialogs, filteredMessages, lengthDialogs } = useSelector((state) => state.dialog)
-  const messagesState = useSelector((state) => state.message)
+  const { messages, idDialogUser } = useSelector((state) => state.message)
 
   // нижние 5 состояния не сохраняем в dispatch т.к не хотим чтобы диалоги и вкладки оставались открытыми, они будут открыватся по умолчанию
   // ! они есть в dispatch так что при желании их можно будет оставлять открытыми даже после перезагрузки
@@ -147,11 +151,35 @@ const HoomRoom = () => {
     addDialogToSave(newObjectFromDialogs)
   }
 
+  const sortDialogs = () => {
+    const objectKeys = Object.keys(filteredMessages)
+    // eslint-disable-next-line array-callback-return
+    objectKeys.map((item) => {
+      if (filteredMessages[item].length > 1) {
+        // eslint-disable-next-line array-callback-return
+        filteredMessages[item].sort((a, b) => {
+          if (a !== null && b !== null) {
+            const a1 = a.messages[a.messages.length - 1].timestamp
+            const b1 = b.messages[b.messages.length - 1].timestamp
+            return (a1.date < b1.date) ? -1 : ((a1.date > b1.date) ? 1 : 0)
+          }
+        })
+      }
+    })
+  }
+
   useEffect(() => {
     checkToken()
     getData()
+    sortDialogs()
     // eslint-disable-next-line
   }, [])
+
+  // useEffect(() => {
+  //   console.log('зашли в перерисовку компонента')
+  //   sortDialogs()
+  //   // eslint-disable-next-line
+  // }, [messages])
 
   // TODO: объеденить в одну функцию нижние две
   const addDialogToActive = (dialog) => {
@@ -309,8 +337,27 @@ const HoomRoom = () => {
                 <TabPane
                   tab={
                     <span>
-                      {/* {tabPane.text} */}
-                      {tabPane.componentIcon}
+                      <div>
+                        {tabPane.componentIcon}
+                        <div style={{
+                          position: 'absolute',
+                          top: '17%',
+                          left: '-42%',
+                          borderRadius: '50%',
+                          height: '17px',
+                          width: '17px',
+                          fontSize: '12px',
+                          opacity: '84%',
+                          zIndex: 1,
+                          backgroundColor: tabPane.color,
+                          color: 'black',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                        >{lengthDialogs[tabPane.status]}
+                        </div>
+                      </div>
                     </span>
                   }
                   key={tabPane.status}
@@ -334,15 +381,15 @@ const HoomRoom = () => {
                         filteredMessages[tabPane.status].map((message, index) => {
                           previewMessageOnDb = true
                           if (message !== null && typeof message !== 'undefined') {
-                            if (message.uuid === messagesState.idDialogUser) previewMessageOnDb = false
+                            if (message.uuid === idDialogUser) previewMessageOnDb = false
                             return (
                               <MessageItem
                                 key={index}
                                 index={index}
                                 avatar={message.avatar}
                                 name={message.name}
-                                date={previewMessageOnDb ? message.messages[message.messages.length - 1].timestamp : messagesState.messages[messagesState.messages.length - 1].timestamp}
-                                message={previewMessageOnDb ? message.messages[message.messages.length - 1].content : messagesState.messages[messagesState.messages.length - 1].content}
+                                date={previewMessageOnDb ? message.messages[message.messages.length - 1].timestamp : messages[messages.length - 1].timestamp}
+                                message={previewMessageOnDb ? message.messages[message.messages.length - 1].content : messages[messages.length - 1].content}
                                 isSelected={isSelected}
                                 activeTab={activeTab}
                                 handlerTransferToSave={() =>

@@ -113,26 +113,25 @@ function * forgotPassword (action) {
 function * getDialogs () {
   try {
     const tmpDialogs = {
+      start: [],
       active: [],
       complete: [],
-      start: [],
       save: []
     }
 
+    tmpDialogs.start = yield call(rsf.database.read, 'chat/start/')
     tmpDialogs.active = yield call(rsf.database.read, 'chat/active/')
     tmpDialogs.complete = yield call(rsf.database.read, 'chat/complete/')
-    tmpDialogs.start = yield call(rsf.database.read, 'chat/start/')
+
+    Object.keys(tmpDialogs).filter(item => item !== null) // удаляем null значения
+    const dialogsLength = Object.keys(tmpDialogs).map(a => tmpDialogs[a].reduce(function (total, x) { return total + 1 }, 0)) // и правильно считаем длину
 
     const length = {
-      active: tmpDialogs.active.length,
-      complete: tmpDialogs.complete.length,
-      start: tmpDialogs.start.length,
-      save: 0
+      start: dialogsLength[0],
+      active: dialogsLength[1],
+      complete: dialogsLength[2],
+      save: dialogsLength[3]
     }
-
-    Object.keys(tmpDialogs).filter(item => {
-      return item !== null
-    })
 
     yield put({ type: 'GET_DIALOGS_SUCCESS', payload: { dialogs: tmpDialogs, length } })
   } catch (e) {
@@ -169,6 +168,7 @@ function * sendMessage (action) {
     const { messageLength, indexDialogUser } = yield select(getMessagesState)
     const chatMessageRef = firebase.database().ref(`chat/${status}/${indexDialogUser}/messages/${messageLength}`)
     yield call(() => {
+      // eslint-disable-next-line promise/param-names
       return new Promise((resolve, _) => {
         chatMessageRef.set(message)
         resolve(true)
