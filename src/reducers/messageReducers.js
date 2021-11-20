@@ -1,7 +1,7 @@
 import {
   GET_MESSAGES_FAILURE,
   GET_MESSAGES_REQUEST,
-  GET_MESSAGES_SUCCESS,
+  GET_MESSAGES_SUCCESS, RESET_MESSAGE_STORE,
   SEND_MESSAGE, SEND_MESSAGE_FAILURE, SEND_MESSAGE_SUCCESS
 } from '../actions/messageAction'
 
@@ -45,6 +45,8 @@ export function messageReducer (state = initialState, action) {
       return {
         error: action.payload.error
       }
+    case RESET_MESSAGE_STORE:
+      return initialState
     default: return state
   }
 }

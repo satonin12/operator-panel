@@ -63,6 +63,9 @@ const HoomRoom = () => {
   const dispatch = useDispatch()
   const { token, user } = useSelector((state) => state.auth)
   const { dialogs, filteredMessages, lengthDialogs } = useSelector((state) => state.dialog)
+  const { messages } = useSelector((state) => state.message)
+
+  console.log(messages)
 
   // нижние 5 состояния не сохраняем в dispatch т.к не хотим чтобы диалоги и вкладки оставались открытыми, они будут открыватся по умолчанию
   // ! они есть в dispatch так что при желании их можно будет оставлять открытыми даже после перезагрузки
@@ -232,6 +235,7 @@ const HoomRoom = () => {
       // TODO: добавить общий сброс store
       dispatch({ type: 'RESET_STORE' })
       dispatch({ type: 'RESET_DIALOGS_STORE' })
+      dispatch({ type: 'RESET_MESSAGE_STORE' })
     }
   }
 
