@@ -42,7 +42,6 @@ const initialState = {
 }
 
 export function dialogReducer (state = initialState, action) {
-  console.log(action)
   switch (action.type) {
     case GET_DIALOGS_REQUEST:
       return {
@@ -84,11 +83,6 @@ export function dialogReducer (state = initialState, action) {
           save: [...state.filteredMessages.save, action.payload.dialog], // добавляем в сохраненных
           [action.payload.status]: state.filteredMessages[action.payload.status].filter((_, index) => index !== action.payload.index) // убираем из активных
         }
-        // dialogs: {
-        //   ...state.filteredMessages,
-        //   save: [...state.filteredMessages.save, action.payload.dialog],
-        //   [action.payload.status]: state.filteredMessages[action.payload.status].filter((_, index) => index !== action.payload.index)
-        // }
       }
     case DELETE_FROM_SAVE:
       return {
@@ -102,10 +96,6 @@ export function dialogReducer (state = initialState, action) {
     case ADD_DIALOG_TO_ACTIVE :
       return {
         ...state,
-        // dialogs: {
-        //   ...state.dialogs,
-        //   active: [...state.dialogs.active, action.payload.dialog]
-        // },
         filteredMessages: {
           ...state.filteredMessages,
           active: [...state.filteredMessages.active, action.payload]
