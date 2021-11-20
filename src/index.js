@@ -17,6 +17,7 @@ import { authReducer } from './reducers/authReducers'
 import { dialogReducer } from './reducers/dialogReducers'
 
 import './index.css'
+import { messageReducer } from './reducers/messageReducers'
 
 // create the persist Config
 const rootPersistConfig = {
@@ -32,10 +33,15 @@ const dialogPersistConfig = {
   key: 'dialog',
   storage: storage
 }
+const messagePersistConfig = {
+  key: 'message',
+  storage: storage
+}
 
 const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
-  dialog: persistReducer(dialogPersistConfig, dialogReducer)
+  dialog: persistReducer(dialogPersistConfig, dialogReducer),
+  message: persistReducer(messagePersistConfig, messageReducer)
 })
 
 // wrap our main reducer in persist

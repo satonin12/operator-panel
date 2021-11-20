@@ -1,7 +1,8 @@
-import { takeLatest, put, call, all } from 'redux-saga/effects'
+import { takeLatest, put, call, all, select } from 'redux-saga/effects'
 
 import rsf from '../firebase'
 import { toast } from 'react-toastify'
+import firebase from 'firebase'
 
 // * auth Saga's
 
@@ -141,12 +142,54 @@ function * getDialogs () {
   }
 }
 
+// * message Saga's
+
+export const getMessagesState = (state) => state.message
+
+function * getMessages (action) {
+  try {
+    const { status, uuid } = action.payload
+    const tmpObject = yield call(
+      rsf.database.read,
+      firebase.database().ref(`chat/${status}`).orderByChild('uuid').equalTo(uuid))
+
+    const keyArray = +Object.keys(tmpObject)
+    const messages = tmpObject[keyArray].messages
+    yield put({ type: 'GET_MESSAGES_SUCCESS', payload: { messages, index: keyArray, length: messages.length } })
+  } catch (e) {
+    const errorMessage = { code: e.code, message: e.message }
+    console.log(errorMessage)
+    yield put({ type: 'GET_MESSAGES_FAILURE', error: errorMessage })
+  }
+}
+
+function * sendMessage (action) {
+  try {
+    const { status, message } = action.payload
+    const { messageLength, indexDialogUser } = yield select(getMessagesState)
+    const chatMessageRef = firebase.database().ref(`chat/${status}/${indexDialogUser}/messages/${messageLength}`)
+    yield call(() => {
+      return new Promise((resolve, _) => {
+        chatMessageRef.set(message)
+        resolve(true)
+      })
+    })
+  } catch (e) {
+    const errorMessage = { code: e.code, message: e.message }
+    console.log(errorMessage)
+    yield put({ type: 'GET_MESSAGES_FAILURE', error: errorMessage })
+  }
+}
+
 export default function * rootSaga () {
   yield all([
     takeLatest('CHECKOUT_REQUEST', signIn),
     takeLatest('CHECKOUT_REGISTRATION_REQUEST', signUp),
     takeLatest('FORGOT_PASSWORD_REQUEST', forgotPassword),
 
-    takeLatest('GET_DIALOGS_REQUEST', getDialogs)
+    takeLatest('GET_DIALOGS_REQUEST', getDialogs),
+
+    takeLatest('GET_MESSAGES_REQUEST', getMessages),
+    takeLatest('SEND_MESSAGE', sendMessage)
   ])
 }

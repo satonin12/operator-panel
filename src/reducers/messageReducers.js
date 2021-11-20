@@ -1,0 +1,50 @@
+import {
+  GET_MESSAGES_FAILURE,
+  GET_MESSAGES_REQUEST,
+  GET_MESSAGES_SUCCESS,
+  SEND_MESSAGE, SEND_MESSAGE_FAILURE, SEND_MESSAGE_SUCCESS
+} from '../actions/messageAction'
+
+const initialState = {
+  loading: false,
+  messages: [],
+  error: null,
+  indexDialogUser: null,
+  messageLength: null
+}
+
+export function messageReducer (state = initialState, action) {
+  switch (action.type) {
+    case GET_MESSAGES_REQUEST:
+      return {
+        ...state,
+        loading: true
+      }
+    case GET_MESSAGES_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        messages: action.payload.messages,
+        indexDialogUser: action.payload.index,
+        messageLength: action.payload.length
+      }
+    case GET_MESSAGES_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload.error
+      }
+    case SEND_MESSAGE:
+      return state
+    case SEND_MESSAGE_SUCCESS:
+      return {
+        ...state,
+        messageLength: state.messageLength + 1
+      }
+    case SEND_MESSAGE_FAILURE:
+      return {
+        error: action.payload.error
+      }
+    default: return state
+  }
+}

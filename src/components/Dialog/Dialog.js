@@ -11,10 +11,10 @@ import DialogMessage from './DialogMessage/DialogMessage'
 import Button from '../Button/Button'
 
 import './index.scss'
+import { useDispatch, useSelector } from 'react-redux'
 
 const Dialog = ({ obj, indexKey, transferToActive }) => {
   const status = obj.status
-  console.log(status)
   let index
   // eslint-disable-next-line no-prototype-builtins
   if (obj.message.hasOwnProperty('indexBefore')) {
@@ -24,28 +24,15 @@ const Dialog = ({ obj, indexKey, transferToActive }) => {
   }
   if (typeof index === 'undefined') { throw Error('ошибка индексации - in Dialog props') }
 
+  const dispatch = useDispatch()
   const [value, setValue] = useState('')
-  const [messages, setMessages] = useState([])
+  // const [messages, setMessages] = useState([])
   const [indexProps, setIndexProps] = useState(null)
-  const [indexFromDB, setIndexFromDB] = useState(null)
-  const [messagesLength, setMessageLength] = useState(obj.message.messages.length || 0)
+
+  const { messages } = useSelector((state) => state.message)
 
   const getMessages = async () => {
-    try {
-      await firebase
-        .database()
-        .ref(`chat/${status}`).orderByChild('uuid')
-        .equalTo(obj.message.uuid)
-        .once('value', (snapshot) => {
-          const tmp = snapshot.val()
-          const keyArray = +Object.keys(tmp)
-          const tmpMessages = tmp[keyArray].messages
-          setMessages(tmpMessages)
-          setIndexFromDB(keyArray)
-        })
-    } catch (e) {
-      console.log('ОШИБКА!!!', e)
-    }
+    dispatch({ type: 'GET_MESSAGES_REQUEST', payload: { status, uuid: obj.message.uuid } })
   }
 
   const checkDialogOperatorId = async () => {
@@ -130,26 +117,19 @@ const Dialog = ({ obj, indexKey, transferToActive }) => {
   }, [indexKey, indexProps])
 
   const handlerSendMessage = async () => {
-    const timestamp = Date.now()
-    const timestampServer = firebase.firestore.FieldValue.serverTimestamp() // можно использовать ф-ию firebase т.к. время компьютера клиента не всегда может быть правильное
+    const timestamp = new Date()
     try {
-      firebase
-        .database()
-        .ref(`chat/${status}/${indexFromDB}/messages/${messagesLength}`)
-        .set(
-          {
+      dispatch({
+        type: 'SEND_MESSAGE',
+        payload: {
+          status,
+          message: {
             content: value,
-            timestamp: '2021-11-02T12:09:04.712Z' || timestamp || timestampServer,
+            timestamp: timestamp.toISOString(),
             writtenBy: 'operator'
-          },
-          (error) => {
-            if (error) {
-              console.log(error)
-            } else {
-              setMessageLength((prevState) => prevState + 1)
-            }
           }
-        )
+        }
+      })
     } catch (e) {
       console.log(e)
     }
@@ -169,12 +149,6 @@ const Dialog = ({ obj, indexKey, transferToActive }) => {
             />
           </div>
           <div className='DialogName'>{obj.message.name}</div>
-        </div>
-
-        <div className='HeaderBlock--item'>
-          <div className='HeaderBlock--search'>
-            {/* <Input placeholder='Найти сообщение' /> */}
-          </div>
         </div>
       </div>
       <div className='Dialog--item DialogContent'>
