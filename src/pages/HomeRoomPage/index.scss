@@ -72,6 +72,59 @@
       width: auto;
     }
   }
+}
 
+.AboutBlock {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
+  margin-top: 20px;
+
+  &--Avatar {
+    border-radius: 50%;
+  }
+  &--Title {
+    margin-top: 10px;
+    font-family: 'Rubik', 'Inconsolata', monospace, sans-serif;
+    color: #3F3F3F;
+  }
+  &--Text {
+    margin-top: 10px;
+
+    font-family: 'Rubik', 'Inconsolata', monospace, sans-serif;
+    font-size: 19px;
+    font-weight: 400;
+    text-align: center;
+    color: #3f3f3f9c;
+  }
+
+  .Info{
+    width: 340px;
+
+    &--item {
+      font-family: 'Rubik', 'Inconsolata', monospace, sans-serif;
+      height: 40px;
+
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      color: #3f3f3ffa;
+    }
+    &--Badge {
+      margin-right: 25px;
+
+      svg {
+        font-size: 20px;
+        color: #3f3f3f9c;
+      }
+    }
+
+  }
+
+  .btn-close {
+    margin-top: 1.5rem!important;
+  }
 }

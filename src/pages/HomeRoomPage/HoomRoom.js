@@ -1,11 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { Result, Tabs } from 'antd'
 import {
+  MailFilled,
   HomeTwoTone,
-  CheckSquareTwoTone,
   SaveTwoTone,
+  MailTwoTone,
+  PhoneFilled,
   SmileOutlined,
-  MailTwoTone
+  EnvironmentFilled,
+  CheckSquareTwoTone
 } from '@ant-design/icons'
 import firebase from 'firebase'
 // import throttle from 'lodash.throttle'
@@ -60,7 +63,8 @@ const tabPanelArray = [
 const HoomRoom = () => {
   // * Variable declaration block ======================================================================================
 
-  let clicked = '' // отслеживаем куда именно нажал пользователь в компоненту MessageItem (на сам диалог или кнопку "Сохранить"/"Удалить")
+  const clicked = '' // отслеживаем куда именно нажал пользователь в компоненту MessageItem (на сам диалог или кнопку "Сохранить"/"Удалить")
+  const clickedRef = useRef(clicked) // оптимизируем для использования в useCallback
   let previewMessageOnDb = null
   const hasMore = true
   const { TabPane } = Tabs
@@ -77,6 +81,8 @@ const HoomRoom = () => {
   const [activeTab, setActiveTab] = useState('start')
   const [activeDialog, setActiveDialog] = useState({})
   const [isOpenDialog, setIsOpenDialog] = useState(false) // состояние для определения открыт ли диалог или нет
+
+  console.log(activeDialog)
 
   // ? Function declaration block ======================================================================================
 
@@ -172,6 +178,7 @@ const HoomRoom = () => {
     checkToken()
     getData()
     sortDialogs()
+    clickedRef.current = clicked
     // eslint-disable-next-line
   }, [])
 
@@ -196,15 +203,17 @@ const HoomRoom = () => {
     setIsSelected({ index: dialog.index, tab: 'save' })
   }
 
-  // TODO: обернуть в useCallback
-  const transferDialogToSave = (obj) => {
-    clicked = 'Button'
+  const transferDialogToSave = useCallback((obj) => {
+    // clicked = 'Button'
+    clickedRef.current = 'Button'
+
     // добавляем индекс где стоял элемент раньше
     obj.dialog.indexBefore = obj.index
     dispatch({ type: 'ADD_TO_SAVE', payload: obj })
+
     // TODO: пока что не используется, понадобится если будет сохранять вкладку save в firebase
     // transferDialog(obj) // переводим диалог в сохраненные
-  }
+  }, [dispatch])
 
   const removeDialogFromSave = (obj) => {
     dispatch({ type: 'DELETE_FROM_SAVE', payload: obj })
@@ -268,13 +277,18 @@ const HoomRoom = () => {
 
   // TODO: поправить баг при клике на тот же диалог
   const handlerSetActiveDialog = (e) => {
-    if (clicked !== 'Button') {
+    if (clickedRef.current !== 'Button') {
       setActiveDialog(e)
       setIsOpenDialog(true)
       setIsSelected({ index: e.index, tab: activeTab })
     }
     // reset
-    clicked = ''
+    clickedRef.current = 'Button'
+  }
+
+  const handlerOpenProfile = () => {
+    console.log('открыли профиль')
+    setIsOpen(prevState => !prevState)
   }
 
   // TODO: пока что не используется, нужно большге времени чтобы правильно настроить пагинацию и react-infinitive-scroll
@@ -419,37 +433,47 @@ const HoomRoom = () => {
                   key={activeDialog.index}
                   indexKey={activeDialog.index}
                   transferToActive={addDialogToActive}
+                  handlerOpenProfile={handlerOpenProfile}
                 />
                 )
               : (
                 <Result
                   icon={<SmileOutlined />}
                   title='Выберите диалог чтобы начать!'
-                  extra={
-                    <Button onClick={() => setIsOpen((prevState) => !prevState)}>
-                      Открыть окно профиля
-                    </Button>
-                }
                 />
                 )}
           </div>
           <div className='HomePage--item RightPanel'>
             <Offcanvas
-              backdrop={false}
               fade={false}
               direction='end'
               isOpen={isOpen}
+              backdrop={false}
               toggle={() => setIsOpen((prevState) => !prevState)}
             >
-              <OffcanvasHeader toggle={() => setIsOpen((prevState) => !prevState)}>
-                <p>Avatar image</p>
-                <p>Author name</p>
-              </OffcanvasHeader>
-              <OffcanvasBody>
-                <p>Author small information</p>
-                <p>Contact</p>
-                <p>Media</p>
-              </OffcanvasBody>
+              <div className='AboutBlock'>
+                <img className='AboutBlock--Avatar' src={activeDialog.message?.avatar} alt='Аватар профиля' width={150} height={150} />
+                <OffcanvasHeader toggle={() => setIsOpen((prevState) => !prevState)}>
+                  <h4 className='AboutBlock--Title'>{activeDialog.message?.name}</h4>
+                  <p className='AboutBlock--Text'>Москва, Набережная 28</p>
+                </OffcanvasHeader>
+                <OffcanvasBody>
+                  <div className='AboutBlock--Info Info'>
+                    <div className='Info--item'>
+                      <span className='Info--Badge'><EnvironmentFilled /></span>
+                      Москва, Пезанская башня 38
+                    </div>
+                    <div className='Info--item'>
+                      <span className='Info--Badge'><PhoneFilled /></span>
+                      8-999-999-99-99
+                    </div>
+                    <div className='Info--item'>
+                      <span className='Info--Badge'><MailFilled /></span>
+                      test@mail.ru
+                    </div>
+                  </div>
+                </OffcanvasBody>
+              </div>
             </Offcanvas>
           </div>
         </div>

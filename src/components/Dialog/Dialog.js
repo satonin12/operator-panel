@@ -13,22 +13,15 @@ import Button from '../Button/Button'
 import './index.scss'
 import { useDispatch, useSelector } from 'react-redux'
 
-const Dialog = ({ obj, indexKey, transferToActive }) => {
+const Dialog = ({ obj, indexKey, transferToActive, handlerOpenProfile }) => {
   const status = obj.status
-  let index
   // eslint-disable-next-line no-prototype-builtins
-  if (obj.message.hasOwnProperty('indexBefore')) {
-    index = obj.message.indexBefore
-  } else {
-    index = obj.index
-  }
+  const index = obj.message.hasOwnProperty('indexBefore') ? obj.message.indexBefore : obj.index
   if (typeof index === 'undefined') { throw Error('ошибка индексации - in Dialog props') }
 
   const dispatch = useDispatch()
   const [value, setValue] = useState('')
-  // const [messages, setMessages] = useState([])
   const [indexProps, setIndexProps] = useState(null)
-
   const { messages } = useSelector((state) => state.message)
 
   const getMessages = async () => {
@@ -151,6 +144,13 @@ const Dialog = ({ obj, indexKey, transferToActive }) => {
           </div>
           <div className='DialogName'>{obj.message.name}</div>
         </div>
+
+        <div className='HeaderBlock--item'>
+          <div className='HeaderBlock--Profile'>
+            <Button onClick={handlerOpenProfile}>Открыть профиль</Button>
+          </div>
+        </div>
+
       </div>
       <div className='Dialog--item DialogContent'>
         {messages.map((item, index) => (

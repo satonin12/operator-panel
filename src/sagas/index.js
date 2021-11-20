@@ -123,7 +123,7 @@ function * getDialogs () {
     tmpDialogs.active = yield call(rsf.database.read, 'chat/active/')
     tmpDialogs.complete = yield call(rsf.database.read, 'chat/complete/')
 
-    Object.keys(tmpDialogs).filter(item => item !== null) // удаляем null значения
+    Object.keys(tmpDialogs).filter(item => item !== null || typeof item !== 'undefined') // удаляем null иndefined значения
     const dialogsLength = Object.keys(tmpDialogs).map(a => tmpDialogs[a].reduce(function (total, x) { return total + 1 }, 0)) // и правильно считаем длину
 
     const length = {
@@ -168,7 +168,6 @@ function * sendMessage (action) {
     const { messageLength, indexDialogUser } = yield select(getMessagesState)
     const chatMessageRef = firebase.database().ref(`chat/${status}/${indexDialogUser}/messages/${messageLength}`)
     yield call(() => {
-      // eslint-disable-next-line promise/param-names
       return new Promise((resolve, _) => {
         chatMessageRef.set(message)
         resolve(true)
