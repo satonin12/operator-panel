@@ -42,7 +42,6 @@ const initialState = {
 }
 
 export function dialogReducer (state = initialState, action) {
-  console.log(action)
   switch (action.type) {
     case GET_DIALOGS_REQUEST:
       return {

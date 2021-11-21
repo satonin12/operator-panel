@@ -7,7 +7,7 @@ import Button from '../Button/Button'
 
 const MessageItem = ({ activeTab, index, avatar, name, date, message, onClick, isSelected = false, handlerTransferToSave, handlerDeleteInSave }) => {
   return (
-    <div
+    <li
       className={classNames('Message', {
         active: (activeTab === isSelected.tab && isSelected.index === index)
       })}
@@ -47,7 +47,7 @@ const MessageItem = ({ activeTab, index, avatar, name, date, message, onClick, i
                 </div>
             )}
       </div>
-    </div>
+    </li>
   )
 }
 

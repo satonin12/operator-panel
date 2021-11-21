@@ -82,8 +82,6 @@ const HoomRoom = () => {
   const [activeDialog, setActiveDialog] = useState({})
   const [isOpenDialog, setIsOpenDialog] = useState(false) // состояние для определения открыт ли диалог или нет
 
-  console.log(activeDialog)
-
   // ? Function declaration block ======================================================================================
 
   const getData = () => { dispatch({ type: 'GET_DIALOGS_REQUEST' }) }
@@ -132,7 +130,7 @@ const HoomRoom = () => {
           if (error) {
             console.log(error)
           } else {
-            console.log('добавление прошло удачно - смотри firebase')
+            console.log('Добавление прошло удачно - смотри firebase')
           }
         })
     } else {
@@ -182,8 +180,8 @@ const HoomRoom = () => {
     // eslint-disable-next-line
   }, [])
 
+  // TODO: нужен для сортировки сообщений после того как что-то написали в диалогах
   // useEffect(() => {
-  //   console.log('зашли в перерисовку компонента')
   //   sortDialogs()
   //   // eslint-disable-next-line
   // }, [messages])
@@ -204,7 +202,6 @@ const HoomRoom = () => {
   }
 
   const transferDialogToSave = useCallback((obj) => {
-    // clicked = 'Button'
     clickedRef.current = 'Button'
 
     // добавляем индекс где стоял элемент раньше
@@ -215,9 +212,9 @@ const HoomRoom = () => {
     // transferDialog(obj) // переводим диалог в сохраненные
   }, [dispatch])
 
-  const removeDialogFromSave = (obj) => {
+  const removeDialogFromSave = useCallback((obj) => {
     dispatch({ type: 'DELETE_FROM_SAVE', payload: obj })
-  }
+  }, [dispatch])
 
   const handlerSearch = (e) => {
     const value = e.target.value.toLowerCase()
@@ -276,15 +273,15 @@ const HoomRoom = () => {
   }
 
   // TODO: поправить баг при клике на тот же диалог
-  const handlerSetActiveDialog = (e) => {
+  const handlerSetActiveDialog = useCallback((e) => {
     if (clickedRef.current !== 'Button') {
       setActiveDialog(e)
       setIsOpenDialog(true)
       setIsSelected({ index: e.index, tab: activeTab })
     }
     // reset
-    clickedRef.current = 'Button'
-  }
+    clickedRef.current = ''
+  }, [activeTab])
 
   const handlerOpenProfile = () => {
     console.log('открыли профиль')
@@ -292,7 +289,7 @@ const HoomRoom = () => {
   }
 
   // TODO: пока что не используется, нужно большге времени чтобы правильно настроить пагинацию и react-infinitive-scroll
-  const fetchMoreData = async (status = 'active') => {
+  const fetchMoreData = useCallback(async (status = 'active') => {
     // let moreStatusDialog
     // await firebase.database().ref('chat/active/').limitToFirst(lengthDialogs.active + 5).once('value', (snapshot) => {
     //   moreStatusDialog = snapshot.val()
@@ -311,7 +308,7 @@ const HoomRoom = () => {
     //   ...prevState,
     //   [status]: prevState[status].moreStatusDialog
     // ])
-  }
+  }, [])
 
   // ! Component render block (return) ======================================================================================
   return (
@@ -386,46 +383,41 @@ const HoomRoom = () => {
                   >
                     <h5>{tabPane.text}</h5>
                   </InfiniteScroll>
-                  {filteredMessages[tabPane.status].length === 0
-                    ? (
-                      <p>Список сообщений пуст</p>
-                      )
-                    : (
-                      // eslint-disable-next-line array-callback-return
-                        filteredMessages[tabPane.status].map((message, index) => {
-                          previewMessageOnDb = true
-                          if (message !== null && typeof message !== 'undefined') {
-                            if (message.uuid === idDialogUser) previewMessageOnDb = false
-                            return (
-                              <MessageItem
-                                key={index}
-                                index={index}
-                                avatar={message.avatar}
-                                name={message.name}
-                                date={previewMessageOnDb ? message.messages[message.messages.length - 1].timestamp : messages[messages.length - 1].timestamp}
-                                message={previewMessageOnDb ? message.messages[message.messages.length - 1].content : messages[messages.length - 1].content}
-                                isSelected={isSelected}
-                                activeTab={activeTab}
-                                handlerTransferToSave={() =>
-                                  transferDialogToSave({ status: tabPane.status, index, dialog: message })}
-                                handlerDeleteInSave={() =>
-                                  removeDialogFromSave({ status: tabPane.status, index, dialog: message })}
-                                onClick={() =>
-                                  handlerSetActiveDialog({
-                                    status: message.status,
-                                    index,
-                                    message
-                                  })}
-                              />
-                            )
-                          }
-                        })
-                      )}
+                  <ul>
+                    {filteredMessages[tabPane.status].length === 0
+                      ? (
+                        <li>Список сообщений пуст</li>
+                        )
+                      : (
+                        // eslint-disable-next-line array-callback-return
+                          filteredMessages[tabPane.status].map((message, index) => {
+                            previewMessageOnDb = true
+                            if (message !== null && typeof message !== 'undefined') {
+                              if (message.uuid === idDialogUser) previewMessageOnDb = false
+                              return (
+                                <MessageItem
+                                  key={index}
+                                  index={index}
+                                  name={message.name}
+                                  activeTab={activeTab}
+                                  avatar={message.avatar}
+                                  isSelected={isSelected}
+                                  onClick={() => handlerSetActiveDialog({ status: message.status, index, message })}
+                                  handlerDeleteInSave={() => removeDialogFromSave({ status: tabPane.status, index, dialog: message })}
+                                  handlerTransferToSave={() => transferDialogToSave({ status: tabPane.status, index, dialog: message })}
+                                  message={previewMessageOnDb ? message.messages[message.messages.length - 1].content : messages[messages.length - 1].content}
+                                  date={previewMessageOnDb ? message.messages[message.messages.length - 1].timestamp : messages[messages.length - 1].timestamp}
+                                />
+                              )
+                            }
+                          })
+                        )}
+                  </ul>
                 </TabPane>
               ))}
             </Tabs>
           </div>
-          <div className='HomePage--item MainPanel'>
+          <main className='HomePage--item MainPanel'>
             {isOpenDialog
               ? (
                 <Dialog
@@ -442,8 +434,8 @@ const HoomRoom = () => {
                   title='Выберите диалог чтобы начать!'
                 />
                 )}
-          </div>
-          <div className='HomePage--item RightPanel'>
+          </main>
+          <aside className='HomePage--item RightPanel'>
             <Offcanvas
               fade={false}
               direction='end'
@@ -475,7 +467,7 @@ const HoomRoom = () => {
                 </OffcanvasBody>
               </div>
             </Offcanvas>
-          </div>
+          </aside>
         </div>
       </div>
     </>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import firebase from 'firebase'
 import {
@@ -13,7 +13,7 @@ import Button from '../Button/Button'
 import './index.scss'
 import { useDispatch, useSelector } from 'react-redux'
 
-const Dialog = ({ obj, indexKey, transferToActive, handlerOpenProfile }) => {
+const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
   const status = obj.status
   // eslint-disable-next-line no-prototype-builtins
   const index = obj.message.hasOwnProperty('indexBefore') ? obj.message.indexBefore : obj.index
@@ -21,12 +21,11 @@ const Dialog = ({ obj, indexKey, transferToActive, handlerOpenProfile }) => {
 
   const dispatch = useDispatch()
   const [value, setValue] = useState('')
-  const [indexProps, setIndexProps] = useState(null)
   const { messages } = useSelector((state) => state.message)
 
-  const getMessages = async () => {
+  const getMessages = useCallback(async () => {
     dispatch({ type: 'GET_MESSAGES_REQUEST', payload: { status, uuid: obj.message.uuid } })
-  }
+  }, [dispatch, status, obj.message.uuid])
 
   const checkDialogOperatorId = async () => {
     let checkOperatorId = null
@@ -100,34 +99,27 @@ const Dialog = ({ obj, indexKey, transferToActive, handlerOpenProfile }) => {
     // eslint-disable-next-line
   }, [])
 
-  useEffect(() => {
-    getMessages()
-    // eslint-disable-next-line
-  }, [value])
-
-  useEffect(() => {
-    setIndexProps(indexKey)
-  }, [indexKey, indexProps])
-
   const handlerSendMessage = async () => {
-    // TODO: добавить проверку на пустую строку
-    const timestamp = new Date()
-    try {
-      dispatch({
-        type: 'SEND_MESSAGE',
-        payload: {
-          status,
-          message: {
-            content: value,
-            timestamp: timestamp.toISOString(),
-            writtenBy: 'operator'
+    if (value.trim().length) {
+      const timestamp = new Date()
+      try {
+        dispatch({
+          type: 'SEND_MESSAGE',
+          payload: {
+            status,
+            message: {
+              content: value,
+              timestamp: timestamp.toISOString(),
+              writtenBy: 'operator'
+            }
           }
-        }
-      })
-    } catch (e) {
-      console.log(e)
+        })
+      } catch (e) {
+        console.log(e)
+      }
+      setValue('')
+      getMessages()
     }
-    setValue('')
   }
 
   return (
@@ -182,14 +174,14 @@ const Dialog = ({ obj, indexKey, transferToActive, handlerOpenProfile }) => {
               />
               <Button onClick={handlerSendMessage}>Отправить сообщение</Button>
               <select>
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
+                <option disabled>Выберите из готовых варинатов</option>
+                <option>Здравтсвтуйте, хорошего вам дня!</option>
+                <option>Прогу прощения, не могли бы вы повторить</option>
+                <option>В данный момент все операторы заняты, ожидайте</option>
+                <option>Опишите проблему поподробнее</option>
               </select>
             </div>
             )}
-
       </div>
     </div>
   )
