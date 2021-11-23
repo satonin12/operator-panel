@@ -170,7 +170,6 @@ function * sendMessage (action) {
     const { filteredMessages } = yield select(getDialogsState)
     const chatMessageRef = firebase.database().ref(`chat/${status}/${indexDialogUser}/messages/${messageLength}`)
     yield call(() => {
-      // eslint-disable-next-line promise/param-names
       return new Promise((resolve, _) => {
         chatMessageRef.set(message)
         resolve(true)
