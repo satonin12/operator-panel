@@ -124,7 +124,7 @@ function * getDialogs () {
     tmpDialogs.complete = yield call(rsf.database.read, 'chat/complete/')
 
     Object.keys(tmpDialogs).filter(item => item !== null || typeof item !== 'undefined') // удаляем null иndefined значения
-    const dialogsLength = Object.keys(tmpDialogs).map(a => tmpDialogs[a].reduce(function (total, x) { return total + 1 }, 0)) // и правильно считаем длину
+    const dialogsLength = Object.keys(tmpDialogs).map(a => tmpDialogs[a].reduce(function (total) { return total + 1 }, 0)) // и правильно считаем длину
 
     const length = {
       start: dialogsLength[0],
@@ -144,6 +144,7 @@ function * getDialogs () {
 // * message Saga's
 
 export const getMessagesState = (state) => state.message
+export const getDialogsState = (state) => state.dialog
 
 function * getMessages (action) {
   try {
@@ -165,14 +166,20 @@ function * getMessages (action) {
 function * sendMessage (action) {
   try {
     const { status, message } = action.payload
-    const { messageLength, indexDialogUser } = yield select(getMessagesState)
+    const { messageLength, indexDialogUser, idDialogUser } = yield select(getMessagesState)
+    const { filteredMessages } = yield select(getDialogsState)
     const chatMessageRef = firebase.database().ref(`chat/${status}/${indexDialogUser}/messages/${messageLength}`)
     yield call(() => {
+      // eslint-disable-next-line promise/param-names
       return new Promise((resolve, _) => {
         chatMessageRef.set(message)
         resolve(true)
       })
     })
+
+    if (idDialogUser === filteredMessages[status][indexDialogUser].uuid) {
+      yield put({ type: 'ADD_MESSAGE_TO_DIALOG', payload: { status, index: indexDialogUser, message, id: idDialogUser } })
+    }
   } catch (e) {
     const errorMessage = { code: e.code, message: e.message }
     console.log(errorMessage)

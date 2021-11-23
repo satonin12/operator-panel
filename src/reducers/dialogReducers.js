@@ -10,7 +10,8 @@ import {
   SET_FILTERED_DIALOGS,
   SET_OPEN_DIALOG,
   SET_PROFILE_OPEN,
-  SET_SELECTED_DIALOG
+  SET_SELECTED_DIALOG,
+  ADD_MESSAGE_TO_DIALOG
 } from '../actions/dialogAction'
 
 const initialState = {
@@ -27,7 +28,7 @@ const initialState = {
     active: [],
     complete: [],
     save: []
-  }, // состояние для отфильтрованны[ сообщений
+  }, // состояние для отфильтрованных сообщений
   lengthDialogs: {
     active: 0,
     complete: 0,
@@ -134,6 +135,23 @@ export function dialogReducer (state = initialState, action) {
       return {
         ...state,
         isOpenDialog: action.payload
+      }
+    case ADD_MESSAGE_TO_DIALOG:
+      // eslint-disable-next-line no-case-declarations
+      const aPl = action.payload
+      // eslint-disable-next-line no-case-declarations
+      const newMessagesArray = [...state.filteredMessages[aPl.status][aPl.index].messages, aPl.message]
+      return {
+        ...state,
+        filteredMessages: {
+          ...state.filteredMessages,
+          [aPl.status]: state.filteredMessages[aPl.status].map(dialog => dialog.uuid === aPl.id
+            // transform the one with a matching id
+            ? { ...dialog, messages: newMessagesArray }
+            // otherwise return original todo
+            : dialog
+          )
+        }
       }
     default:
       return state

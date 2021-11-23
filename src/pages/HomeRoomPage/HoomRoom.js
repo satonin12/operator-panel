@@ -65,14 +65,12 @@ const HoomRoom = () => {
 
   const clicked = '' // отслеживаем куда именно нажал пользователь в компоненту MessageItem (на сам диалог или кнопку "Сохранить"/"Удалить")
   const clickedRef = useRef(clicked) // оптимизируем для использования в useCallback
-  let previewMessageOnDb = null
   const hasMore = true
   const { TabPane } = Tabs
 
   const dispatch = useDispatch()
   const { token, user } = useSelector((state) => state.auth)
   const { dialogs, filteredMessages, lengthDialogs } = useSelector((state) => state.dialog)
-  const { messages, idDialogUser } = useSelector((state) => state.message)
 
   // нижние 5 состояния не сохраняем в dispatch т.к не хотим чтобы диалоги и вкладки оставались открытыми, они будут открыватся по умолчанию
   // ! они есть в dispatch так что при желании их можно будет оставлять открытыми даже после перезагрузки
@@ -272,7 +270,6 @@ const HoomRoom = () => {
     }
   }
 
-  // TODO: поправить баг при клике на тот же диалог
   const handlerSetActiveDialog = useCallback((e) => {
     if (clickedRef.current !== 'Button') {
       setActiveDialog(e)
@@ -391,9 +388,7 @@ const HoomRoom = () => {
                       : (
                         // eslint-disable-next-line array-callback-return
                           filteredMessages[tabPane.status].map((message, index) => {
-                            previewMessageOnDb = true
                             if (message !== null && typeof message !== 'undefined') {
-                              if (message.uuid === idDialogUser) previewMessageOnDb = false
                               return (
                                 <MessageItem
                                   key={index}
@@ -402,11 +397,11 @@ const HoomRoom = () => {
                                   activeTab={activeTab}
                                   avatar={message.avatar}
                                   isSelected={isSelected}
+                                  message={message.messages[message.messages.length - 1].content}
+                                  date={message.messages[message.messages.length - 1].timestamp}
                                   onClick={() => handlerSetActiveDialog({ status: message.status, index, message })}
                                   handlerDeleteInSave={() => removeDialogFromSave({ status: tabPane.status, index, dialog: message })}
                                   handlerTransferToSave={() => transferDialogToSave({ status: tabPane.status, index, dialog: message })}
-                                  message={previewMessageOnDb ? message.messages[message.messages.length - 1].content : messages[messages.length - 1].content}
-                                  date={previewMessageOnDb ? message.messages[message.messages.length - 1].timestamp : messages[messages.length - 1].timestamp}
                                 />
                               )
                             }

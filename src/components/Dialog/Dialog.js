@@ -117,8 +117,8 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
       } catch (e) {
         console.log(e)
       }
-      setValue('')
       getMessages()
+      setValue('')
     }
   }
 
@@ -145,9 +145,11 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
 
       </div>
       <div className='Dialog--item DialogContent'>
-        {messages.map((item, index) => (
-          <DialogMessage key={index + Date.now()} messages={item} />
-        ))}
+        <div className='Content--Scroll'>
+          {messages.map((item, index) => (
+            <DialogMessage key={index + Date.now()} messages={item} />
+          ))}
+        </div>
       </div>
       <div className='Dialog--item FooterBlock'>
         {status === 'complete'

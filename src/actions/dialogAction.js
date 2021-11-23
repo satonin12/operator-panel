@@ -10,6 +10,8 @@ export const ADD_TO_SAVE = 'ADD_TO_SAVE'
 export const DELETE_FROM_SAVE = 'DELETE_FROM_SAVE'
 export const ADD_DIALOG_TO_ACTIVE = 'ADD_DIALOG_TO_ACTIVE'
 
+export const ADD_MESSAGE_TO_DIALOG = 'ADD_MESSAGE_TO_DIALOG'
+
 // используем - если хотим чтобы после перезагрузки сохранялись выбранные диалоги, вкладки, подсветка активной вкладки, окно профиля открытыми
 export const SET_ACTIVE_TAB = 'SET_ACTIVE_TAB'
 export const SET_OPEN_DIALOG = 'SET_OPEN_DIALOG'
@@ -105,5 +107,13 @@ export function setActiveDialog () {
 export function setSelectedDialog () {
   return {
     type: SET_SELECTED_DIALOG
+  }
+}
+
+// =======================================
+
+export function addMessageToDialog () {
+  return {
+    type: ADD_MESSAGE_TO_DIALOG
   }
 }
