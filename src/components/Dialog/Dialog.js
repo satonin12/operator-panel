@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { createRef, useCallback, useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import firebase from 'firebase'
 import {
   StarFilled,
-  StarOutlined,
-  SmileOutlined
+  SmileTwoTone,
+  StarOutlined
 } from '@ant-design/icons'
 import Picker from 'emoji-picker-react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -22,7 +22,7 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
   if (typeof index === 'undefined') { throw Error('ошибка индексации - in Dialog props') }
 
   const dispatch = useDispatch()
-  const inputRef = useRef()
+  const inputRef = createRef()
   const [value, setValue] = useState('')
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const { messages } = useSelector((state) => state.message)
@@ -123,10 +123,13 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
       }
       getMessages()
       setValue('')
+      isShowEmojiPicker()
     }
   }
 
   const setInputFocus = () => inputRef.current.focus()
+
+  const isShowEmojiPicker = () => setShowEmojiPicker(prevState => !prevState)
 
   const onEmojiClick = (e, emojiObject) => {
     setValue(value + emojiObject.emoji)
@@ -178,14 +181,13 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
             )
           : (
             <div className='AnswerBlock'>
-              <button className='AnswerBlock--SmileButton' onClick={() => setShowEmojiPicker(prevState => !prevState)}>
-                <SmileOutlined />
+              <button className='AnswerBlock--SmileButton' onClick={isShowEmojiPicker}>
+                <SmileTwoTone twoToneColor='#1890ff' />
               </button>
               {showEmojiPicker &&
                 <Picker
                   onEmojiClick={onEmojiClick}
                   preload
-                  disableAutoFocus
                 />}
 
               {/* TODO: заменить на textarea */}

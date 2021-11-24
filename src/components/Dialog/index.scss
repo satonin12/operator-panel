@@ -95,22 +95,30 @@
       align-items: flex-end;
 
       .AnswerBlock--SmileButton {
-        span {
-          height: 20px;
-        }
+        border: 2px solid #1890ffb5 !important;
+        background-color: inherit;
+        text-align: center;
 
-        button {
-          border: 2px solid #1890ff;
-          background-color: inherit;
-          text-align: center;
+        display: flex;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+
+        span {
+          height: auto;
+          width: 100%;
+          svg {
+            font-size: 20px;
+          }
         }
       }
 
       .emoji-picker-react{
         position: absolute;
+        height: 350px;
         width: 300px;
-        top: -305px;
-        left: 75px;
+        top: -330px;
+        left: 80px;
         box-shadow: none;
       }
 
