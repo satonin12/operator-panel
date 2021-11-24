@@ -4,7 +4,8 @@ import firebase from 'firebase'
 import {
   StarFilled,
   SmileTwoTone,
-  StarOutlined
+  StarOutlined,
+  UploadOutlined
 } from '@ant-design/icons'
 import Picker from 'emoji-picker-react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -24,9 +25,9 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
   const dispatch = useDispatch()
   const inputRef = createRef()
   const [value, setValue] = useState('')
+  const [attachImage, setAttachImage] = useState([])
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const { messages } = useSelector((state) => state.message)
-
   const getMessages = useCallback(async () => {
     dispatch({ type: 'GET_MESSAGES_REQUEST', payload: { status, uuid: obj.message.uuid } })
   }, [dispatch, status, obj.message.uuid])
@@ -104,36 +105,62 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
   }, [])
 
   const handlerSendMessage = async () => {
-    if (value.trim().length) {
+    if (value.trim().length || attachImage.length !== 0) {
       const timestamp = new Date()
       try {
-        dispatch({
-          type: 'SEND_MESSAGE',
-          payload: {
-            status,
-            message: {
-              content: value,
-              timestamp: timestamp.toISOString(),
-              writtenBy: 'operator'
+        if (attachImage.length !== 0) {
+          dispatch({
+            type: 'SEND_MESSAGE',
+            payload: {
+              status,
+              message: {
+                content: value,
+                timestamp: timestamp.toISOString(),
+                writtenBy: 'operator',
+                image_url: attachImage
+              }
             }
-          }
-        })
+          })
+        } else {
+          dispatch({
+            type: 'SEND_MESSAGE',
+            payload: {
+              status,
+              message: {
+                content: value,
+                timestamp: timestamp.toISOString(),
+                writtenBy: 'operator'
+              }
+            }
+          })
+        }
       } catch (e) {
         console.log(e)
       }
       getMessages()
       setValue('')
-      isShowEmojiPicker()
+      setShowEmojiPicker(false)
+      setAttachImage([])
     }
   }
 
   const setInputFocus = () => inputRef.current.focus()
 
-  const isShowEmojiPicker = () => setShowEmojiPicker(prevState => !prevState)
-
   const onEmojiClick = (e, emojiObject) => {
     setValue(value + emojiObject.emoji)
     setInputFocus()
+  }
+
+  const uploadImage = () => {
+    window.cloudinary.openUploadWidget({
+      cloud_name: 'dyjcgnzq7', upload_preset: 'operators_uploads', tags: ['xmas']
+      // eslint-disable-next-line node/handle-callback-err
+    }, (error, result) => {
+      const resultTmp = result
+      const arr = []
+      resultTmp.map((item) => arr.push({ src: item.url }))
+      setAttachImage(arr)
+    })
   }
 
   return (
@@ -181,7 +208,11 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
             )
           : (
             <div className='AnswerBlock'>
-              <button className='AnswerBlock--SmileButton' onClick={isShowEmojiPicker}>
+              <button className='AnswerBlock--SmileButton' onClick={uploadImage}>
+                <UploadOutlined twoToneColor='#1890ff' />
+                {attachImage.length > 0 && <span className='AttachCount'>{attachImage.length}</span>}
+              </button>
+              <button className='AnswerBlock--SmileButton' onClick={() => setShowEmojiPicker(prevState => !prevState)}>
                 <SmileTwoTone twoToneColor='#1890ff' />
               </button>
               {showEmojiPicker &&

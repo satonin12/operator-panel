@@ -169,6 +169,7 @@ function * sendMessage (action) {
     const { messageLength, indexDialogUser, idDialogUser } = yield select(getMessagesState)
     const { filteredMessages } = yield select(getDialogsState)
     const chatMessageRef = firebase.database().ref(`chat/${status}/${indexDialogUser}/messages/${messageLength}`)
+
     yield call(() => {
       return new Promise((resolve, _) => {
         chatMessageRef.set(message)

@@ -5,7 +5,7 @@ import Time from '../Time/Time'
 import classNames from 'classnames'
 import Button from '../Button/Button'
 
-const MessageItem = ({ activeTab, index, avatar, name, date, message, onClick, isSelected = false, handlerTransferToSave, handlerDeleteInSave }) => {
+const MessageItem = ({ activeTab, index, avatar, name, date, message, image, onClick, isSelected = false, handlerTransferToSave, handlerDeleteInSave }) => {
   return (
     <li
       className={classNames('Message', {
@@ -27,7 +27,7 @@ const MessageItem = ({ activeTab, index, avatar, name, date, message, onClick, i
           {name}
         </div>
         <div className='MessageItem MessageItem--Message'>
-          {message}
+          {message === '' && image.length > 0 ? 'Фотография' : message}
         </div>
       </div>
       <div className='MessageItem MessageItem--Block'>

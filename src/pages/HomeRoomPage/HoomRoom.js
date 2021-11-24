@@ -397,8 +397,9 @@ const HoomRoom = () => {
                                   activeTab={activeTab}
                                   avatar={message.avatar}
                                   isSelected={isSelected}
-                                  message={message.messages[message.messages.length - 1].content}
                                   date={message.messages[message.messages.length - 1].timestamp}
+                                  message={message.messages[message.messages.length - 1].content}
+                                  image={message.messages[message.messages.length - 1].image_url}
                                   onClick={() => handlerSetActiveDialog({ status: message.status, index, message })}
                                   handlerDeleteInSave={() => removeDialogFromSave({ status: tabPane.status, index, dialog: message })}
                                   handlerTransferToSave={() => transferDialogToSave({ status: tabPane.status, index, dialog: message })}
