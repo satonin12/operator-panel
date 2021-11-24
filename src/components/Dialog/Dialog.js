@@ -1,17 +1,19 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import firebase from 'firebase'
 import {
+  StarFilled,
   StarOutlined,
-  StarFilled
+  SmileOutlined
 } from '@ant-design/icons'
+import Picker from 'emoji-picker-react'
+import { useDispatch, useSelector } from 'react-redux'
 
 import LabelInput from '../Inputs/LabelInput/LabelInput'
 import DialogMessage from './DialogMessage/DialogMessage'
 import Button from '../Button/Button'
 
 import './index.scss'
-import { useDispatch, useSelector } from 'react-redux'
 
 const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
   const status = obj.status
@@ -20,7 +22,9 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
   if (typeof index === 'undefined') { throw Error('ошибка индексации - in Dialog props') }
 
   const dispatch = useDispatch()
+  const inputRef = useRef()
   const [value, setValue] = useState('')
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const { messages } = useSelector((state) => state.message)
 
   const getMessages = useCallback(async () => {
@@ -122,6 +126,13 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
     }
   }
 
+  const setInputFocus = () => inputRef.current.focus()
+
+  const onEmojiClick = (e, emojiObject) => {
+    setValue(value + emojiObject.emoji)
+    setInputFocus()
+  }
+
   return (
     <div className='Dialog'>
       <div className='Dialog--item HeaderBlock'>
@@ -167,9 +178,20 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
             )
           : (
             <div className='AnswerBlock'>
+              <button className='AnswerBlock--SmileButton' onClick={() => setShowEmojiPicker(prevState => !prevState)}>
+                <SmileOutlined />
+              </button>
+              {showEmojiPicker &&
+                <Picker
+                  onEmojiClick={onEmojiClick}
+                  preload
+                  disableAutoFocus
+                />}
+
               {/* TODO: заменить на textarea */}
               <LabelInput
                 value={value}
+                ref={inputRef}
                 placeholder=' '
                 label='Введите ответ'
                 onChange={(e) => setValue(e.target.value)}
