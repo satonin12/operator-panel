@@ -148,7 +148,7 @@ export function dialogReducer (state = initialState, action) {
           [aPl.status]: state.filteredMessages[aPl.status].map(dialog => dialog.uuid === aPl.id
             // transform the one with a matching id
             ? { ...dialog, messages: newMessagesArray }
-            // otherwise return original todo
+            // otherwise return original
             : dialog
           )
         }
