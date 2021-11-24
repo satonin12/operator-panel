@@ -12,12 +12,13 @@ import { composeWithDevTools } from 'redux-devtools-extension'
 
 import { reducer } from './reducers'
 import rootSaga from './sagas/index'
+import { BrowserRouter } from 'react-router-dom'
 
 // create the saga middleware
 const sagaMiddleware = createSagaMiddleware()
 
 // create a redux store with our reducer above and middleware
-let store = createStore(
+const store = createStore(
   reducer,
   composeWithDevTools(applyMiddleware(sagaMiddleware))
 )
@@ -28,7 +29,9 @@ sagaMiddleware.run(rootSaga)
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')

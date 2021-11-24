@@ -9,7 +9,7 @@ const firebaseApp = firebase.initializeApp({
   storageBucket: 'vsatonin-intership-login.appspot.com',
   messagingSenderId: '16186507247',
   appId: '1:16186507247:web:2d6581b602570a69d7c01a',
-  measurementId: 'G-LN3JK1WSZM',
+  measurementId: 'G-LN3JK1WSZM'
 })
 
 const rsf = new ReduxSagaFirebase(firebaseApp)

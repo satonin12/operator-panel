@@ -1,86 +1,56 @@
 import React from 'react'
 import { useFormik } from 'formik'
 import { useDispatch, useSelector } from 'react-redux'
-import * as Yup from 'yup'
 
-import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
-import Button from '../../components/Button/Button'
+import LoginForm from '../../components/forms/LoginForm'
+import { LoginSchema } from '../../utils/validation'
 
 import './index.scss'
 
-const SignupSchema = Yup.object().shape({
-  email: Yup.string()
-    .email('Email должен иметь общепринятый вид адреса электронной почты')
-    .required('Email должен быть введен'),
-  password: Yup.string().required('Пароль должен быть введен'),
-})
-
 const LoginPage = () => {
   const dispatch = useDispatch()
-  const formError = useSelector((state) => state.error)
+  const { error } = useSelector((state) => state)
   const formik = useFormik({
     initialValues: {
       email: '',
-      password: '',
+      password: ''
     },
-    validationSchema: SignupSchema,
+    validationSchema: LoginSchema,
     onSubmit: (values) => {
       dispatch({
         type: 'CHECKOUT_REQUEST',
         user: {
           email: values.email,
-          password: values.password,
-        },
+          password: values.password
+        }
       })
-    },
+    }
   })
+
+  const handlerLoginWithGoogle = () => {
+    window.alert('Эта функциональность пока не работает')
+  }
+
+  const handlerLoginWithVK = () => {
+    window.alert('Эта функциональность пока не работает')
+  }
 
   return (
     <main>
-      <div className="BaseLayout">
-        <div className="content">
-          <div className="Form">
-            <h2>Войдите чтобы продолжить</h2>
-            {formError && formik.isSubmitting && (
-              <span className="formPrompt formPrompt--error">
+      <div className='BaseLayout'>
+        <div className='content'>
+          <div className='Form'>
+            <h2>Авторизация</h2>
+            {error && formik.isSubmitting && (
+              <span className='formPrompt formPrompt--error'>
                 Ошибка входа, пожалуйста проверьте логин или пароль
               </span>
             )}
-            <form onSubmit={formik.handleSubmit}>
-              <div className="FormContent">
-                <LabelInput
-                  type="email"
-                  label="email"
-                  name="email"
-                  placeholder=""
-                  value={formik.values.email}
-                  onChange={formik.handleChange}
-                />
-                {formik.touched.email && formik.errors.email ? (
-                  <span className="formPrompt formPrompt--error">
-                    {formik.errors.email}
-                  </span>
-                ) : null}
-
-                <LabelInput
-                  name="password"
-                  type="password"
-                  label="password"
-                  placeholder=""
-                  onChange={formik.handleChange}
-                  value={formik.values.password}
-                />
-                {formik.touched.password && formik.errors.password ? (
-                  <span className="formPrompt formPrompt--error">
-                    {formik.errors.password}
-                  </span>
-                ) : null}
-
-                <Button type="submit" styleButton="primary">
-                  Войти
-                </Button>
-              </div>
-            </form>
+            <LoginForm
+              formik={formik}
+              handlerClickVK={handlerLoginWithVK}
+              handlerClickGoogle={handlerLoginWithGoogle}
+            />
           </div>
         </div>
       </div>
