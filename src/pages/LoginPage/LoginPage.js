@@ -6,6 +6,7 @@ import LoginForm from '../../components/forms/LoginForm'
 import { LoginSchema } from '../../utils/validation'
 
 import './index.scss'
+import BaseLayouts from '../../lauouts/BaseLayouts/BaseLayouts'
 
 const LoginPage = () => {
   const dispatch = useDispatch()
@@ -36,25 +37,19 @@ const LoginPage = () => {
   }
 
   return (
-    <main>
-      <div className='BaseLayout'>
-        <div className='content'>
-          <div className='Form'>
-            <h2>Авторизация</h2>
-            {error && formik.isSubmitting && (
-              <span className='formPrompt formPrompt--error'>
-                Ошибка входа, пожалуйста проверьте логин или пароль
-              </span>
-            )}
-            <LoginForm
-              formik={formik}
-              handlerClickVK={handlerLoginWithVK}
-              handlerClickGoogle={handlerLoginWithGoogle}
-            />
-          </div>
-        </div>
-      </div>
-    </main>
+    <BaseLayouts>
+      <h2>Авторизация</h2>
+      {error && formik.isSubmitting && (
+        <span className='formPrompt formPrompt--error'>
+          Ошибка входа, пожалуйста проверьте логин или пароль
+        </span>
+      )}
+      <LoginForm
+        formik={formik}
+        handlerClickVK={handlerLoginWithVK}
+        handlerClickGoogle={handlerLoginWithGoogle}
+      />
+    </BaseLayouts>
   )
 }
 

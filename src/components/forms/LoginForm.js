@@ -14,56 +14,60 @@ const LoginForm = ({ formik, handlerClickVK, handlerClickGoogle }) => {
   return (
     <>
       <form onSubmit={formik.handleSubmit}>
-        <div className="FormContent">
+        <div className='FormContent'>
           <LabelInput
-            type="email"
-            label="Email"
-            name="email"
-            placeholder=""
+            type='email'
+            label='Email'
+            name='email'
+            placeholder=' '
             value={formik.values.email}
             onChange={formik.handleChange}
           />
-          {formik.touched.email && formik.errors.email ? (
-            <span className="formPrompt formPrompt--error">
-              {formik.errors.email}
-            </span>
-          ) : null}
+          {formik.touched.email && formik.errors.email
+            ? (
+              <span className='formPrompt formPrompt--error'>
+                {formik.errors.email}
+              </span>
+              )
+            : null}
           <LabelInput
-            name="password"
-            type="password"
-            label="Пароль"
-            placeholder=""
+            name='password'
+            type='password'
+            label='Пароль'
+            placeholder=' '
             onChange={formik.handleChange}
             value={formik.values.password}
           />
-          {formik.touched.password && formik.errors.password ? (
-            <span className="formPrompt formPrompt--error">
-              {formik.errors.password}
-            </span>
-          ) : null}
-          <Button type="submit" styleButton="primary">
+          {formik.touched.password && formik.errors.password
+            ? (
+              <span className='formPrompt formPrompt--error'>
+                {formik.errors.password}
+              </span>
+              )
+            : null}
+          <Button type='submit' styleButton='primary'>
             Войти
           </Button>
 
-          <div className="formLinks">
-            <div className="signVK">
-              <Link onClick={handlerClickVK} to="#">
+          <div className='formLinks'>
+            <div className='signVK'>
+              <Link onClick={handlerClickVK} to='#'>
                 <img
-                  className="material-icons prefix"
+                  className='material-icons prefix'
                   src={VKIcon}
-                  alt="VK Icon"
+                  alt='VK Icon'
                   width={18}
                   height={18}
                 />
                 Войти через VK
               </Link>
             </div>
-            <div className="signGoogle">
-              <Link onClick={handlerClickGoogle} to="#">
+            <div className='signGoogle'>
+              <Link onClick={handlerClickGoogle} to='#'>
                 <img
-                  className="material-icons prefix"
+                  className='material-icons prefix'
                   src={GoogleIcon}
-                  alt="Google Icon"
+                  alt='Google Icon'
                   width={18}
                   height={18}
                 />
@@ -72,12 +76,12 @@ const LoginForm = ({ formik, handlerClickVK, handlerClickGoogle }) => {
             </div>
           </div>
 
-          <div className="formLinks">
-            <Link className="formLinks--item" to={RouteNames.REGISTER}>
+          <div className='formLinks'>
+            <Link className='formLinks--item' to={RouteNames.REGISTER}>
               Зарегистрироваться
             </Link>
 
-            <Link className="formLinks--item" to={RouteNames.FORGOT_PASSWORD}>
+            <Link className='formLinks--item' to={RouteNames.FORGOT_PASSWORD}>
               Забыли пароль ?
             </Link>
           </div>

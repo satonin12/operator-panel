@@ -1,5 +1,11 @@
 import * as Yup from 'yup'
 
+const EmailValidation = Yup.object().shape({
+  email: Yup.string()
+    .required('Email должен быть введен')
+    .email('Email должен иметь общепринятый вид адреса электронной почты')
+})
+
 const PasswordValidation = Yup.object().shape({
   password: Yup.string()
     .required('Пароль должен быть введен')
@@ -22,11 +28,8 @@ const RepeatPasswordValidation = Yup.object().shape({
 })
 
 export const LoginSchema = Yup.object()
-  .shape({
-    email: Yup.string()
-      .required('Email должен быть введен')
-      .email('Email должен иметь общепринятый вид адреса электронной почты')
-  })
+  .shape({})
+  .concat(EmailValidation)
   .concat(PasswordValidation)
 
 export const RegisterSchema = Yup.object()
@@ -35,10 +38,7 @@ export const RegisterSchema = Yup.object()
   .concat(RepeatPasswordValidation)
 
 export const ForgotPasswordSchema = Yup.object().shape({
-  email: Yup.string()
-    .required('Email должен быть введен')
-    .email('Email должен иметь общепринятый вид адреса электронной почты')
-})
+}).concat(EmailValidation)
 
 export const RefreshPasswordSchema = Yup.object()
   .shape({})

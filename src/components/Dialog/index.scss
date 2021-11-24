@@ -1,0 +1,128 @@
+//noinspection ALL
+.Dialog {
+  width: 100%;
+  width: -moz-available;          /* For Mozzila */
+  width: -webkit-fill-available;  /* For Chrome */
+  height: inherit;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: initial;
+
+  overflow: hidden;
+
+  &--item {
+  }
+
+  .HeaderBlock {
+    width: 100%;
+    width: -moz-available;          /* For Mozzila */
+    width: -webkit-fill-available;  /* For Chrome */
+    height: 100px;
+    box-shadow: 0px 1px 5px 0px #1890ff78;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    &--item {
+      margin: 0 60px;
+    }
+
+    .DialogUserBlock {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      width: auto;
+    }
+
+    .DialogAvatar {
+      margin: 0 20px;
+      img {
+        border-radius: 50%;
+        height: 60px;
+        width: 60px;
+      }
+    }
+  }
+
+  .DialogName {
+    font-size: 24px;
+  }
+
+  .DialogContent {
+    height: 100vh;
+    width: 100%;
+    padding: 0 10px;
+
+    overflow-y: scroll; /* Добавляем полосы прокрутки */
+
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    justify-content: flex-start;
+
+    &--Scroll {
+      flex: 0 0 auto;
+    }
+  }
+
+  .FooterBlock {
+    width: 100%;
+    width: -moz-available;          /* For Mozzila */
+    width: -webkit-fill-available;  /* For Chrome */
+    height: 110px;
+    background-color: #EBEBEB;
+
+    .AnswerBlock {
+      padding: 15px 15px 25px 15px;
+      margin-bottom: 30px;
+      height: inherit;
+
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+
+      input {
+        width: 100%;
+        width: -moz-available;          /* For Mozzila */
+        width: -webkit-fill-available;  /* For Chrome */
+      }
+      select {
+        height: 30px;
+        width: 100%;
+        width: -moz-available;          /* For Mozzila */
+        width: -webkit-fill-available;  /* For Chrome */
+        border: 2px solid #1890FF;
+        background-color: #EBEBEB;
+      }
+      button {
+        width: auto;
+      }
+
+      & * {
+        margin: 0 5px;
+      }
+    }
+
+    .FeedbackBlock {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: inherit;
+    }
+
+
+  }
+}

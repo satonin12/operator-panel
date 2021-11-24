@@ -6,6 +6,7 @@ import { RegisterSchema } from '../../utils/validation'
 
 import './index.scss'
 import { useDispatch, useSelector } from 'react-redux'
+import BaseLayouts from '../../lauouts/BaseLayouts/BaseLayouts'
 
 const RegisterPage = () => {
   const dispatch = useDispatch()
@@ -28,22 +29,17 @@ const RegisterPage = () => {
     }
   })
   return (
-    <main>
-      <div className='BaseLayout'>
-        <div className='content'>
-          <div className='Form'>
-            <h2>Регистрация</h2>
-            {error && formik.isSubmitting && (
-              <span className='formPrompt formPrompt--error'>
-                Ошибка регистрации, пожалуйста проверьте правильность ввода
-                логина или пароля или попробуйте перезагрузить страницу
-              </span>
-            )}
-            <RegisterForm formik={formik} />
-          </div>
-        </div>
-      </div>
-    </main>
+    <BaseLayouts>
+      <h2>Регистрация</h2>
+      {error && formik.isSubmitting && (
+        <span className='formPrompt formPrompt--error'>
+          Ошибка регистрации, пожалуйста проверьте правильность ввода
+          логина или пароля или попробуйте перезагрузить страницу
+        </span>
+      )}
+      <RegisterForm formik={formik} />
+    </BaseLayouts>
+
   )
 }
 

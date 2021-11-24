@@ -1,6 +1,8 @@
+//noinspection ALL
 .LabelInput {
   width: 100%;
-  width: -moz-available;
+  width: -moz-available;          /* For Mozzila */
+  width: -webkit-fill-available;  /* For Chrome */
 
   position: relative;
   margin-top: 2rem;
@@ -32,10 +34,14 @@ label {
   }
 }
 
-input:focus ~ label,
-input:not(:placeholder-shown) ~ label {
-  color: #007AFF;
-  transform: translateY(-14px) scale(0.8);
-  transform-origin: 0 0;
+input {
+  &:focus,
+  &:not(:placeholder-shown),
+  &:-webkit-autofill {
+    & ~ label {
+      color: #007AFF;
+      transform: translateY(-14px) scale(0.8);
+      transform-origin: 0 0;
+    }
+  }
 }
-
