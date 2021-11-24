@@ -1,0 +1,41 @@
+.LabelInput {
+  width: 100%;
+  width: -moz-available;
+
+  position: relative;
+  margin-top: 2rem;
+}
+
+label {
+  color: #56597A;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 1rem;
+  cursor: text;
+  transition: transform .2s ease-out, color .2s ease-out;
+  transform-origin: 0 100%;
+  text-align: initial;
+  transform: translateY(12px);
+  pointer-events: none;
+
+  &::after {
+    box-sizing: inherit;
+    display: block;
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    opacity: 0;
+    transition: .2s opacity ease-out, .2s color ease-out;
+  }
+}
+
+input:focus ~ label,
+input:not(:placeholder-shown) ~ label {
+  color: #F78Cb6;
+  transform: translateY(-14px) scale(0.8);
+  transform-origin: 0 0;
+}
+
