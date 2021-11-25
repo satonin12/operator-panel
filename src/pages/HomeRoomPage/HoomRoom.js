@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
-import { Result, Tabs } from 'antd'
+import { Result, Tabs, Menu, Dropdown } from 'antd'
 import {
   MailFilled,
   HomeTwoTone,
@@ -7,20 +7,27 @@ import {
   MailTwoTone,
   PhoneFilled,
   SmileOutlined,
+  CloseOutlined,
+  EllipsisOutlined,
   EnvironmentFilled,
   CheckSquareTwoTone
 } from '@ant-design/icons'
 import firebase from 'firebase'
+import { useFormik } from 'formik'
+import ReactModal from 'react-modal'
 // import throttle from 'lodash.throttle'
 import debounce from 'lodash.debounce'
 import { useDispatch, useSelector } from 'react-redux'
+import InfiniteScroll from 'react-infinite-scroll-component'
 import { Offcanvas, OffcanvasBody, OffcanvasHeader } from 'reactstrap'
 
-import InfiniteScroll from 'react-infinite-scroll-component'
 import Button from '../../components/Button/Button'
 import Dialog from '../../components/Dialog/Dialog'
+import { RefreshPasswordSchema } from '../../utils/validation'
+import UpdateProfile from '../../components/forms/UpdateProfile'
 import MessageItem from '../../components/MessageItem/MessageItem'
 import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
+import RefreshPasswordForm from '../../components/forms/RefreshPasswordForm'
 
 import './index.scss'
 
@@ -72,6 +79,10 @@ const HoomRoom = () => {
   const { token, user } = useSelector((state) => state.auth)
   const { dialogs, filteredMessages, lengthDialogs } = useSelector((state) => state.dialog)
 
+  const [dropDownMenu, setDropDownMenu] = useState({
+    showModal: false,
+    menuClick: ''
+  })
   // нижние 5 состояния не сохраняем в dispatch т.к не хотим чтобы диалоги и вкладки оставались открытыми, они будут открыватся по умолчанию
   // ! они есть в dispatch так что при желании их можно будет оставлять открытыми даже после перезагрузки
   const [isOpen, setIsOpen] = useState(false) // открыть-закрыть окно профиля
@@ -285,6 +296,22 @@ const HoomRoom = () => {
     setIsOpen(prevState => !prevState)
   }
 
+  const handleOpenModal = (e) => {
+    setDropDownMenu(prevState => ({
+      ...prevState,
+      showModal: true,
+      menuClick: e.key
+    }))
+  }
+
+  const handlerModalExit = () => {
+    setDropDownMenu(prevState => ({
+      ...prevState,
+      showModal: false,
+      menuClick: ''
+    }))
+  }
+
   // TODO: пока что не используется, нужно большге времени чтобы правильно настроить пагинацию и react-infinitive-scroll
   const fetchMoreData = useCallback(async (status = 'active') => {
     // let moreStatusDialog
@@ -307,6 +334,28 @@ const HoomRoom = () => {
     // ])
   }, [])
 
+  // * JSX Variable declaration block ============================
+
+  const formik = useFormik({
+    initialValues: {
+      password: '',
+      repeatPassword: ''
+    },
+    validationSchema: RefreshPasswordSchema,
+    onSubmit: (values) => {
+      window.alert(JSON.stringify(values, null, 2))
+    }
+  })
+
+  const menu = (
+    <Menu>
+      <Menu.ItemGroup title='Настройки'>
+        <Menu.Item key='profile' onClick={handleOpenModal}>Настройки профиля</Menu.Item>
+        <Menu.Item key='password' onClick={handleOpenModal}>Настройки пароля</Menu.Item>
+      </Menu.ItemGroup>
+    </Menu>
+  )
+
   // ! Component render block (return) ======================================================================================
   return (
     <>
@@ -315,12 +364,22 @@ const HoomRoom = () => {
           <div className='HomePage--item LeftPanel'>
             <div className='TitleBlock'>
               <div className='TitleBlock--Name'>{user.email}</div>
-              <div className='TitleBlock--Exit'>
-                <Button styleButton='primary' onClick={handlerExit}>
-                  Выйти
-                </Button>
+              <div className='BlockButtons'>
+                <div className='BlockButtons--Item BlockButtons--Exit'>
+                  <Button styleButton='primary' onClick={handlerExit}>
+                    Выйти
+                  </Button>
+                </div>
+                <div className='BlockButtons--Item BlockButtons--Etc'>
+                  <Dropdown overlay={menu}>
+                    <a href='/#' className='ant-dropdown-link' onClick={e => e.preventDefault()}>
+                      <EllipsisOutlined />
+                    </a>
+                  </Dropdown>
+                </div>
               </div>
             </div>
+
             <div className='SearchBlock'>
               <div className='SearchBlock--Search'>
                 <LabelInput
@@ -464,6 +523,51 @@ const HoomRoom = () => {
               </div>
             </Offcanvas>
           </aside>
+
+          <ReactModal
+            isOpen={dropDownMenu.showModal}
+            ariaHideApp={false}
+            style={{
+              overlay: {
+                backgroundColor: 'papayawhip',
+                top: '20%',
+                left: '30%',
+                right: 'auto',
+                bottom: 'auto',
+                marginRight: '-50%',
+                transform: 'translate(-50%, -50%)'
+              },
+              content: {
+                color: 'lightsteelblue',
+                width: '600px',
+                height: '600px'
+              }
+            }}
+            contentLabel='Inline Styles Modal Example'
+          >
+            {dropDownMenu.menuClick === 'profile'
+              ? (
+                <div className='Modal'>
+                  <div className='Modal--Title'>
+                    <h3 className='Title--Center'>Обновить профиль</h3>
+                    <span className='Modal--Close' onClick={handlerModalExit}><CloseOutlined /></span>
+                  </div>
+
+                  <UpdateProfile />
+                </div>
+                )
+              : (
+                <div className='Modal'>
+                  <div className='Modal--Title'>
+                    <h3 className='Title--Center'>Обновить пароль</h3>
+                    <span className='Modal--Close' onClick={handlerModalExit}><CloseOutlined /></span>
+                  </div>
+
+                  <RefreshPasswordForm formik={formik} />
+                </div>
+                )}
+
+          </ReactModal>
         </div>
       </div>
     </>

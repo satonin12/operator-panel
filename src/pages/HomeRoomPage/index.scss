@@ -49,12 +49,27 @@
         justify-content: space-between;
         align-items: baseline;
 
+        .BlockButtons {
+          display: flex;
+          align-items: center;
+          &--Item {
+            margin: 0 15px;
+          }
+          &--Exit{
+            font-size: 18px;
+          }
+          &--Etc {
+            transform: rotate(90deg);
+            font-size: 23px;
+            margin: 0;
+            padding: 0;
+          }
+        }
+
         &--Name {
           font-size: 24px;
         }
-        &--Exit{
-          font-size: 18px;
-        }
+
       }
 
       .MessageList {
@@ -127,5 +142,24 @@
 
   .btn-close {
     margin-top: 1.5rem!important;
+  }
+}
+
+.Modal {
+  &--Title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .Title--Center {
+      margin-top: 15px;
+    }
+  }
+  &--Close {
+    font-size: 20px;
+    color: #272727;
+    &:hover {
+      cursor: pointer;
+    }
   }
 }
