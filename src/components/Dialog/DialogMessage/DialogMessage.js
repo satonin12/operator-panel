@@ -26,7 +26,7 @@ const DialogMessage = ({ isReverse, isRemovable, messages, avatar }) => {
               {typeof messages.image_url !== 'undefined' && messages.image_url?.length > 0 &&
                messages.image_url.map((item, index) => (
                  <div key={index} className='item--image'>
-                   <img src={item.src} width={300} height={300} alt='Image' />
+                   <img src={item.src} width={300} height={300} alt='Прикрепленное изображение' />
                  </div>
                ))}
 

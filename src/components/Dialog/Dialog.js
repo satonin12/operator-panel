@@ -152,16 +152,24 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
   }
 
   const uploadImage = () => {
-    window.cloudinary.openUploadWidget({
-      cloud_name: 'dyjcgnzq7', upload_preset: 'operators_uploads', tags: ['xmas']
-      // eslint-disable-next-line node/handle-callback-err
-    }, (error, result) => {
-      const resultTmp = result
-      const arr = []
-      resultTmp.map((item) => arr.push({ src: item.url }))
-      setAttachImage(arr)
-    })
+    try {
+      window.cloudinary.openUploadWidget({
+        cloud_name: 'dyjcgnzq7', upload_preset: 'operators_uploads', tags: ['xmas']
+        // eslint-disable-next-line
+      }, (error, result) => {
+        if (error?.message !== 'User closed widget') {
+          const resultTmp = result
+          const arr = []
+          resultTmp.map((item) => arr.push({ src: item.url }))
+          setAttachImage(arr)
+        }
+      })
+    } catch (e) {
+      console.log(e)
+    }
   }
+
+  // TODO: вынести блок ввода и прикрепления фотографий в отдельный компонент
 
   return (
     <div className='Dialog'>
