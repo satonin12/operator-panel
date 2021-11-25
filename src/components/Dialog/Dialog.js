@@ -218,6 +218,7 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
             <div className='AnswerBlock'>
               <button className='AnswerBlock--SmileButton' onClick={uploadImage}>
                 <UploadOutlined twoToneColor='#1890ff' />
+                {/* TODO: переделать на Pictures Wall antd (https://ant.design/components/upload/#components-upload-demo-picture-card) */}
                 {attachImage.length > 0 && <span className='AttachCount'>{attachImage.length}</span>}
               </button>
               <button className='AnswerBlock--SmileButton' onClick={() => setShowEmojiPicker(prevState => !prevState)}>
