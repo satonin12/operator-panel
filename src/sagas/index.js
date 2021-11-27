@@ -4,6 +4,12 @@ import rsf from '../firebase'
 import { toast } from 'react-toastify'
 import firebase from 'firebase'
 
+// get state's
+
+export const getAuthState = (state) => state.auth
+export const getMessagesState = (state) => state.message
+export const getDialogsState = (state) => state.dialog
+
 // * auth Saga's
 
 function * signIn (action) {
@@ -108,6 +114,60 @@ function * forgotPassword (action) {
   }
 }
 
+function reAuth (user, currentUser) {
+  const credentials = firebase.auth.EmailAuthProvider.credential(user.email, user.password)
+  return currentUser.reauthenticateWithCredential(credentials)
+    .then((response) => ({ response }))
+    .catch(error => ({ error }))
+}
+
+function updatePass (currentUser, action) {
+  return new Promise((resolve, reject) => {
+    const tmp = currentUser.updatePassword(action.payload.user.password)
+    if (tmp) {
+      resolve(true)
+    } else {
+      // eslint-disable-next-line prefer-promise-reject-errors
+      reject('Ошибка')
+    }
+  })
+}
+
+function * refreshPassword (action) {
+  try {
+    const currentUser = firebase.auth().currentUser
+    const { user } = yield select(getAuthState)
+    // compare oldPassword in enterPassword with that lies in redux state
+    if (action.payload.user.oldPassword === user.password) {
+      // eslint-disable-next-line no-unused-vars
+      const { response, error } = yield call(reAuth, user, currentUser)
+
+      if (response) {
+        yield call(updatePass, currentUser, action)
+        toast.success('🦄 Пароль успешно обновлен! Зайдите заново с новым паролем', {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined
+        })
+        yield put({ type: 'RESET_STORE' })
+        yield put({ type: 'RESET_DIALOGS_STORE' })
+        yield put({ type: 'RESET_MESSAGE_STORE' })
+      }
+    } else {
+      console.log('Старый пароль не совпадает, пожалуйста, проверьте правильность данных')
+      yield put({ type: 'REFRESH_PASSWORD_ERROR', payload: 'Старый пароль не совпадает, пожалуйста, проверьте правильность данных' })
+    }
+  } catch (e) {
+    const errorMessage = { code: e.code, message: e.message }
+    console.log(errorMessage)
+    // yield put({ type: 'CHECKOUT_FAILURE', error: errorMessage })
+  }
+}
+
 // * dialogs Saga's
 
 function * getDialogs () {
@@ -142,9 +202,6 @@ function * getDialogs () {
 }
 
 // * message Saga's
-
-export const getMessagesState = (state) => state.message
-export const getDialogsState = (state) => state.dialog
 
 function * getMessages (action) {
   try {
@@ -192,6 +249,7 @@ export default function * rootSaga () {
     takeLatest('CHECKOUT_REQUEST', signIn),
     takeLatest('CHECKOUT_REGISTRATION_REQUEST', signUp),
     takeLatest('FORGOT_PASSWORD_REQUEST', forgotPassword),
+    takeLatest('REFRESH_PASSWORD', refreshPassword),
 
     takeLatest('GET_DIALOGS_REQUEST', getDialogs),
 

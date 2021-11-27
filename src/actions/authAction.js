@@ -11,14 +11,14 @@ export const CHECKOUT_REGISTRATION_FAILURE = 'CHECKOUT_REGISTRATION_FAILURE'
 // ========================================
 
 export const SET_AUTH = 'SET_AUTH'
-
-// ========================================
-
 export const SET_TOKEN = 'SET_TOKEN'
 
 // ========================================
 
 export const RESET_STORE = 'RESET_STORE'
+
+export const REFRESH_PASSWORD = 'REFRESH_PASSWORD'
+export const REFRESH_PASSWORD_ERROR = 'REFRESH_PASSWORD_ERROR'
 
 // ========================================
 
@@ -79,8 +79,6 @@ export function setAuth (auth) {
   }
 }
 
-// ========================================
-
 export function setToken (token) {
   return {
     type: SET_TOKEN,
@@ -93,6 +91,17 @@ export function setToken (token) {
 export function resetStore () {
   return {
     type: RESET_STORE
+  }
+}
+
+export function refreshPassword () {
+  return {
+    type: REFRESH_PASSWORD
+  }
+}
+export function refreshPasswordFailure () {
+  return {
+    type: REFRESH_PASSWORD_ERROR
   }
 }
 

@@ -2,7 +2,7 @@ import {
   CHECKOUT_FAILURE,
   CHECKOUT_REGISTRATION_REQUEST,
   CHECKOUT_REQUEST,
-  CHECKOUT_SUCCESS, RESET_STORE,
+  CHECKOUT_SUCCESS, REFRESH_PASSWORD, REFRESH_PASSWORD_ERROR, RESET_STORE,
   SET_AUTH, SET_TOKEN
 } from '../actions/authAction'
 
@@ -15,6 +15,7 @@ const initialState = {
 }
 
 export function authReducer (state = initialState, action) {
+  console.log(action)
   switch (action.type) {
     case CHECKOUT_REQUEST:
       return {
@@ -50,6 +51,13 @@ export function authReducer (state = initialState, action) {
       }
     case RESET_STORE:
       return initialState
+    case REFRESH_PASSWORD:
+      return state
+    case REFRESH_PASSWORD_ERROR:
+      return {
+        ...state,
+        error: action.payload
+      }
     default:
       return state
   }

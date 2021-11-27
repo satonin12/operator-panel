@@ -44,3 +44,16 @@ export const RefreshPasswordSchema = Yup.object()
   .shape({})
   .concat(PasswordValidation)
   .concat(RepeatPasswordValidation)
+
+export const UpdatePasswordSchema = Yup.object()
+  .shape({
+    oldPassword: Yup.string()
+      .required('Пароль должен быть введен')
+      .min(8, 'Пароль должен содержать длину не менее 8 символов')
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+        'Пароль должен содержать цифру, буквы в нижнем и верхнем регистре'
+      )
+  })
+  .concat(PasswordValidation)
+  .concat(RepeatPasswordValidation)

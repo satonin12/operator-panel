@@ -23,7 +23,7 @@ import { Offcanvas, OffcanvasBody, OffcanvasHeader } from 'reactstrap'
 
 import Button from '../../components/Button/Button'
 import Dialog from '../../components/Dialog/Dialog'
-import { RefreshPasswordSchema } from '../../utils/validation'
+import { UpdatePasswordSchema } from '../../utils/validation'
 import UpdateProfile from '../../components/forms/UpdateProfile'
 import MessageItem from '../../components/MessageItem/MessageItem'
 import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
@@ -79,13 +79,33 @@ const HoomRoom = () => {
   const { token, user } = useSelector((state) => state.auth)
   const { dialogs, filteredMessages, lengthDialogs } = useSelector((state) => state.dialog)
 
+  const formik = useFormik({
+    initialValues: {
+      oldPassword: '',
+      password: '',
+      repeatPassword: ''
+    },
+    validationSchema: UpdatePasswordSchema,
+    onSubmit: (values) => {
+      console.log(values)
+      dispatch({
+        type: 'REFRESH_PASSWORD',
+        payload: {
+          user: {
+            ...values
+          }
+        }
+      })
+    }
+  })
+
   const [dropDownMenu, setDropDownMenu] = useState({
     showModal: false,
     menuClick: ''
   })
   // нижние 5 состояния не сохраняем в dispatch т.к не хотим чтобы диалоги и вкладки оставались открытыми, они будут открыватся по умолчанию
   // ! они есть в dispatch так что при желании их можно будет оставлять открытыми даже после перезагрузки
-  const [isOpen, setIsOpen] = useState(false) // открыть-закрыть окно профиля
+  const [isOpen, setIsOpen] = useState(false) // открыть/закрыть окно профиля
   const [isSelected, setIsSelected] = useState({}) // подсвечивать диалог, при его выборе
   const [activeTab, setActiveTab] = useState('start')
   const [activeDialog, setActiveDialog] = useState({})
@@ -261,12 +281,10 @@ const HoomRoom = () => {
    *
    * обе функции требуют, чтобы отлаженная функия должна оставаться неизменной -> для этого оборачиваем в useMemo
    */
-
   // eslint-disable-next-line
   const debouncedHandlerSearch = useMemo(() => {
     return debounce(handlerSearch, 500)
   })
-
   // const throttledHandlerSearch = useMemo(() => {
   //   return throttle(handlerSearch, 300)
   // })
@@ -335,17 +353,6 @@ const HoomRoom = () => {
   }, [])
 
   // * JSX Variable declaration block ============================
-
-  const formik = useFormik({
-    initialValues: {
-      password: '',
-      repeatPassword: ''
-    },
-    validationSchema: RefreshPasswordSchema,
-    onSubmit: (values) => {
-      window.alert(JSON.stringify(values, null, 2))
-    }
-  })
 
   const menu = (
     <Menu>
@@ -540,7 +547,7 @@ const HoomRoom = () => {
               content: {
                 color: 'lightsteelblue',
                 width: '600px',
-                height: '600px'
+                height: 'fit-content'
               }
             }}
             contentLabel='Inline Styles Modal Example'

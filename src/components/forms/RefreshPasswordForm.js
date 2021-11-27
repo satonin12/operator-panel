@@ -4,25 +4,27 @@ import Button from '../Button/Button'
 import LabelInput from '../Inputs/LabelInput/LabelInput'
 
 import './index.scss'
+import { useSelector } from 'react-redux'
 
 const RefreshPasswordForm = ({ formik }) => {
+  const { error } = useSelector((state) => state.auth)
   return (
     <>
       <form onSubmit={formik.handleSubmit}>
         <div className='FormContent'>
 
           <LabelInput
-            name='password'
+            name='oldPassword'
             type='password'
             label='Старый пароль'
             placeholder=''
             onChange={formik.handleChange}
-            value={formik.values.password}
+            value={formik.values.oldPassword}
           />
-          {formik.touched.password && formik.errors.password
+          {(error && formik.isSubmitting) || formik.errors.oldPassword
             ? (
               <span className='formPrompt formPrompt--error'>
-                {formik.errors.password}
+                {error || formik.errors.oldPassword}
               </span>
               )
             : null}
@@ -60,7 +62,7 @@ const RefreshPasswordForm = ({ formik }) => {
             : null}
 
           <Button type='submit' styleButton='primary'>
-            Отправить ссылку для восстановления
+            Обновить пароль
           </Button>
         </div>
       </form>
