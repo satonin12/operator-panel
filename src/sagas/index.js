@@ -3,6 +3,7 @@ import { takeLatest, put, call, all, select } from 'redux-saga/effects'
 import rsf from '../firebase'
 import { toast } from 'react-toastify'
 import firebase from 'firebase'
+import { AssignNewOperatorToDefaultOperatorSchema } from '../utils/operatorSchema'
 
 // get state's
 
@@ -52,16 +53,47 @@ function * signIn (action) {
   }
 }
 
+function addOperatorFirebase (ref, obj) {
+  return new Promise((resolve, reject) => {
+    const newOperatorRef = ref.push()
+    const tmp = newOperatorRef.set(obj)
+    if (tmp) {
+      resolve(true)
+    } else {
+      // eslint-disable-next-line prefer-promise-reject-errors
+      reject(false)
+    }
+  })
+}
+
+/*
+  ? NOTICE:
+  ? There is no need to check that such an operator already exists (for entered email),
+  ? because this is included in the check for *rsf.auth.createUserWithEmailAndPassword* => then,
+  ? when saving data, the operator in firebase will pop up try...catch
+*/
 function * signUp (action) {
   try {
-    yield call(
+    const data = yield call(
       rsf.auth.createUserWithEmailAndPassword,
       action.user.email,
       action.user.password
     )
 
+    const uid = data.user.uid
+
     yield put({ type: 'CHECKOUT_REGISTRATION_SUCCESS', user: action.user }) // save user data in our form
     yield put({ type: 'SET_AUTH', payload: true }) // save user data in our form
+
+    if (uid) {
+      const chatMessageRef = firebase.database().ref('operators/')
+
+      // создаем пользователя в firebase
+      // TODO: добавить схему оператора
+      const newOperator = { uid, email: action.user.email }
+      const newOperatorStandard = AssignNewOperatorToDefaultOperatorSchema(newOperator)
+      yield call(addOperatorFirebase, chatMessageRef, newOperatorStandard)
+    }
 
     toast.success('🦄 Вы успешно зарегистрировались', {
       position: 'top-right',
