@@ -22,11 +22,23 @@ function * signIn (action) {
     )
 
     const token = data.user.refreshToken
+    const uid = data.user.uid
+
+    // получаем пользователя из firebase
+    const operatorRef = firebase.database().ref('operators/')
+
+    const operatorFromFirebase = yield call(
+      rsf.database.read,
+      operatorRef.orderByChild('uid').equalTo(uid))
+
+    const keysResponseOperator = Object.keys(operatorFromFirebase)
+    const userToState = operatorFromFirebase[keysResponseOperator[0]]
 
     yield put({ type: 'SET_TOKEN', payload: token }) // save user token in our response
-    yield put({ type: 'CHECKOUT_SUCCESS', user: action.user }) // save user data in our form
-    // yield put({ type: 'CHECKOUT_SUCCESS', user: data }) // save user data in firebase response
+    yield put({ type: 'CHECKOUT_SUCCESS', user: userToState }) // save user data in our form
     yield put({ type: 'SET_AUTH', payload: true }) // save user data in our form
+
+    // yield put({ type: 'CHECKOUT_SUCCESS', user: data }) // save user data in firebase response
 
     toast.success('🦄 Вы успешно авторизовались!', {
       position: 'top-right',
@@ -54,6 +66,7 @@ function * signIn (action) {
 }
 
 function addOperatorFirebase (ref, obj) {
+  console.log(obj)
   return new Promise((resolve, reject) => {
     const newOperatorRef = ref.push()
     const tmp = newOperatorRef.set(obj)

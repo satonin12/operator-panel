@@ -15,6 +15,7 @@ const initialState = {
 }
 
 export function authReducer (state = initialState, action) {
+  console.log(action)
   switch (action.type) {
     case CHECKOUT_REQUEST:
       return {
