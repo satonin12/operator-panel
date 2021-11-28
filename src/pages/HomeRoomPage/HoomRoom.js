@@ -79,7 +79,7 @@ const HoomRoom = () => {
   const { token, user } = useSelector((state) => state.auth)
   const { dialogs, filteredMessages, lengthDialogs } = useSelector((state) => state.dialog)
 
-  const formik = useFormik({
+  const formikRefreshPassword = useFormik({
     initialValues: {
       oldPassword: '',
       password: '',
@@ -96,6 +96,17 @@ const HoomRoom = () => {
           }
         }
       })
+    }
+  })
+
+  const formikUpdateProfile = useFormik({
+    initialValues: {
+      name: '',
+      avatarUrl: ''
+    },
+    // validationSchema: UpdatePasswordSchema,
+    onSubmit: (values) => {
+      console.log(values)
     }
   })
 
@@ -560,7 +571,7 @@ const HoomRoom = () => {
                     <span className='Modal--Close' onClick={handlerModalExit}><CloseOutlined /></span>
                   </div>
 
-                  <UpdateProfile />
+                  <UpdateProfile formik={formikUpdateProfile} closeModal={handlerModalExit} />
                 </div>
                 )
               : (
@@ -570,7 +581,7 @@ const HoomRoom = () => {
                     <span className='Modal--Close' onClick={handlerModalExit}><CloseOutlined /></span>
                   </div>
 
-                  <RefreshPasswordForm formik={formik} />
+                  <RefreshPasswordForm formik={formikRefreshPassword} />
                 </div>
                 )}
 
