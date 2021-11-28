@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
-import { Result, Tabs, Menu, Dropdown } from 'antd'
+import { Result, Tabs, Menu, Dropdown, Badge } from 'antd'
 import {
   MailFilled,
   HomeTwoTone,
@@ -355,7 +355,7 @@ const HoomRoom = () => {
   const startTabIcon = <MailTwoTone twoToneColor='#f5222d' />
   const activeTabIcon = <HomeTwoTone twoToneColor='#585FEB' />
   const completeTabIcon = <CheckSquareTwoTone twoToneColor='#7FEB8F' />
-  const saveTabIcon = <SaveTwoTone twoToneColor='#EBE097' />
+  const saveTabIcon = <SaveTwoTone twoToneColor='#520339' />
 
   const tabPanelArray = [
     {
@@ -384,7 +384,7 @@ const HoomRoom = () => {
       key: 3,
       componentIcon: saveTabIcon,
       text: 'Сохранённые',
-      color: '#EBE097'
+      color: '#520339'
     }
   ]
 
@@ -447,25 +447,27 @@ const HoomRoom = () => {
                   tab={
                     <span>
                       <div>
-                        {tabPane.componentIcon}
-                        <div style={{
-                          position: 'absolute',
-                          top: '17%',
-                          left: '-42%',
-                          borderRadius: '50%',
-                          height: '17px',
-                          width: '17px',
-                          fontSize: '12px',
-                          opacity: '84%',
-                          zIndex: 1,
-                          backgroundColor: tabPane.color,
-                          color: 'black',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                        >{lengthDialogs[tabPane.status]}
-                        </div>
+                        <Badge showZero count={lengthDialogs[tabPane.status]} color={tabPane.color} size='small'>
+                          {tabPane.componentIcon}
+                        </Badge>
+                        {/* <div style={{ */}
+                        {/*  position: 'absolute', */}
+                        {/*  top: '17%', */}
+                        {/*  left: '-42%', */}
+                        {/*  borderRadius: '50%', */}
+                        {/*  height: '17px', */}
+                        {/*  width: '17px', */}
+                        {/*  fontSize: '12px', */}
+                        {/*  opacity: '84%', */}
+                        {/*  zIndex: 1, */}
+                        {/*  backgroundColor: tabPane.color, */}
+                        {/*  color: 'black', */}
+                        {/*  display: 'flex', */}
+                        {/*  alignItems: 'center', */}
+                        {/*  justifyContent: 'center' */}
+                        {/* }} */}
+                        {/* >{lengthDialogs[tabPane.status]} */}
+                        {/* </div> */}
                       </div>
                     </span>
                   }
