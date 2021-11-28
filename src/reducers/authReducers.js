@@ -1,4 +1,5 @@
 import {
+  CHANGE_USER_FIELD,
   CHECKOUT_FAILURE,
   CHECKOUT_REGISTRATION_REQUEST,
   CHECKOUT_REQUEST,
@@ -56,6 +57,16 @@ export function authReducer (state = initialState, action) {
       return {
         ...state,
         error: action.payload
+      }
+    case CHANGE_USER_FIELD:
+      // eslint-disable-next-line no-case-declarations
+      const keyUser = Object.keys(action.payload)[0]
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          [keyUser]: action.payload[keyUser]
+        }
       }
     default:
       return state

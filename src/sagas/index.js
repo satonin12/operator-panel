@@ -3,6 +3,7 @@ import { takeLatest, put, call, all, select } from 'redux-saga/effects'
 import rsf from '../firebase'
 import { toast } from 'react-toastify'
 import firebase from 'firebase'
+import { AvatarGenerator } from 'random-avatar-generator'
 import { AssignNewOperatorToDefaultOperatorSchema } from '../utils/operatorSchema'
 
 // get state's
@@ -102,8 +103,10 @@ function * signUp (action) {
       const chatMessageRef = firebase.database().ref('operators/')
 
       // создаем пользователя в firebase
-      // TODO: добавить схему оператора
-      const newOperator = { uid, email: action.user.email }
+      const generator = new AvatarGenerator()
+      const urlRandomAvatar = generator.generateRandomAvatar()
+
+      const newOperator = { uid, email: action.user.email, avatar: urlRandomAvatar }
       const newOperatorStandard = AssignNewOperatorToDefaultOperatorSchema(newOperator)
       yield call(addOperatorFirebase, chatMessageRef, newOperatorStandard)
     }

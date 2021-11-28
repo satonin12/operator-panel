@@ -31,42 +31,6 @@ import RefreshPasswordForm from '../../components/forms/RefreshPasswordForm'
 
 import './index.scss'
 
-const startTabIcon = <MailTwoTone twoToneColor='#f5222d' />
-const activeTabIcon = <HomeTwoTone twoToneColor='#585FEB' />
-const completeTabIcon = <CheckSquareTwoTone twoToneColor='#7FEB8F' />
-const saveTabIcon = <SaveTwoTone twoToneColor='#EBE097' />
-
-const tabPanelArray = [
-  {
-    status: 'start',
-    key: 0,
-    componentIcon: startTabIcon,
-    text: 'Очередь',
-    color: '#f5222d'
-  },
-  {
-    status: 'active',
-    key: 1,
-    componentIcon: activeTabIcon,
-    text: 'Активные',
-    color: '#585FEB'
-  },
-  {
-    status: 'complete',
-    key: 2,
-    componentIcon: completeTabIcon,
-    text: 'Завершенные',
-    color: '#7FEB8F'
-  },
-  {
-    status: 'save',
-    key: 3,
-    componentIcon: saveTabIcon,
-    text: 'Сохранённые',
-    color: '#EBE097'
-  }
-]
-
 const HoomRoom = () => {
   // * Variable declaration block ======================================================================================
 
@@ -79,6 +43,32 @@ const HoomRoom = () => {
   const { token, user } = useSelector((state) => state.auth)
   const { dialogs, filteredMessages, lengthDialogs } = useSelector((state) => state.dialog)
 
+  const formikUpdateProfile = useFormik({
+    initialValues: {
+      name: user.name || '',
+      avatarUrl: user.avatar || ''
+    },
+    // validationSchema: UpdatePasswordSchema,
+    onSubmit: (values) => {
+      dispatch(
+        {
+          type: 'CHANGE_USER_FIELD',
+          payload: {
+            name: values.name
+          }
+        }
+      )
+      dispatch(
+        {
+          type: 'CHANGE_USER_FIELD',
+          payload: {
+            avatar: values.avatarUrl
+          }
+        }
+      )
+      handlerModalExit()
+    }
+  })
   const formikRefreshPassword = useFormik({
     initialValues: {
       oldPassword: '',
@@ -87,7 +77,6 @@ const HoomRoom = () => {
     },
     validationSchema: UpdatePasswordSchema,
     onSubmit: (values) => {
-      console.log(values)
       dispatch({
         type: 'REFRESH_PASSWORD',
         payload: {
@@ -96,17 +85,6 @@ const HoomRoom = () => {
           }
         }
       })
-    }
-  })
-
-  const formikUpdateProfile = useFormik({
-    initialValues: {
-      name: '',
-      avatarUrl: ''
-    },
-    // validationSchema: UpdatePasswordSchema,
-    onSubmit: (values) => {
-      console.log(values)
     }
   })
 
@@ -374,6 +352,42 @@ const HoomRoom = () => {
     </Menu>
   )
 
+  const startTabIcon = <MailTwoTone twoToneColor='#f5222d' />
+  const activeTabIcon = <HomeTwoTone twoToneColor='#585FEB' />
+  const completeTabIcon = <CheckSquareTwoTone twoToneColor='#7FEB8F' />
+  const saveTabIcon = <SaveTwoTone twoToneColor='#EBE097' />
+
+  const tabPanelArray = [
+    {
+      status: 'start',
+      key: 0,
+      componentIcon: startTabIcon,
+      text: 'Очередь',
+      color: '#f5222d'
+    },
+    {
+      status: 'active',
+      key: 1,
+      componentIcon: activeTabIcon,
+      text: 'Активные',
+      color: '#585FEB'
+    },
+    {
+      status: 'complete',
+      key: 2,
+      componentIcon: completeTabIcon,
+      text: 'Завершенные',
+      color: '#7FEB8F'
+    },
+    {
+      status: 'save',
+      key: 3,
+      componentIcon: saveTabIcon,
+      text: 'Сохранённые',
+      color: '#EBE097'
+    }
+  ]
+
   // ! Component render block (return) ======================================================================================
   return (
     <>
@@ -381,7 +395,17 @@ const HoomRoom = () => {
         <div className='HomePage'>
           <div className='HomePage--item LeftPanel'>
             <div className='TitleBlock'>
-              <div className='TitleBlock--Name'>{user.email}</div>
+              <div className='TitleBlock--Operator'>
+                <div className='TitleBlock--Avatar'>
+                  <img
+                    src={user.avatar}
+                    alt='Avatar operator'
+                    width={40}
+                    height={40}
+                  />
+                </div>
+                <div className='TitleBlock--Name'>{user.name !== '' ? user.name : user.email}</div>
+              </div>
               <div className='BlockButtons'>
                 <div className='BlockButtons--Item BlockButtons--Exit'>
                   <Button styleButton='primary' onClick={handlerExit}>
@@ -571,7 +595,7 @@ const HoomRoom = () => {
                     <span className='Modal--Close' onClick={handlerModalExit}><CloseOutlined /></span>
                   </div>
 
-                  <UpdateProfile formik={formikUpdateProfile} closeModal={handlerModalExit} />
+                  <UpdateProfile formik={formikUpdateProfile} />
                 </div>
                 )
               : (

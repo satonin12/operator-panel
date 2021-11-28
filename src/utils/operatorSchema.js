@@ -6,6 +6,6 @@ export const AssignNewOperatorToDefaultOperatorSchema = (operator) => {
 const operatorSchema = {
   email: null,
   uid: null,
-  avatar: '',
+  avatar: null,
   name: ''
 }

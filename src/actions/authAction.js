@@ -2,8 +2,6 @@ export const CHECKOUT_REQUEST = 'CHECKOUT_REQUEST'
 export const CHECKOUT_SUCCESS = 'CHECKOUT_SUCCESS'
 export const CHECKOUT_FAILURE = 'CHECKOUT_FAILURE'
 
-// =======================================
-
 export const CHECKOUT_REGISTRATION_REQUEST = 'CHECKOUT_REGISTRATION_REQUEST'
 export const CHECKOUT_REGISTRATION_SUCCESS = 'CHECKOUT_REGISTRATION_SUCCESS'
 export const CHECKOUT_REGISTRATION_FAILURE = 'CHECKOUT_REGISTRATION_FAILURE'
@@ -17,6 +15,8 @@ export const SET_TOKEN = 'SET_TOKEN'
 
 export const RESET_STORE = 'RESET_STORE'
 
+// ========================================
+
 export const REFRESH_PASSWORD = 'REFRESH_PASSWORD'
 export const REFRESH_PASSWORD_ERROR = 'REFRESH_PASSWORD_ERROR'
 
@@ -27,6 +27,8 @@ export const FORGOT_PASSWORD_SUCCESS = 'FORGOT_PASSWORD_SUCCESS'
 export const FORGOT_PASSWORD_FAILURE = 'FORGOT_PASSWORD_FAILURE'
 
 // ========================================
+
+export const CHANGE_USER_FIELD = 'CHANGE_USER_FIELD'
 
 export function checkout () {
   return {
@@ -128,3 +130,9 @@ export function forgotPasswordFailure (error) {
 }
 
 // ========================================
+
+export function changeUserField () {
+  return {
+    type: CHANGE_USER_FIELD
+  }
+}

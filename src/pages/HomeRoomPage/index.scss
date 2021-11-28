@@ -49,6 +49,12 @@
         justify-content: space-between;
         align-items: baseline;
 
+        &--Operator {
+          display: flex;
+
+
+        }
+
         .BlockButtons {
           display: flex;
           align-items: center;
@@ -69,7 +75,12 @@
         &--Name {
           font-size: 24px;
         }
-
+        &--Avatar {
+          img {
+            border-radius: 50%;
+          }
+          margin-right: 10px;
+        }
       }
 
       .MessageList {
