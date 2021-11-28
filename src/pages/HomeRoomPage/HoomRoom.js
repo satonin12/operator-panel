@@ -355,7 +355,7 @@ const HoomRoom = () => {
   const startTabIcon = <MailTwoTone twoToneColor='#f5222d' />
   const activeTabIcon = <HomeTwoTone twoToneColor='#585FEB' />
   const completeTabIcon = <CheckSquareTwoTone twoToneColor='#7FEB8F' />
-  const saveTabIcon = <SaveTwoTone twoToneColor='#520339' />
+  const saveTabIcon = <SaveTwoTone twoToneColor='#eb2f96' />
 
   const tabPanelArray = [
     {
@@ -384,7 +384,7 @@ const HoomRoom = () => {
       key: 3,
       componentIcon: saveTabIcon,
       text: 'Сохранённые',
-      color: '#520339'
+      color: '#eb2f96'
     }
   ]
 
