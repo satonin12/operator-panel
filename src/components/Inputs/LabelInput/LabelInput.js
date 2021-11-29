@@ -9,11 +9,12 @@ const LabelInput = forwardRef(({
   name = '',
   required,
   label,
+  placeholder = ' ',
   ...props
 }, ref) => {
   return (
     <div className='LabelInput'>
-      <Input type={type} name={name} required={required} {...props} ref={ref} />
+      <Input type={type} name={name} required={required} placeholder={placeholder} {...props} ref={ref} />
       <label>{label}</label>
     </div>
   )
