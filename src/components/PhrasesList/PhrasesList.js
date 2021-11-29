@@ -11,6 +11,7 @@ const PhrasesList = ({ defaultValue, onChange }) => {
 
   useEffect(() => {
     onChange(phrases)
+    // eslint-disable-next-line
   }, [phrases])
 
   const addPhrase = (phrase) => {
