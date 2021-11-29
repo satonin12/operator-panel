@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { Offcanvas, OffcanvasBody, OffcanvasHeader } from 'reactstrap'
 
+// TODO: добавить index.js в папку components чтобы испортировать необходимые компоненты как обьекты 1 импортом
 import Button from '../../components/Button/Button'
 import Dialog from '../../components/Dialog/Dialog'
 import { UpdatePasswordSchema } from '../../utils/validation'
@@ -28,6 +29,7 @@ import UpdateProfile from '../../components/forms/UpdateProfile'
 import MessageItem from '../../components/MessageItem/MessageItem'
 import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
 import RefreshPasswordForm from '../../components/forms/RefreshPasswordForm'
+import SettingsDialog from '../../components/forms/SettingsDialog'
 
 import './index.scss'
 
@@ -83,6 +85,28 @@ const HoomRoom = () => {
           user: {
             ...values
           }
+        }
+      })
+    }
+  })
+  const formikUpdateSettingsDialog = useFormik({
+    initialValues: {
+      autoGreeting: user.autoGreeting || '',
+      readyPhrases: user.readyPhrases || []
+    },
+    onSubmit: (values) => {
+      // UPDATE_DIALOG_SETTINGS - this is authAction,
+      // because all settings operators kept on operator's id firebase data
+      dispatch({
+        type: 'CHANGE_USER_FIELD',
+        payload: {
+          autoGreeting: values.autoGreeting
+        }
+      })
+      dispatch({
+        type: 'CHANGE_USER_FIELD',
+        payload: {
+          readyPhrases: values.readyPhrases
         }
       })
     }
@@ -299,7 +323,6 @@ const HoomRoom = () => {
   }, [activeTab])
 
   const handlerOpenProfile = () => {
-    console.log('открыли профиль')
     setIsOpen(prevState => !prevState)
   }
 
@@ -348,6 +371,7 @@ const HoomRoom = () => {
       <Menu.ItemGroup title='Настройки'>
         <Menu.Item key='profile' onClick={handleOpenModal}>Настройки профиля</Menu.Item>
         <Menu.Item key='password' onClick={handleOpenModal}>Настройки пароля</Menu.Item>
+        <Menu.Item key='dialog' onClick={handleOpenModal}>Настройки диалога</Menu.Item>
       </Menu.ItemGroup>
     </Menu>
   )
@@ -591,6 +615,7 @@ const HoomRoom = () => {
           >
             {dropDownMenu.menuClick === 'profile'
               ? (
+                // TODO: вынести modal в отдельный компонент
                 <div className='Modal'>
                   <div className='Modal--Title'>
                     <h3 className='Title--Center'>Обновить профиль</h3>
@@ -601,14 +626,27 @@ const HoomRoom = () => {
                 </div>
                 )
               : (
-                <div className='Modal'>
-                  <div className='Modal--Title'>
-                    <h3 className='Title--Center'>Обновить пароль</h3>
-                    <span className='Modal--Close' onClick={handlerModalExit}><CloseOutlined /></span>
-                  </div>
+                  dropDownMenu.menuClick === 'password'
+                    // eslint-disable-next-line multiline-ternary
+                    ? (
+                      <div className='Modal'>
+                        <div className='Modal--Title'>
+                          <h3 className='Title--Center'>Обновить пароль</h3>
+                          <span className='Modal--Close' onClick={handlerModalExit}><CloseOutlined /></span>
+                        </div>
 
-                  <RefreshPasswordForm formik={formikRefreshPassword} />
-                </div>
+                        <RefreshPasswordForm formik={formikRefreshPassword} />
+                      </div>
+                      ) : (
+                        <div className='Modal'>
+                          <div className='Modal--Title'>
+                            <h3 className='Title--Center'>Обновить настройки диалога</h3>
+                            <span className='Modal--Close' onClick={handlerModalExit}><CloseOutlined /></span>
+                          </div>
+
+                          <SettingsDialog formik={formikUpdateSettingsDialog} />
+                        </div>
+                      )
                 )}
 
           </ReactModal>

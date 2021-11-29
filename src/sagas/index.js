@@ -67,10 +67,12 @@ function * signIn (action) {
 }
 
 function addOperatorFirebase (ref, obj) {
-  console.log(obj)
   return new Promise((resolve, reject) => {
     const newOperatorRef = ref.push()
+    // key save in user as key on firebase get this user
+    obj.keyFirebase = newOperatorRef.key
     const tmp = newOperatorRef.set(obj)
+
     if (tmp) {
       resolve(true)
     } else {
@@ -100,7 +102,7 @@ function * signUp (action) {
     yield put({ type: 'SET_AUTH', payload: true }) // save user data in our form
 
     if (uid) {
-      const chatMessageRef = firebase.database().ref('operators/')
+      const newOperatorRef = firebase.database().ref('operators/')
 
       // создаем пользователя в firebase
       const generator = new AvatarGenerator()
@@ -108,7 +110,7 @@ function * signUp (action) {
 
       const newOperator = { uid, email: action.user.email, avatar: urlRandomAvatar }
       const newOperatorStandard = AssignNewOperatorToDefaultOperatorSchema(newOperator)
-      yield call(addOperatorFirebase, chatMessageRef, newOperatorStandard)
+      yield call(addOperatorFirebase, newOperatorRef, newOperatorStandard)
     }
 
     toast.success('🦄 Вы успешно зарегистрировались', {
@@ -276,6 +278,7 @@ function * sendMessage (action) {
     const chatMessageRef = firebase.database().ref(`chat/${status}/${indexDialogUser}/messages/${messageLength}`)
 
     yield call(() => {
+      // eslint-disable-next-line promise/param-names
       return new Promise((resolve, _) => {
         chatMessageRef.set(message)
         resolve(true)
@@ -287,8 +290,20 @@ function * sendMessage (action) {
     }
   } catch (e) {
     const errorMessage = { code: e.code, message: e.message }
-    console.log(errorMessage)
     yield put({ type: 'GET_MESSAGES_FAILURE', error: errorMessage })
+  }
+}
+
+// * User Saga's
+
+function * changeUser () {
+  try {
+    const { user } = yield select(getAuthState)
+    yield call(rsf.database.update, `operators/${user.keyFirebase}`, user)
+  } catch (e) {
+    const errorMessage = { code: e.code, message: e.message }
+    console.log(errorMessage)
+    // yield put({ type: 'GET_MESSAGES_FAILURE', error: errorMessage })
   }
 }
 
@@ -302,6 +317,8 @@ export default function * rootSaga () {
     takeLatest('GET_DIALOGS_REQUEST', getDialogs),
 
     takeLatest('GET_MESSAGES_REQUEST', getMessages),
-    takeLatest('SEND_MESSAGE', sendMessage)
+    takeLatest('SEND_MESSAGE', sendMessage),
+
+    takeLatest('CHANGE_USER_FIELD', changeUser)
   ])
 }

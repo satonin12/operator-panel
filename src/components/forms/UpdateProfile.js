@@ -51,7 +51,6 @@ const UpdateProfile = ({ formik }) => {
       })
         .then(response => response.json())
         .then((data) => {
-          console.log(data)
           onSuccess('Ok')
           formik.setFieldValue('avatarUrl', data.url)
         })

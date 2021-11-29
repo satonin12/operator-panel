@@ -30,6 +30,10 @@ export const FORGOT_PASSWORD_FAILURE = 'FORGOT_PASSWORD_FAILURE'
 
 export const CHANGE_USER_FIELD = 'CHANGE_USER_FIELD'
 
+// ========================================
+
+export const UPDATE_DIALOG_SETTINGS = 'UPDATE_DIALOG_SETTINGS'
+
 export function checkout () {
   return {
     type: CHECKOUT_REQUEST
@@ -134,5 +138,13 @@ export function forgotPasswordFailure (error) {
 export function changeUserField () {
   return {
     type: CHANGE_USER_FIELD
+  }
+}
+
+// ========================================
+
+export function updateDialogSettings () {
+  return {
+    type: UPDATE_DIALOG_SETTINGS
   }
 }
