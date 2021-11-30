@@ -145,12 +145,16 @@ export function dialogReducer (state = initialState, action) {
         ...state,
         filteredMessages: {
           ...state.filteredMessages,
-          [aPl.status]: state.filteredMessages[aPl.status].map(dialog => dialog.uuid === aPl.id
-            // transform the one with a matching id
-            ? { ...dialog, messages: newMessagesArray }
-            // otherwise return original
-            : dialog
-          )
+          // eslint-disable-next-line array-callback-return
+          [aPl.status]: state.filteredMessages[aPl.status].map(dialog => {
+            if (typeof dialog !== 'undefined') {
+              return dialog.uuid === aPl.id
+                // transform the one with a matching id
+                ? { ...dialog, messages: newMessagesArray }
+                // otherwise return original
+                : dialog
+            }
+          })
         }
       }
     default:

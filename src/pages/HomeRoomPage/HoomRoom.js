@@ -109,6 +109,7 @@ const HoomRoom = () => {
           readyPhrases: values.readyPhrases
         }
       })
+      handlerModalExit()
     }
   })
 

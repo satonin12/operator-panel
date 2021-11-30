@@ -28,6 +28,8 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
   const [attachImage, setAttachImage] = useState([])
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const { messages } = useSelector((state) => state.message)
+  const { autoGreeting } = useSelector((state) => state.auth.user)
+
   const getMessages = useCallback(async () => {
     dispatch({ type: 'GET_MESSAGES_REQUEST', payload: { status, uuid: obj.message.uuid } })
   }, [dispatch, status, obj.message.uuid])
@@ -52,6 +54,18 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
         status: 'active',
         uuid: uuidv4()
       }
+
+      // и есть авто-приветственное сообщение
+      if (autoGreeting) {
+        const timestamp = new Date()
+        // то добавляем его
+        newObject.messages[newObject.messages.length] = {
+          content: autoGreeting,
+          timestamp: timestamp.toISOString(),
+          writtenBy: 'operator'
+        }
+      }
+
       // сразу же закрепляем оператора за диалогом
       // (средствами realtime database firebase) - это означает удалить данную запись полностью и создать новую в путе chat/active/${LastIndex} + 1 с новыми данными operatorId и status
       let lengthActiveDialogs
@@ -91,6 +105,7 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
       //   console.log(error)
       //   console.log('вроде как удалили - смотри firebase')
       // })
+
       //  после всего этого нужно перерендерить компонент homepage, чтобы текущий диалог встал в карточку 'active'
       //  для этого вручную кладём текущий dialogItem в массив active
       transferToActive(newObjectFromDialogsItem)
@@ -112,7 +127,7 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
           dispatch({
             type: 'SEND_MESSAGE',
             payload: {
-              status,
+              status: status,
               message: {
                 content: value,
                 timestamp: timestamp.toISOString(),
@@ -125,7 +140,7 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
           dispatch({
             type: 'SEND_MESSAGE',
             payload: {
-              status,
+              status: status,
               message: {
                 content: value,
                 timestamp: timestamp.toISOString(),
@@ -137,7 +152,7 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
       } catch (e) {
         console.log(e)
       }
-      getMessages()
+      await getMessages()
       setValue('')
       setShowEmojiPicker(false)
       setAttachImage([])

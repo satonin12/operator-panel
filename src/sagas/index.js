@@ -275,6 +275,7 @@ function * sendMessage (action) {
     const { status, message } = action.payload
     const { messageLength, indexDialogUser, idDialogUser } = yield select(getMessagesState)
     const { filteredMessages } = yield select(getDialogsState)
+    const dialogId = filteredMessages[status][indexDialogUser].uuid
     const chatMessageRef = firebase.database().ref(`chat/${status}/${indexDialogUser}/messages/${messageLength}`)
 
     yield call(() => {
@@ -284,11 +285,12 @@ function * sendMessage (action) {
       })
     })
 
-    if (idDialogUser === filteredMessages[status][indexDialogUser].uuid) {
+    if (idDialogUser === dialogId) {
       yield put({ type: 'ADD_MESSAGE_TO_DIALOG', payload: { status, index: indexDialogUser, message, id: idDialogUser } })
     }
   } catch (e) {
     const errorMessage = { code: e.code, message: e.message }
+    console.log(errorMessage)
     yield put({ type: 'GET_MESSAGES_FAILURE', error: errorMessage })
   }
 }
