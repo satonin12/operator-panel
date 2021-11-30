@@ -8,6 +8,7 @@ import {
   UploadOutlined
 } from '@ant-design/icons'
 import Picker from 'emoji-picker-react'
+import { AutoComplete } from 'antd'
 import { useDispatch, useSelector } from 'react-redux'
 
 import LabelInput from '../Inputs/LabelInput/LabelInput'
@@ -28,7 +29,9 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
   const [attachImage, setAttachImage] = useState([])
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const { messages } = useSelector((state) => state.message)
-  const { autoGreeting } = useSelector((state) => state.auth.user)
+  const { autoGreeting, readyPhrases } = useSelector((state) => state.auth.user)
+
+  const [options, setOptions] = useState([])
 
   const getMessages = useCallback(async () => {
     dispatch({ type: 'GET_MESSAGES_REQUEST', payload: { status, uuid: obj.message.uuid } })
@@ -152,8 +155,9 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
       } catch (e) {
         console.log(e)
       }
-      await getMessages()
+      getMessages()
       setValue('')
+      setOptions([])
       setShowEmojiPicker(false)
       setAttachImage([])
     }
@@ -184,8 +188,24 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
     }
   }
 
-  // TODO: вынести блок ввода и прикрепления фотографий в отдельный компонент
+  const onSelect = (selectedValue) => {
+    if (value !== '') setValue(selectedValue)
+  }
 
+  const handleSearch = (searchValue) => {
+    const filteredOptions = readyPhrases.filter((phrase) => {
+      return (
+        phrase.text.toLowerCase().includes(searchValue.toLowerCase())
+      )
+    })
+    const tmp = filteredOptions.map((item) => {
+      return { value: item.text }
+    })
+
+    setOptions(tmp)
+  }
+
+  // TODO: вынести блок ввода и прикрепления фотографий в отдельный компонент
   return (
     <div className='Dialog'>
       <div className='Dialog--item HeaderBlock'>
@@ -246,14 +266,23 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
                   preload
                 />}
 
-              {/* TODO: заменить на textarea */}
-              <LabelInput
+              <AutoComplete
                 value={value}
-                ref={inputRef}
-                placeholder=' '
-                label='Введите ответ'
-                onChange={(e) => setValue(e.target.value)}
-              />
+                style={{
+                  width: 200
+                }}
+                options={options}
+                onSelect={onSelect}
+                onSearch={handleSearch}
+              >
+                {/* TODO: заменить на textarea */}
+                <LabelInput
+                  ref={inputRef}
+                  placeholder=' '
+                  label='Введите ответ'
+                  onChange={(e) => setValue(e.target.value)}
+                />
+              </AutoComplete>
               <Button onClick={handlerSendMessage}>Отправить сообщение</Button>
               <select>
                 <option disabled>Выберите из готовых варинатов</option>
