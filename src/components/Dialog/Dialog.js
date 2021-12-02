@@ -11,6 +11,8 @@ import Picker from 'emoji-picker-react'
 import { AutoComplete } from 'antd'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { usePubNub } from 'pubnub-react'
+
 import LabelInput from '../Inputs/LabelInput/LabelInput'
 import DialogMessage from './DialogMessage/DialogMessage'
 import Button from '../Button/Button'
@@ -22,6 +24,12 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
   // eslint-disable-next-line no-prototype-builtins
   const index = obj.message.hasOwnProperty('indexBefore') ? obj.message.indexBefore : obj.index
   if (typeof index === 'undefined') { throw Error('ошибка индексации - in Dialog props') }
+
+  // * pubnup
+  let timeoutCache = 0
+  const pubnub = usePubNub()
+  const [channels] = useState(['awesome-channel'])
+  const [isTyping, setIsTyping] = useState(false)
 
   const dispatch = useDispatch()
   const inputRef = createRef()
@@ -122,8 +130,32 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
     // eslint-disable-next-line
   }, [])
 
+  const hideTypingIndicator = () => { setIsTyping(false) }
+
+  const handleSignal = (event) => {
+    clearTimeout(timeoutCache)
+    setIsTyping(true)
+    timeoutCache = setTimeout(hideTypingIndicator, 3000) // 10 seconds
+
+    if (event.message === '0') {
+      hideTypingIndicator()
+    }
+  }
+
+  const handleMessage = (event) => { hideTypingIndicator() }
+
+  useEffect(() => {
+    pubnub.addListener({
+      message: handleMessage,
+      signal: handleSignal
+    })
+    pubnub.subscribe({ channels })
+    // eslint-disable-next-line
+  }, [pubnub, channels])
+
   const handlerSendMessage = async () => {
     if (value.trim().length || attachImage.length !== 0) {
+      hideTypingIndicator()
       const timestamp = new Date()
       try {
         if (attachImage.length !== 0) {
@@ -155,6 +187,7 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
       } catch (e) {
         console.log(e)
       }
+      pubnub.publish({ channel: channels[0], message: value })
       getMessages()
       setValue('')
       setOptions([])
@@ -205,6 +238,18 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
     setOptions(tmp)
   }
 
+  const handlerInputChange = (e) => {
+    pubnub.signal({
+      message: 'typing_on',
+      channel: channels
+    }, (status, response) => {
+      // handle status, response
+      // console.log(status)
+      // console.log(response)
+    })
+    setValue(e.target.value)
+  }
+
   // TODO: вынести блок ввода и прикрепления фотографий в отдельный компонент
   return (
     <div className='Dialog'>
@@ -233,6 +278,12 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
           {messages.map((item, index) => (
             <DialogMessage key={index + Date.now()} messages={item} />
           ))}
+          {
+            isTyping &&
+              <div className='TypingIndicator'>
+                {obj.message.name} is Typing ...
+              </div>
+          }
         </div>
       </div>
       <div className='Dialog--item FooterBlock'>
@@ -279,8 +330,9 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
                 <LabelInput
                   ref={inputRef}
                   placeholder=' '
+                  typingIndicator
                   label='Введите ответ'
-                  onChange={(e) => setValue(e.target.value)}
+                  onChange={handlerInputChange}
                 />
               </AutoComplete>
               <Button onClick={handlerSendMessage}>Отправить сообщение</Button>

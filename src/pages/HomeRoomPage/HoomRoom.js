@@ -514,7 +514,7 @@ const HoomRoom = () => {
                         <li>Список сообщений пуст</li>
                         )
                       : (
-                        // eslint-disable-next-line array-callback-return
+                    // eslint-disable-next-line array-callback-return
                           filteredMessages[tabPane.status].map((message, index) => {
                             if (message !== null && typeof message !== 'undefined') {
                               return (
@@ -616,7 +616,7 @@ const HoomRoom = () => {
           >
             {dropDownMenu.menuClick === 'profile'
               ? (
-                // TODO: вынести modal в отдельный компонент
+            // TODO: вынести modal в отдельный компонент
                 <div className='Modal'>
                   <div className='Modal--Title'>
                     <h3 className='Title--Center'>Обновить профиль</h3>
