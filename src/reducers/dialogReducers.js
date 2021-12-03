@@ -54,12 +54,14 @@ export function dialogReducer (state = initialState, action) {
         ...state,
         dialogs: action.payload.dialogs,
         filteredMessages: action.payload.dialogs,
-        lengthDialogs: action.payload.length
+        lengthDialogs: action.payload.length,
+        loadingData: false
       }
     case GET_DIALOGS_FAILURE:
       return {
         ...state,
-        error: action.error
+        error: action.error,
+        loadingData: false
       }
     case SET_FILTERED_DIALOGS:
       return {

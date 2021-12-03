@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
-import { Result, Tabs, Menu, Dropdown, Badge } from 'antd'
+import { Result, Tabs, Menu, Dropdown, Badge, Spin } from 'antd'
 import {
   MailFilled,
   HomeTwoTone,
@@ -12,7 +12,6 @@ import {
   EnvironmentFilled,
   CheckSquareTwoTone
 } from '@ant-design/icons'
-import firebase from 'firebase'
 import { useFormik } from 'formik'
 import ReactModal from 'react-modal'
 // import throttle from 'lodash.throttle'
@@ -43,7 +42,7 @@ const HoomRoom = () => {
 
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
-  const { dialogs, filteredMessages, lengthDialogs } = useSelector((state) => state.dialog)
+  const { dialogs, filteredMessages, lengthDialogs, loadingData } = useSelector((state) => state.dialog)
 
   const formikUpdateProfile = useFormik({
     initialValues: {
@@ -128,79 +127,22 @@ const HoomRoom = () => {
   // ? Function declaration block ======================================================================================
 
   const checkToken = () => { dispatch({ type: 'CHECK_TOKEN' }) }
-
   const getData = () => { dispatch({ type: 'GET_DIALOGS_REQUEST' }) }
-
-  // TODO: объеденить в одну функцию с checkDialogOperatorId из Dialog.js
-  // TODO: в текущей версии не используется
-  // eslint-disable-next-line no-unused-vars
-  const transferDialog = async ({ status, index, dialog }) => {
-    const newObject = {
-      ...dialog,
-      status: 'save'
-    }
-    // переводим диалог в сохранненые
-    // (средствами realtime database firebase) - это означает удалить данную запись полностью и создать новую в путе chat/save/${LastIndex} + 1 с новым status
-    let lengthSaveDialogs = null
-    // создаем запись
-    // для этого узнаем длину последнего элемента в сохраненных чатах
-    await firebase
-      .database()
-      .ref('chat/save/')
-      .limitToLast(1)
-      .once('value', (snapshot) => {
-        lengthSaveDialogs = Number(Object.keys(snapshot.val())[0]) + 1
-      })
-
-    if (lengthSaveDialogs) {
-      // TODO: id оператора брать из контекста после входа
-      await firebase
-        .database()
-        .ref(`chat/save/${lengthSaveDialogs}`)
-        .set(newObject, (error) => {
-          if (error) {
-            console.log(error)
-          } else {
-            console.log('Добавление прошло удачно - смотри firebase')
-          }
-        })
-    } else {
-      throw Error('Ошибка lengthActiveDialogs!!!')
-    }
-
-    const newObjectFromDialogs = {
-      index: lengthSaveDialogs,
-      message: newObject,
-      status: 'save'
-    }
-    // ! удаляем запись из активных
-    // await firebase
-    //   .database()
-    //   .ref(`chat/${status}/${index}`)
-    //   .remove((error) => {
-    //     console.log(error)
-    //     console.log('вроде как удалили - смотри firebase')
-    //   })
-    //  после всего этого нужно перерендерить компонент homepage, чтобы текущий диалог встал в карточку 'active'
-    //  для этого вручную кладём текущий dialogItem в массив active
-    addDialogToSave(newObjectFromDialogs)
-  }
 
   const sortDialogs = () => {
     const objectKeys = Object.keys(filteredMessages)
-    // eslint-disable-next-line array-callback-return
-    objectKeys.map((item) => {
-      if (filteredMessages[item].length > 1) {
+    objectKeys.map((item) => (
+      filteredMessages[item].length > 1
         // eslint-disable-next-line array-callback-return
-        filteredMessages[item].sort((a, b) => {
-          if (a !== null && b !== null) {
-            const a1 = a.messages[a.messages.length - 1].timestamp
-            const b1 = b.messages[b.messages.length - 1].timestamp
-            return (a1.date < b1.date) ? -1 : ((a1.date > b1.date) ? 1 : 0)
-          }
-        })
-      }
-    })
+        ? filteredMessages[item].sort((a, b) => {
+            if (a !== null && b !== null) {
+              const a1 = a.messages[a.messages.length - 1].timestamp
+              const b1 = b.messages[b.messages.length - 1].timestamp
+              return (a1.date < b1.date) ? -1 : ((a1.date > b1.date) ? 1 : 0)
+            }
+          })
+        : null
+    ))
   }
 
   useEffect(() => {
@@ -223,13 +165,6 @@ const HoomRoom = () => {
     setActiveDialog(dialog)
     dispatch({ type: 'ADD_DIALOG_TO_ACTIVE', payload: dialog.message })
     setIsSelected({ index: dialog.index, tab: 'active' })
-  }
-
-  // eslint-disable-next-line no-unused-vars
-  const addDialogToSave = (dialog) => {
-    setActiveTab('save')
-    setActiveDialog(dialog)
-    setIsSelected({ index: dialog.index, tab: 'save' })
   }
 
   const transferDialogToSave = useCallback((obj) => {
@@ -330,7 +265,7 @@ const HoomRoom = () => {
   }
 
   // TODO: пока что не используется, нужно большге времени чтобы правильно настроить пагинацию и react-infinitive-scroll
-  const fetchMoreData = useCallback(async (status = 'active') => {
+  /* const fetchMoreData = useCallback(async (status = 'active') => {
     // let moreStatusDialog
     // await firebase.database().ref('chat/active/').limitToFirst(lengthDialogs.active + 5).once('value', (snapshot) => {
     //   moreStatusDialog = snapshot.val()
@@ -349,7 +284,8 @@ const HoomRoom = () => {
     //   ...prevState,
     //   [status]: prevState[status].moreStatusDialog
     // ])
-  }, [])
+  // }, [])
+   */
 
   // * JSX Variable declaration block ============================
 
@@ -405,6 +341,7 @@ const HoomRoom = () => {
       <div className='MainLayout'>
         <div className='HomePage'>
           <div className='HomePage--item LeftPanel'>
+
             <div className='TitleBlock'>
               <div className='TitleBlock--Operator'>
                 <div className='TitleBlock--Avatar'>
@@ -445,69 +382,87 @@ const HoomRoom = () => {
               </div>
             </div>
 
-            <Tabs
-              defaultActiveKey={activeTab}
-              activeKey={activeTab}
-              size='small'
-              centered
-              type='line'
-              onChange={(e) => setActiveTab(e)}
-            >
-              {tabPanelArray.map((tabPane) => (
-                <TabPane
-                  tab={
-                    <span>
-                      <div>
-                        <Badge showZero count={lengthDialogs[tabPane.status]} color={tabPane.color} size='small'>
-                          {tabPane.componentIcon}
-                        </Badge>
-                      </div>
-                    </span>
-                  }
-                  key={tabPane.status}
+            {loadingData
+              ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    marginTop: '50px'
+                  }}
                 >
-                  <InfiniteScroll
-                    dataLength={lengthDialogs.active}
-                    pageStart={0}
-                    loadMore={() => fetchMoreData(tabPane.status)}
-                    hasMore={hasMore}
-                    useWindow={false}
-                    initialLoad={false}
-                  >
-                    <h5>{tabPane.text}</h5>
-                  </InfiniteScroll>
-                  <ul>
-                    {filteredMessages[tabPane.status].length === 0
-                      ? (
-                        <li>Список сообщений пуст</li>
-                        )
-                      : (
-                    // eslint-disable-next-line array-callback-return
-                          filteredMessages[tabPane.status].map((message, index) => {
-                            if (message !== null && typeof message !== 'undefined') {
-                              return (
-                                <MessageItem
-                                  key={index}
-                                  index={index}
-                                  name={message.name}
-                                  activeTab={activeTab}
-                                  avatar={message.avatar}
-                                  isSelected={isSelected}
-                                  date={message.messages[message.messages.length - 1].timestamp}
-                                  message={message.messages[message.messages.length - 1].content}
-                                  image={message.messages[message.messages.length - 1].image_url}
-                                  onClick={() => handlerSetActiveDialog({ status: message.status, index, message })}
-                                  handlerDeleteInSave={() => removeDialogFromSave({ status: tabPane.status, index, dialog: message })}
-                                  handlerTransferToSave={() => transferDialogToSave({ status: tabPane.status, index, dialog: message })}
-                                />
-                              )
-                            }
-                          })
-                        )}
-                  </ul>
-                </TabPane>
-              ))}
-            </Tabs>
+                  <Spin
+                    tip='Loading...'
+                    size='large'
+                  />
+                </div>
+                )
+              : (
+                <Tabs
+                  defaultActiveKey={activeTab}
+                  activeKey={activeTab}
+                  size='small'
+                  centered
+                  type='line'
+                  onChange={(e) => setActiveTab(e)}
+                >
+                  {tabPanelArray.map((tabPane) => (
+                    <TabPane
+                      tab={
+                        <span>
+                          <div>
+                            <Badge showZero count={lengthDialogs[tabPane.status]} color={tabPane.color} size='small'>
+                              {tabPane.componentIcon}
+                            </Badge>
+                          </div>
+                        </span>
+                      }
+                      key={tabPane.status}
+                    >
+                      <InfiniteScroll
+                        pageStart={0}
+                        hasMore={hasMore}
+                        useWindow={false}
+                        initialLoad={false}
+                        dataLength={lengthDialogs.active}
+                        // loadMore={() => fetchMoreData(tabPane.status)}
+                      >
+                        <h5>{tabPane.text}</h5>
+                      </InfiniteScroll>
+                      <ul>
+                        {filteredMessages[tabPane.status].length === 0
+                          ? (
+                            <li>Список сообщений пуст</li>
+                            )
+                          : (
+                        // eslint-disable-next-line array-callback-return
+                              filteredMessages[tabPane.status].map((message, index) => {
+                                if (message !== null && typeof message !== 'undefined') {
+                                  return (
+                                    <MessageItem
+                                      key={index}
+                                      index={index}
+                                      name={message.name}
+                                      activeTab={activeTab}
+                                      avatar={message.avatar}
+                                      isSelected={isSelected}
+                                      date={message.messages[message.messages.length - 1].timestamp}
+                                      message={message.messages[message.messages.length - 1].content}
+                                      image={message.messages[message.messages.length - 1].image_url}
+                                      onClick={() => handlerSetActiveDialog({ status: message.status, index, message })}
+                                      handlerDeleteInSave={() => removeDialogFromSave({ status: tabPane.status, index, dialog: message })}
+                                      handlerTransferToSave={() => transferDialogToSave({ status: tabPane.status, index, dialog: message })}
+                                    />
+                                  )
+                                }
+                              })
+                            )}
+                      </ul>
+                    </TabPane>
+                  ))}
+                </Tabs>
+                )}
+
           </div>
           <main className='HomePage--item MainPanel'>
             {isOpenDialog
