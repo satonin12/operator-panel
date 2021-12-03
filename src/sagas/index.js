@@ -67,22 +67,20 @@ function * signIn (action) {
 }
 
 async function firebaseCheckToken (token) {
-  await firebase.auth().onAuthStateChanged((user) => {
-    if (user.refreshToken !== token) {
-      // возвращаем пользователя на страницу авторизации с помощью setAuth = false
-      return false
-    }
+  // eslint-disable-next-line
+  return new Promise((resolve, _) => {
+    firebase.auth().onAuthStateChanged((user) => {
+      resolve(user.refreshToken === token)
+    })
   })
-  return true
 }
 
-function * checkToken (action) {
+function * checkToken () {
   try {
     const { token } = yield select(getAuthState)
-    const tryToken = yield call(firebaseCheckToken, token)
-    if (!tryToken) {
-      yield put({ type: 'RESET_REDUX' })
-    }
+    const isValidToken = yield call(firebaseCheckToken, token)
+
+    if (!isValidToken) yield put({ type: 'RESET_REDUX' })
   } catch (e) {
     const errorMessage = { code: e.code, message: e.message }
     console.log(errorMessage)
@@ -213,7 +211,7 @@ function * refreshPassword (action) {
     // compare oldPassword in enterPassword with that lies in redux state
     if (action.payload.user.oldPassword === user.password) {
       // eslint-disable-next-line no-unused-vars
-      const { response, error } = yield call(reAuth, user, currentUser)
+      const { response } = yield call(reAuth, user, currentUser)
 
       if (response) {
         yield call(updatePass, currentUser, action)
@@ -226,12 +224,9 @@ function * refreshPassword (action) {
           draggable: true,
           progress: undefined
         })
-        yield put({ type: 'RESET_STORE' })
-        yield put({ type: 'RESET_DIALOGS_STORE' })
-        yield put({ type: 'RESET_MESSAGE_STORE' })
+        yield put({ type: 'RESET_REDUX' })
       }
     } else {
-      console.log('Старый пароль не совпадает, пожалуйста, проверьте правильность данных')
       yield put({ type: 'REFRESH_PASSWORD_ERROR', payload: 'Старый пароль не совпадает, пожалуйста, проверьте правильность данных' })
     }
   } catch (e) {
@@ -302,6 +297,7 @@ function * sendMessage (action) {
     const chatMessageRef = firebase.database().ref(`chat/${status}/${indexDialogUser}/messages/${messageLength}`)
 
     yield call(() => {
+      // eslint-disable-next-line
       return new Promise((resolve, _) => {
         chatMessageRef.set(message)
         resolve(true)
