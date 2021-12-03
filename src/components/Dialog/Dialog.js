@@ -1,4 +1,4 @@
-import React, { createRef, useCallback, useEffect, useState } from 'react'
+import React, { createRef, useCallback, useEffect, useState, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import firebase from 'firebase'
 import {
@@ -19,6 +19,26 @@ import Button from '../Button/Button'
 
 import './index.scss'
 
+function useInterval (callback, delay) {
+  const savedCallback = useRef()
+
+  // Remember the latest function.
+  useEffect(() => {
+    savedCallback.current = callback
+  }, [callback])
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick () {
+      savedCallback.current()
+    }
+    if (delay !== null) {
+      const id = setInterval(tick, delay)
+      return () => clearInterval(id)
+    }
+  }, [delay])
+}
+
 const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
   const status = obj.status
   // eslint-disable-next-line no-prototype-builtins
@@ -28,21 +48,25 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
   // * pubnup
   let timeoutCache = 0
   const pubnub = usePubNub()
-  const [channels] = useState(['awesome-channel'])
-  const [isTyping, setIsTyping] = useState(false)
+  const [channels] = useState([obj.message.name])
 
   const dispatch = useDispatch()
-  const inputRef = createRef()
-  const [value, setValue] = useState('')
-  const [attachImage, setAttachImage] = useState([])
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const { messages } = useSelector((state) => state.message)
   const { autoGreeting, readyPhrases } = useSelector((state) => state.auth.user)
 
-  const [options, setOptions] = useState([])
+  const delay = 30000 // 30 секунд
+  const inputRef = createRef()
+  const [value, setValue] = useState('')
+  const [options, setOptions] = useState([]) // for hints when entering the text of ready-made phrases
+  const [isTyping, setIsTyping] = useState(false)
+  const [attachImage, setAttachImage] = useState([])
+  const [isGetMessages, setIsGetMessages] = useState(true)
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
 
   const getMessages = useCallback(async () => {
+    setIsGetMessages(false)
     dispatch({ type: 'GET_MESSAGES_REQUEST', payload: { status, uuid: obj.message.uuid } })
+    setIsGetMessages(true)
   }, [dispatch, status, obj.message.uuid])
 
   const checkDialogOperatorId = async () => {
@@ -129,6 +153,10 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
     getMessages()
     // eslint-disable-next-line
   }, [])
+
+  useInterval(() => {
+    getMessages()
+  }, isGetMessages ? delay : null)
 
   const hideTypingIndicator = () => { setIsTyping(false) }
 
@@ -320,7 +348,7 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
               <AutoComplete
                 value={value}
                 style={{
-                  width: 200
+                  width: '100%'
                 }}
                 options={options}
                 onSelect={onSelect}
