@@ -39,6 +39,7 @@ const HoomRoom = () => {
   const clickedRef = useRef(clicked) // оптимизируем для использования в useCallback
   const hasMore = true
   const { TabPane } = Tabs
+  const messagesEndRef = useRef(null) // при переводе диалога в активный, отматываем его к этому диалогу
 
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
@@ -112,21 +113,22 @@ const HoomRoom = () => {
     }
   })
 
-  const [dropDownMenu, setDropDownMenu] = useState({
-    showModal: false,
-    menuClick: ''
-  })
-  // нижние 5 состояния не сохраняем в dispatch т.к не хотим чтобы диалоги и вкладки оставались открытыми, они будут открыватся по умолчанию
-  // ! они есть в dispatch так что при желании их можно будет оставлять открытыми даже после перезагрузки
+  // состояния ниже не сохраняем в redux т.к не хотим чтобы диалоги и вкладки оставались открытыми, они будут открыватся по умолчанию
+  // ! NOTICE: они есть в action's, так что при желании их можно будет оставлять открытыми даже после перезагрузки
   const [isOpen, setIsOpen] = useState(false) // открыть/закрыть окно профиля
   const [isSelected, setIsSelected] = useState({}) // подсвечивать диалог, при его выборе
   const [activeTab, setActiveTab] = useState('start')
   const [activeDialog, setActiveDialog] = useState({})
   const [isOpenDialog, setIsOpenDialog] = useState(false) // состояние для определения открыт ли диалог или нет
+  const [dropDownMenu, setDropDownMenu] = useState({
+    showModal: false,
+    menuClick: ''
+  })
 
   // ? Function declaration block ======================================================================================
 
   const checkToken = () => { dispatch({ type: 'CHECK_TOKEN' }) }
+
   const getData = () => { dispatch({ type: 'GET_DIALOGS_REQUEST' }) }
 
   const sortDialogs = () => {
@@ -153,18 +155,20 @@ const HoomRoom = () => {
     // eslint-disable-next-line
   }, [])
 
-  // TODO: нужен для сортировки сообщений после того как что-то написали в диалогах
-  // useEffect(() => {
-  //   sortDialogs()
-  //   // eslint-disable-next-line
-  // }, [messages])
-
-  // TODO: объеденить в одну функцию нижние две
-  const addDialogToActive = (dialog) => {
+  // Когда оператор выбрал диалог из очереди -> то переводим его в активный этому оператору
+  const transferDialogToActive = (dialog) => {
     setActiveTab('active')
-    setActiveDialog(dialog)
+    setActiveDialog(prevState => ({
+      ...prevState,
+      ...dialog
+    }))
+    setIsSelected(prevState => ({
+      ...prevState,
+      index: dialog.index,
+      tab: 'active'
+    }))
     dispatch({ type: 'ADD_DIALOG_TO_ACTIVE', payload: dialog.message })
-    setIsSelected({ index: dialog.index, tab: 'active' })
+    scrollToBottom()
   }
 
   const transferDialogToSave = useCallback((obj) => {
@@ -286,6 +290,10 @@ const HoomRoom = () => {
     // ])
   // }, [])
    */
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   // * JSX Variable declaration block ============================
 
@@ -457,6 +465,7 @@ const HoomRoom = () => {
                                 }
                               })
                             )}
+                        <div ref={messagesEndRef} />
                       </ul>
                     </TabPane>
                   ))}
@@ -468,11 +477,10 @@ const HoomRoom = () => {
             {isOpenDialog
               ? (
                 <Dialog
-                  obj={activeDialog}
                   key={activeDialog.index}
-                  indexKey={activeDialog.index}
-                  transferToActive={addDialogToActive}
+                  dialogData={activeDialog}
                   handlerOpenProfile={handlerOpenProfile}
+                  transferToActive={transferDialogToActive}
                 />
                 )
               : (

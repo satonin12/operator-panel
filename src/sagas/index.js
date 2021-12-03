@@ -264,7 +264,6 @@ function * getDialogs () {
     yield put({ type: 'GET_DIALOGS_SUCCESS', payload: { dialogs: tmpDialogs, length } })
   } catch (e) {
     const errorMessage = { code: e.code, message: e.message }
-    console.log(errorMessage)
     yield put({ type: 'GET_DIALOGS_FAILURE', error: errorMessage })
   }
 }

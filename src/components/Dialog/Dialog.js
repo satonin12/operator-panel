@@ -39,16 +39,16 @@ function useInterval (callback, delay) {
   }, [delay])
 }
 
-const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
-  const status = obj.status
+const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
+  const status = dialogData.status
   // eslint-disable-next-line no-prototype-builtins
-  const index = obj.message.hasOwnProperty('indexBefore') ? obj.message.indexBefore : obj.index
+  const index = dialogData.message.hasOwnProperty('indexBefore') ? dialogData.message.indexBefore : dialogData.index
   if (typeof index === 'undefined') { throw Error('ошибка индексации - in Dialog props') }
 
   // * pubnup
   let timeoutCache = 0
   const pubnub = usePubNub()
-  const [channels] = useState([obj.message.name])
+  const [channels] = useState([dialogData.message.name])
 
   const dispatch = useDispatch()
   const { messages } = useSelector((state) => state.message)
@@ -65,9 +65,9 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
 
   const getMessages = useCallback(async () => {
     setIsGetMessages(false)
-    dispatch({ type: 'GET_MESSAGES_REQUEST', payload: { status, uuid: obj.message.uuid } })
+    dispatch({ type: 'GET_MESSAGES_REQUEST', payload: { status, uuid: dialogData.message.uuid } })
     setIsGetMessages(true)
-  }, [dispatch, status, obj.message.uuid])
+  }, [dispatch, status, dialogData.message.uuid])
 
   const checkDialogOperatorId = async () => {
     let checkOperatorId = null
@@ -82,7 +82,7 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
 
     // если оператор не закреплен
     if (checkOperatorId) {
-      const transferObject = obj.message
+      const transferObject = dialogData.message
       const newObject = {
         ...transferObject,
         operatorId: 123,
@@ -170,7 +170,7 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
     }
   }
 
-  const handleMessage = (event) => { hideTypingIndicator() }
+  const handleMessage = () => { hideTypingIndicator() }
 
   useEffect(() => {
     pubnub.addListener({
@@ -267,13 +267,10 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
   }
 
   const handlerInputChange = (e) => {
+    // отправляем в pubnup в канал нашего диалога сигнал о том, что мы печатаем
     pubnub.signal({
       message: 'typing_on',
       channel: channels
-    }, (status, response) => {
-      // handle status, response
-      // console.log(status)
-      // console.log(response)
     })
     setValue(e.target.value)
   }
@@ -285,13 +282,13 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
         <div className='HeaderBlock--item DialogUserBlock'>
           <div className='DialogAvatar'>
             <img
-              src={obj.message.avatar}
+              src={dialogData.message.avatar}
               alt='AvatarPicture'
               width={60}
               height={60}
             />
           </div>
-          <div className='DialogName'>{obj.message.name}</div>
+          <div className='DialogName'>{dialogData.message.name}</div>
         </div>
 
         <div className='HeaderBlock--item'>
@@ -309,7 +306,7 @@ const Dialog = ({ obj, transferToActive, handlerOpenProfile, ...props }) => {
           {
             isTyping &&
               <div className='TypingIndicator'>
-                {obj.message.name} is Typing ...
+                {dialogData.message.name} is Typing ...
               </div>
           }
         </div>
