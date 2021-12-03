@@ -10,6 +10,7 @@ export const CHECKOUT_REGISTRATION_FAILURE = 'CHECKOUT_REGISTRATION_FAILURE'
 
 export const SET_AUTH = 'SET_AUTH'
 export const SET_TOKEN = 'SET_TOKEN'
+export const CHECK_TOKEN = 'CHECK_TOKEN'
 
 // ========================================
 
@@ -89,6 +90,12 @@ export function setToken (token) {
   return {
     type: SET_TOKEN,
     token
+  }
+}
+
+export function checkToken () {
+  return {
+    type: CHECK_TOKEN
   }
 }
 

@@ -42,7 +42,7 @@ const HoomRoom = () => {
   const { TabPane } = Tabs
 
   const dispatch = useDispatch()
-  const { token, user } = useSelector((state) => state.auth)
+  const { user } = useSelector((state) => state.auth)
   const { dialogs, filteredMessages, lengthDialogs } = useSelector((state) => state.dialog)
 
   const formikUpdateProfile = useFormik({
@@ -127,21 +127,9 @@ const HoomRoom = () => {
 
   // ? Function declaration block ======================================================================================
 
-  const getData = () => { dispatch({ type: 'GET_DIALOGS_REQUEST' }) }
+  const checkToken = () => { dispatch({ type: 'CHECK_TOKEN' }) }
 
-  const checkToken = async () => {
-    try {
-      await firebase.auth().onAuthStateChanged((user) => {
-        if (user.refreshToken !== token) {
-          // возвращаем пользователя на страницу авторизации с помощью setAuth = false
-          dispatch({ type: 'RESET_STORE' })
-        }
-      })
-    } catch (e) {
-      console.log(e)
-      throw Error('Ошибка в проверке токена: ' + e)
-    }
-  }
+  const getData = () => { dispatch({ type: 'GET_DIALOGS_REQUEST' }) }
 
   // TODO: объеденить в одну функцию с checkDialogOperatorId из Dialog.js
   // TODO: в текущей версии не используется
@@ -307,9 +295,7 @@ const HoomRoom = () => {
     const answer = window.confirm('Вы точно хотите выйти ?')
     if (answer) {
       // TODO: добавить общий сброс store
-      dispatch({ type: 'RESET_STORE' })
-      dispatch({ type: 'RESET_DIALOGS_STORE' })
-      dispatch({ type: 'RESET_MESSAGE_STORE' })
+      dispatch({ type: 'RESET_REDUX' })
     }
   }
 
@@ -475,24 +461,6 @@ const HoomRoom = () => {
                         <Badge showZero count={lengthDialogs[tabPane.status]} color={tabPane.color} size='small'>
                           {tabPane.componentIcon}
                         </Badge>
-                        {/* <div style={{ */}
-                        {/*  position: 'absolute', */}
-                        {/*  top: '17%', */}
-                        {/*  left: '-42%', */}
-                        {/*  borderRadius: '50%', */}
-                        {/*  height: '17px', */}
-                        {/*  width: '17px', */}
-                        {/*  fontSize: '12px', */}
-                        {/*  opacity: '84%', */}
-                        {/*  zIndex: 1, */}
-                        {/*  backgroundColor: tabPane.color, */}
-                        {/*  color: 'black', */}
-                        {/*  display: 'flex', */}
-                        {/*  alignItems: 'center', */}
-                        {/*  justifyContent: 'center' */}
-                        {/* }} */}
-                        {/* >{lengthDialogs[tabPane.status]} */}
-                        {/* </div> */}
                       </div>
                     </span>
                   }

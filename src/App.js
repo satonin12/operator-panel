@@ -2,10 +2,9 @@ import AppRouter from './router/AppRouter'
 
 import PubNub from 'pubnub'
 import { PubNubProvider } from 'pubnub-react'
+import { ToastContainer } from 'react-toastify'
 
 import './App.scss'
-
-import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 const pubnub = new PubNub({

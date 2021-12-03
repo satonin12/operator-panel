@@ -66,6 +66,29 @@ function * signIn (action) {
   }
 }
 
+async function firebaseCheckToken (token) {
+  await firebase.auth().onAuthStateChanged((user) => {
+    if (user.refreshToken !== token) {
+      // возвращаем пользователя на страницу авторизации с помощью setAuth = false
+      return false
+    }
+  })
+  return true
+}
+
+function * checkToken (action) {
+  try {
+    const { token } = yield select(getAuthState)
+    const tryToken = yield call(firebaseCheckToken, token)
+    if (!tryToken) {
+      yield put({ type: 'RESET_REDUX' })
+    }
+  } catch (e) {
+    const errorMessage = { code: e.code, message: e.message }
+    console.log(errorMessage)
+  }
+}
+
 function addOperatorFirebase (ref, obj) {
   return new Promise((resolve, reject) => {
     const newOperatorRef = ref.push()
@@ -308,11 +331,24 @@ function * changeUser () {
   }
 }
 
+// dropping Saga's
+function * resetRedux () {
+  try {
+    yield put({ type: 'RESET_STORE' })
+    yield put({ type: 'RESET_DIALOGS_STORE' })
+    yield put({ type: 'RESET_MESSAGE_STORE' })
+  } catch (e) {
+    console.log(e)
+  }
+}
+
 export default function * rootSaga () {
   yield all([
     takeLatest('CHECKOUT_REQUEST', signIn),
+    takeLatest('CHECK_TOKEN', checkToken),
     takeLatest('CHECKOUT_REGISTRATION_REQUEST', signUp),
     takeLatest('FORGOT_PASSWORD_REQUEST', forgotPassword),
+
     takeLatest('REFRESH_PASSWORD', refreshPassword),
 
     takeLatest('GET_DIALOGS_REQUEST', getDialogs),
@@ -320,6 +356,8 @@ export default function * rootSaga () {
     takeLatest('GET_MESSAGES_REQUEST', getMessages),
     takeLatest('SEND_MESSAGE', sendMessage),
 
-    takeLatest('CHANGE_USER_FIELD', changeUser)
+    takeLatest('CHANGE_USER_FIELD', changeUser),
+
+    takeLatest('RESET_REDUX', resetRedux)
   ])
 }
