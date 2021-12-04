@@ -1,11 +1,12 @@
 import { takeLatest, put, call, all, select } from 'redux-saga/effects'
 
+import faker from 'faker'
 import rsf from '../firebase'
-import { toast } from 'react-toastify'
 import firebase from 'firebase'
+import { v4 as uuidv4 } from 'uuid'
+import { toast } from 'react-toastify'
 import { AvatarGenerator } from 'random-avatar-generator'
 import { AssignNewOperatorToDefaultOperatorSchema } from '../utils/operatorSchema'
-
 // get state's
 
 export const getAuthState = (state) => state.auth
@@ -251,7 +252,13 @@ function * getDialogs () {
     tmpDialogs.active = yield call(rsf.database.read, 'chat/active/')
     tmpDialogs.complete = yield call(rsf.database.read, 'chat/complete/')
 
-    Object.keys(tmpDialogs).filter(item => item !== null || typeof item !== 'undefined') // удаляем null иndefined значения
+    // удаляем null и Undefined значения
+    for (const key in tmpDialogs) {
+      tmpDialogs[key].filter((item) => {
+        return item !== null || typeof item !== 'undefined'
+      })
+    }
+
     const dialogsLength = Object.keys(tmpDialogs).map(a => tmpDialogs[a].reduce(function (total) { return total + 1 }, 0)) // и правильно считаем длину
 
     const length = {
@@ -269,6 +276,64 @@ function * getDialogs () {
 }
 
 // * message Saga's
+
+// Пока что не используется так как новые диалоги в очередь добавляются в ручную, а не через моб. приложение
+function * checkOperator (action) {
+  try {
+    const { user } = yield select(getAuthState)
+    const { status, index, message } = action.payload.dialogData
+    console.log(action)
+    const checkOperatorId = yield call(
+      rsf.database.read,
+      firebase.database().ref(`chat/${status}/${index}/operatorId`)
+    )
+    if (!checkOperatorId) {
+      const newObject = {
+        ...message,
+        name: faker.name.findName(),
+        avatar: faker.image.avatar(),
+        operatorId: 123, // закрепляем оператора за диалогом
+        status: 'active',
+        uuid: uuidv4()
+      }
+      if (user.autoGreeting) {
+        const timestamp = new Date()
+        // добавляем авто-приветственное сообщение
+        newObject.messages[newObject.messages.length] = {
+          content: user.autoGreeting,
+          timestamp: timestamp.toISOString(),
+          writtenBy: 'operator'
+        }
+      }
+
+      // (средствами realtime database firebase) - это означает удалить данную запись полностью
+      // и создать новую в путе chat/active/${LastIndex} + 1 с новыми данными operatorId и status
+      // создаем запись
+      // для этого узнаем длину последнего элемента в активных чатах
+      let lengthActiveDialogs = yield call(
+        rsf.database.read,
+        firebase.database().ref('chat/active/').limitToLast(1)
+      )
+      lengthActiveDialogs = Number(Object.keys(lengthActiveDialogs)[0]) + 1
+
+      if (lengthActiveDialogs) {
+        yield call(
+          rsf.database.update, `chat/active/${lengthActiveDialogs}`, newObject
+        )
+      }
+
+      // ! удаляем запись - пока что закоментиовано, чтобы не создавать каждый раз диалог в firebase
+      // await firebase.database().ref(`chat/${status}/${index}`).remove((error) => {
+      //   console.log(error)
+      //   console.log('вроде как удалили - смотри firebase')
+      // })
+    }
+    // проверяем поле operatorId в базе этого диалога
+  } catch (e) {
+    const errorMessage = { code: e.code, message: e.message }
+    console.log(errorMessage)
+  }
+}
 
 function * getMessages (action) {
   try {
@@ -348,6 +413,7 @@ export default function * rootSaga () {
 
     takeLatest('GET_DIALOGS_REQUEST', getDialogs),
 
+    takeLatest('CHECK_ATTACH_OPERATOR', checkOperator),
     takeLatest('GET_MESSAGES_REQUEST', getMessages),
     takeLatest('SEND_MESSAGE', sendMessage),
 

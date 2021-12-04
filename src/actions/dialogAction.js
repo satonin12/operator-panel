@@ -12,6 +12,8 @@ export const ADD_DIALOG_TO_ACTIVE = 'ADD_DIALOG_TO_ACTIVE'
 
 export const ADD_MESSAGE_TO_DIALOG = 'ADD_MESSAGE_TO_DIALOG'
 
+export const CHECK_ATTACH_OPERATOR = 'CHECK_ATTACH_OPERATOR'
+
 // используем - если хотим чтобы после перезагрузки сохранялись выбранные диалоги, вкладки, подсветка активной вкладки, окно профиля открытыми
 export const SET_ACTIVE_TAB = 'SET_ACTIVE_TAB'
 export const SET_OPEN_DIALOG = 'SET_OPEN_DIALOG'
@@ -115,5 +117,11 @@ export function setSelectedDialog () {
 export function addMessageToDialog () {
   return {
     type: ADD_MESSAGE_TO_DIALOG
+  }
+}
+
+export function checkAttachOperator () {
+  return {
+    type: CHECK_ATTACH_OPERATOR
   }
 }

@@ -84,7 +84,7 @@ export function dialogReducer (state = initialState, action) {
         filteredMessages: {
           ...state.filteredMessages,
           save: [...state.filteredMessages.save, action.payload.dialog], // добавляем в сохраненных
-          [action.payload.status]: state.filteredMessages[action.payload.status].filter((_, index) => index !== action.payload.index) // убираем из активных
+          [action.payload.status]: state.filteredMessages[action.payload.status].filter((dialog) => dialog.uuid !== action.payload.dialog.uuid) // убираем из активных
         },
         lengthDialogs: {
           ...state.lengthDialogs,
@@ -97,7 +97,7 @@ export function dialogReducer (state = initialState, action) {
         ...state,
         filteredMessages: {
           ...state.filteredMessages,
-          save: state.filteredMessages.save.filter((_, index) => index !== action.payload.index), // убираем из сохраненных
+          save: state.filteredMessages.save.filter((dialog) => dialog.uuid !== action.payload.dialog.uuid), // убираем из сохраненных
           [action.payload.dialog.status]: [...state.filteredMessages[action.payload.dialog.status], action.payload.dialog] // добавляем откуда взяли
         },
         lengthDialogs: {

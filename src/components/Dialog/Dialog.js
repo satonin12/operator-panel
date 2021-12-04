@@ -1,6 +1,7 @@
 import React, { createRef, useCallback, useEffect, useState, useRef } from 'react'
-import { v4 as uuidv4 } from 'uuid'
+import faker from 'faker'
 import firebase from 'firebase'
+import { v4 as uuidv4 } from 'uuid'
 import {
   StarFilled,
   SmileTwoTone,
@@ -42,8 +43,10 @@ function useInterval (callback, delay) {
 const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
   const status = dialogData.status
   // eslint-disable-next-line no-prototype-builtins
-  const index = dialogData.message.hasOwnProperty('indexBefore') ? dialogData.message.indexBefore : dialogData.index
-  if (typeof index === 'undefined') { throw Error('ошибка индексации - in Dialog props') }
+  // const index = dialogData.message.hasOwnProperty('indexBefore') ? dialogData.message.indexBefore : dialogData.index
+  // if (typeof index === 'undefined') { throw Error('ошибка индексации - in Dialog props') }
+
+  const idDialog = dialogData.id
 
   // * pubnup
   let timeoutCache = 0
@@ -70,21 +73,28 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
   }, [dispatch, status, dialogData.message.uuid])
 
   const checkDialogOperatorId = async () => {
+    // понадобится после того как появится моб. приложения
+    // dispatch({ type: 'CHECK_ATTACH_OPERATOR', payload: { dialogData } })
+
     let checkOperatorId = null
     await firebase
       .database()
-      .ref(`chat/${status}/${index}/operatorId`)
+      .ref(`chat/${status}/`)
+      .orderByChild('uuid')
+      .equalTo(idDialog)
       .once('value', (snapshot) => {
-        if (snapshot.val() === 0) {
+        const dialogObject = snapshot.val()[Object.keys(snapshot.val())]
+        if (dialogObject.operatorId === 0) {
           checkOperatorId = true
         }
       })
 
     // если оператор не закреплен
     if (checkOperatorId) {
-      const transferObject = dialogData.message
       const newObject = {
-        ...transferObject,
+        ...dialogData.message,
+        name: faker.name.findName(),
+        avatar: faker.image.avatar(),
         operatorId: 123,
         status: 'active',
         uuid: uuidv4()
@@ -163,7 +173,7 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
   const handleSignal = (event) => {
     clearTimeout(timeoutCache)
     setIsTyping(true)
-    timeoutCache = setTimeout(hideTypingIndicator, 3000) // 10 seconds
+    timeoutCache = setTimeout(hideTypingIndicator, 3000) // 3 seconds
 
     if (event.message === '0') {
       hideTypingIndicator()
@@ -305,7 +315,7 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
           ))}
           {
             isTyping &&
-              <div className='TypingIndicator'>
+              <div className='typingundicator'>
                 {dialogData.message.name} is Typing ...
               </div>
           }
@@ -355,7 +365,6 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
                 <LabelInput
                   ref={inputRef}
                   placeholder=' '
-                  typingIndicator
                   label='Введите ответ'
                   onChange={handlerInputChange}
                 />

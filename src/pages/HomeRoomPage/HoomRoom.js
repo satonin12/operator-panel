@@ -164,13 +164,14 @@ const HoomRoom = () => {
     }))
     setIsSelected(prevState => ({
       ...prevState,
-      index: dialog.index,
+      id: dialog.message.uuid,
       tab: 'active'
     }))
     dispatch({ type: 'ADD_DIALOG_TO_ACTIVE', payload: dialog.message })
     scrollToBottom()
   }
 
+  // при нажатии на кнопку "сохранить"/"удалить" из сохранненной вкладки
   const transferDialogToSave = useCallback((obj) => {
     clickedRef.current = 'Button'
 
@@ -178,11 +179,12 @@ const HoomRoom = () => {
     obj.dialog.indexBefore = obj.index
     dispatch({ type: 'ADD_TO_SAVE', payload: obj })
 
-    // TODO: пока что не используется, понадобится если будет сохранять вкладку save в firebase
+    // ! NOTICE: пока что не используется, понадобится если будет сохранять вкладку save в firebase
     // transferDialog(obj) // переводим диалог в сохраненные
   }, [dispatch])
 
   const removeDialogFromSave = useCallback((obj) => {
+    clickedRef.current = 'Button'
     dispatch({ type: 'DELETE_FROM_SAVE', payload: obj })
   }, [dispatch])
 
@@ -242,7 +244,7 @@ const HoomRoom = () => {
     if (clickedRef.current !== 'Button') {
       setActiveDialog(e)
       setIsOpenDialog(true)
-      setIsSelected({ index: e.index, tab: activeTab })
+      setIsSelected({ id: e.message.uuid, tab: activeTab })
     }
     // reset
     clickedRef.current = ''
@@ -444,22 +446,17 @@ const HoomRoom = () => {
                             )
                           : (
                         // eslint-disable-next-line array-callback-return
-                              filteredMessages[tabPane.status].map((message, index) => {
+                              filteredMessages[tabPane.status].map((message) => {
                                 if (message !== null && typeof message !== 'undefined') {
                                   return (
                                     <MessageItem
-                                      key={index}
-                                      index={index}
-                                      name={message.name}
+                                      key={message.uuid}
+                                      messageInfo={message}
                                       activeTab={activeTab}
-                                      avatar={message.avatar}
                                       isSelected={isSelected}
-                                      date={message.messages[message.messages.length - 1].timestamp}
-                                      message={message.messages[message.messages.length - 1].content}
-                                      image={message.messages[message.messages.length - 1].image_url}
-                                      onClick={() => handlerSetActiveDialog({ status: message.status, index, message })}
-                                      handlerDeleteInSave={() => removeDialogFromSave({ status: tabPane.status, index, dialog: message })}
-                                      handlerTransferToSave={() => transferDialogToSave({ status: tabPane.status, index, dialog: message })}
+                                      onClick={() => handlerSetActiveDialog({ status: message.status, id: message.uuid, message })}
+                                      handlerDeleteInSave={() => removeDialogFromSave({ status: tabPane.status, dialog: message })}
+                                      handlerTransferToSave={() => transferDialogToSave({ status: tabPane.status, dialog: message })}
                                     />
                                   )
                                 }
@@ -477,7 +474,7 @@ const HoomRoom = () => {
             {isOpenDialog
               ? (
                 <Dialog
-                  key={activeDialog.index}
+                  key={activeDialog.id}
                   dialogData={activeDialog}
                   handlerOpenProfile={handlerOpenProfile}
                   transferToActive={transferDialogToActive}
