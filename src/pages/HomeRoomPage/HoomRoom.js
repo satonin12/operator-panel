@@ -176,7 +176,6 @@ const HoomRoom = () => {
       tab: 'active'
     }))
     dispatch({ type: 'ADD_DIALOG_TO_ACTIVE', payload: dialog.message })
-    scrollToBottom()
   }
 
   // при нажатии на кнопку "сохранить"/"удалить" из сохранненной вкладки
