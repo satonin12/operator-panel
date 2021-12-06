@@ -40,7 +40,6 @@ const HoomRoom = () => {
   const clickedRef = useRef(clicked) // оптимизируем для использования в useCallback
   const hasMore = true
   const { TabPane } = Tabs
-  const messagesEndRef = useRef(null) // при переводе диалога в активный, отматываем его к этому диалогу
 
   const dispatch = useDispatch()
   const [, forceUpdate] = useReducer(x => x + 1, 0) // integer state
@@ -300,10 +299,6 @@ const HoomRoom = () => {
   // }, [])
    */
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
   // * JSX Variable declaration block ============================
 
   const menu = (
@@ -470,7 +465,6 @@ const HoomRoom = () => {
                                 }
                               })
                             )}
-                        <div ref={messagesEndRef} />
                       </ul>
                     </TabPane>
                   ))}
