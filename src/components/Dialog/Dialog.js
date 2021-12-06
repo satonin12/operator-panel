@@ -41,12 +41,7 @@ function useInterval (callback, delay) {
 }
 
 const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
-  const status = dialogData.status
-  // eslint-disable-next-line no-prototype-builtins
-  // const index = dialogData.message.hasOwnProperty('indexBefore') ? dialogData.message.indexBefore : dialogData.index
-  // if (typeof index === 'undefined') { throw Error('ошибка индексации - in Dialog props') }
-
-  const idDialog = dialogData.id
+  const { id, status } = dialogData
 
   // * pubnup
   let timeoutCache = 0
@@ -81,7 +76,7 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
       .database()
       .ref(`chat/${status}/`)
       .orderByChild('uuid')
-      .equalTo(idDialog)
+      .equalTo(id)
       .once('value', (snapshot) => {
         const dialogObject = snapshot.val()[Object.keys(snapshot.val())]
         if (dialogObject.operatorId === 0) {

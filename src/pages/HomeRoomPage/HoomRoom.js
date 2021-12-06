@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
+import React, { useEffect, useMemo, useState, useCallback, useRef, useReducer } from 'react'
 import { Result, Tabs, Menu, Dropdown, Badge, Spin } from 'antd'
 import {
   MailFilled,
@@ -29,6 +29,7 @@ import MessageItem from '../../components/MessageItem/MessageItem'
 import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
 import RefreshPasswordForm from '../../components/forms/RefreshPasswordForm'
 import SettingsDialog from '../../components/forms/SettingsDialog'
+import AvatarIcon from '../../img/avatar_icon.svg'
 
 import './index.scss'
 
@@ -42,6 +43,7 @@ const HoomRoom = () => {
   const messagesEndRef = useRef(null) // при переводе диалога в активный, отматываем его к этому диалогу
 
   const dispatch = useDispatch()
+  const [, forceUpdate] = useReducer(x => x + 1, 0) // integer state
   const { user } = useSelector((state) => state.auth)
   const { dialogs, filteredMessages, lengthDialogs, loadingData } = useSelector((state) => state.dialog)
 
@@ -133,27 +135,33 @@ const HoomRoom = () => {
 
   const sortDialogs = () => {
     const objectKeys = Object.keys(filteredMessages)
-    objectKeys.map((item) => (
-      filteredMessages[item].length > 1
+    objectKeys.forEach((item) => {
+      if (filteredMessages[item].length > 1) {
         // eslint-disable-next-line array-callback-return
-        ? filteredMessages[item].sort((a, b) => {
-            if (a !== null && b !== null) {
-              const a1 = a.messages[a.messages.length - 1].timestamp
-              const b1 = b.messages[b.messages.length - 1].timestamp
-              return (a1.date < b1.date) ? -1 : ((a1.date > b1.date) ? 1 : 0)
-            }
-          })
-        : null
-    ))
+        filteredMessages[item].sort((a, b) => {
+          if (a !== null && b !== null) {
+            const a1 = a.messages[a.messages.length - 1].timestamp
+            const b1 = b.messages[b.messages.length - 1].timestamp
+            return -a1.localeCompare(b1)
+          }
+          return a - b
+        })
+      }
+    })
+    forceUpdate()
   }
 
   useEffect(() => {
     checkToken()
     getData()
-    sortDialogs()
     clickedRef.current = clicked
     // eslint-disable-next-line
   }, [])
+
+  useEffect(() => {
+    sortDialogs()
+    // eslint-disable-next-line
+  }, [dialogs, filteredMessages])
 
   // Когда оператор выбрал диалог из очереди -> то переводим его в активный этому оператору
   const transferDialogToActive = (dialog) => {
@@ -360,6 +368,7 @@ const HoomRoom = () => {
                     alt='Avatar operator'
                     width={40}
                     height={40}
+                    onError={(e) => { e.target.onerror = null; e.target.src = AvatarIcon }}
                   />
                 </div>
                 <div className='TitleBlock--Name'>{user.name !== '' ? user.name : user.email}</div>

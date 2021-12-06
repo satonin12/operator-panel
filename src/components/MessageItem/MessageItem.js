@@ -1,9 +1,11 @@
 import React from 'react'
 
-import './index.scss'
 import Time from '../Time/Time'
 import classNames from 'classnames'
 import Button from '../Button/Button'
+import AvatarIcon from '../../img/avatar_icon.svg'
+
+import './index.scss'
 
 const MessageItem = ({ activeTab, messageInfo, onClick, isSelected = false, handlerTransferToSave, handlerDeleteInSave }) => {
   return (
@@ -20,6 +22,7 @@ const MessageItem = ({ activeTab, messageInfo, onClick, isSelected = false, hand
           alt='AvatarPicture'
           width={60}
           height={60}
+          onError={(e) => { e.target.onerror = null; e.target.src = AvatarIcon }}
         />
       </div>
       <div className='MessageItem MessageItem--Text'>
