@@ -191,7 +191,7 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
     // eslint-disable-next-line
   }, [pubnub, channels])
 
-  const handlerSendMessage = async () => {
+  const handlerSendMessage = () => {
     if (value.trim().length || attachImage.length !== 0) {
       hideTypingIndicator()
       const timestamp = new Date()
