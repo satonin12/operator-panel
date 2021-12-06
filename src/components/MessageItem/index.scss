@@ -82,7 +82,6 @@
 
       &:hover {
         button {
-          //background-color: #1890FF;
           background-color: #9e90ff45;
         }
       }
@@ -93,7 +92,7 @@
     background-color: #1890ff45;
   }
 
-  &:not(.active):hover {
+  &:not(.active):not(.Message .MessageItem button:hover):hover {
     background-color: #9e90ff45;
   }
 }

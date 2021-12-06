@@ -20,27 +20,13 @@
 
     .LeftPanel {
       padding: 10px 15px;
-      //background-color: #007AFF;
-      //color: #fff;
       color: black;
-      width: 25%;
+      width: 30%;
       min-width: 500px;
       height: inherit;
-
       border-right: 1px solid #0000ff6e;
 
-      overflow-y: auto; /* Добавляем полосы прокрутки */
-
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-
-      &::-webkit-scrollbar {
-        width: 0;
-        height: 0;
-      }
-
-      //max-height: 100vh;
-      //max-width: 30%;
+      overflow-y: scroll; /* Добавляем полосы прокрутки */
 
       .TitleBlock {
         margin-top: 5px;
@@ -49,12 +35,42 @@
         justify-content: space-between;
         align-items: baseline;
 
+        &--Operator {
+          display: flex;
+
+
+        }
+
+        .BlockButtons {
+          display: flex;
+          align-items: center;
+          &--Item {
+            margin: 0 15px;
+          }
+          &--Exit{
+            font-size: 18px;
+          }
+          &--Etc {
+            transform: rotate(90deg);
+            font-size: 23px;
+            margin: 0;
+            padding: 0;
+          }
+        }
+
         &--Name {
           font-size: 24px;
         }
-        &--Exit{
-          font-size: 18px;
+        &--Avatar {
+          img {
+            border-radius: 50%;
+          }
+          margin-right: 10px;
         }
+      }
+
+      .SearchBlock {
+        margin-bottom: 10px;
       }
 
       .MessageList {
@@ -127,5 +143,25 @@
 
   .btn-close {
     margin-top: 1.5rem!important;
+  }
+}
+
+.Modal {
+  padding: 20px 0 45px;
+  &--Title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .Title--Center {
+      margin-top: 15px;
+    }
+  }
+  &--Close {
+    font-size: 20px;
+    color: #272727;
+    &:hover {
+      cursor: pointer;
+    }
   }
 }

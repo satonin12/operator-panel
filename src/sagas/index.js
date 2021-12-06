@@ -1,8 +1,17 @@
 import { takeLatest, put, call, all, select } from 'redux-saga/effects'
 
+import faker from 'faker'
 import rsf from '../firebase'
-import { toast } from 'react-toastify'
 import firebase from 'firebase'
+import { v4 as uuidv4 } from 'uuid'
+import { toast } from 'react-toastify'
+import { AvatarGenerator } from 'random-avatar-generator'
+import { AssignNewOperatorToDefaultOperatorSchema } from '../utils/operatorSchema'
+// get state's
+
+export const getAuthState = (state) => state.auth
+export const getMessagesState = (state) => state.message
+export const getDialogsState = (state) => state.dialog
 
 // * auth Saga's
 
@@ -15,11 +24,23 @@ function * signIn (action) {
     )
 
     const token = data.user.refreshToken
+    const uid = data.user.uid
+
+    // получаем пользователя из firebase
+    const operatorRef = firebase.database().ref('operators/')
+
+    const operatorFromFirebase = yield call(
+      rsf.database.read,
+      operatorRef.orderByChild('uid').equalTo(uid))
+
+    const keysResponseOperator = Object.keys(operatorFromFirebase)
+    const userToState = operatorFromFirebase[keysResponseOperator[0]]
 
     yield put({ type: 'SET_TOKEN', payload: token }) // save user token in our response
-    yield put({ type: 'CHECKOUT_SUCCESS', user: action.user }) // save user data in our form
-    // yield put({ type: 'CHECKOUT_SUCCESS', user: data }) // save user data in firebase response
+    yield put({ type: 'CHECKOUT_SUCCESS', user: userToState }) // save user data in our form
     yield put({ type: 'SET_AUTH', payload: true }) // save user data in our form
+
+    // yield put({ type: 'CHECKOUT_SUCCESS', user: data }) // save user data in firebase response
 
     toast.success('🦄 Вы успешно авторизовались!', {
       position: 'top-right',
@@ -46,16 +67,73 @@ function * signIn (action) {
   }
 }
 
+async function firebaseCheckToken (token) {
+  // eslint-disable-next-line
+  return new Promise((resolve, _) => {
+    firebase.auth().onAuthStateChanged((user) => {
+      resolve(user.refreshToken === token)
+    })
+  })
+}
+
+function * checkToken () {
+  try {
+    const { token } = yield select(getAuthState)
+    const isValidToken = yield call(firebaseCheckToken, token)
+
+    if (!isValidToken) yield put({ type: 'RESET_REDUX' })
+  } catch (e) {
+    const errorMessage = { code: e.code, message: e.message }
+    console.log(errorMessage)
+  }
+}
+
+function addOperatorFirebase (ref, obj) {
+  return new Promise((resolve, reject) => {
+    const newOperatorRef = ref.push()
+    // key save in user as key on firebase get this user
+    obj.keyFirebase = newOperatorRef.key
+    const tmp = newOperatorRef.set(obj)
+
+    if (tmp) {
+      resolve(true)
+    } else {
+      // eslint-disable-next-line prefer-promise-reject-errors
+      reject(false)
+    }
+  })
+}
+
+/*
+  ? NOTICE:
+  ? There is no need to check that such an operator already exists (for entered email),
+  ? because this is included in the check for *rsf.auth.createUserWithEmailAndPassword* => then,
+  ? when saving data, the operator in firebase will pop up try...catch
+*/
 function * signUp (action) {
   try {
-    yield call(
+    const data = yield call(
       rsf.auth.createUserWithEmailAndPassword,
       action.user.email,
       action.user.password
     )
 
+    const uid = data.user.uid
+
     yield put({ type: 'CHECKOUT_REGISTRATION_SUCCESS', user: action.user }) // save user data in our form
     yield put({ type: 'SET_AUTH', payload: true }) // save user data in our form
+
+    if (uid) {
+      const newOperatorRef = firebase.database().ref('operators/')
+
+      // создаем пользователя в firebase
+      const generator = new AvatarGenerator()
+      const urlRandomAvatar = generator.generateRandomAvatar()
+
+      const newOperator = { uid, email: action.user.email, avatar: urlRandomAvatar }
+      const newOperatorStandard = AssignNewOperatorToDefaultOperatorSchema(newOperator)
+      yield call(addOperatorFirebase, newOperatorRef, newOperatorStandard)
+    }
 
     toast.success('🦄 Вы успешно зарегистрировались', {
       position: 'top-right',
@@ -108,6 +186,57 @@ function * forgotPassword (action) {
   }
 }
 
+function reAuth (user, currentUser) {
+  const credentials = firebase.auth.EmailAuthProvider.credential(user.email, user.password)
+  return currentUser.reauthenticateWithCredential(credentials)
+    .then((response) => ({ response }))
+    .catch(error => ({ error }))
+}
+
+function updatePass (currentUser, action) {
+  return new Promise((resolve, reject) => {
+    const tmp = currentUser.updatePassword(action.payload.user.password)
+    if (tmp) {
+      resolve(true)
+    } else {
+      // eslint-disable-next-line prefer-promise-reject-errors
+      reject('Ошибка')
+    }
+  })
+}
+
+function * refreshPassword (action) {
+  try {
+    const currentUser = firebase.auth().currentUser
+    const { user } = yield select(getAuthState)
+    // compare oldPassword in enterPassword with that lies in redux state
+    if (action.payload.user.oldPassword === user.password) {
+      // eslint-disable-next-line no-unused-vars
+      const { response } = yield call(reAuth, user, currentUser)
+
+      if (response) {
+        yield call(updatePass, currentUser, action)
+        toast.success('🦄 Пароль успешно обновлен! Зайдите заново с новым паролем', {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined
+        })
+        yield put({ type: 'RESET_REDUX' })
+      }
+    } else {
+      yield put({ type: 'REFRESH_PASSWORD_ERROR', payload: 'Старый пароль не совпадает, пожалуйста, проверьте правильность данных' })
+    }
+  } catch (e) {
+    const errorMessage = { code: e.code, message: e.message }
+    console.log(errorMessage)
+    // yield put({ type: 'CHECKOUT_FAILURE', error: errorMessage })
+  }
+}
+
 // * dialogs Saga's
 
 function * getDialogs () {
@@ -123,7 +252,13 @@ function * getDialogs () {
     tmpDialogs.active = yield call(rsf.database.read, 'chat/active/')
     tmpDialogs.complete = yield call(rsf.database.read, 'chat/complete/')
 
-    Object.keys(tmpDialogs).filter(item => item !== null || typeof item !== 'undefined') // удаляем null иndefined значения
+    // удаляем null и Undefined значения
+    for (const key in tmpDialogs) {
+      tmpDialogs[key].filter((item) => {
+        return item !== null || typeof item !== 'undefined'
+      })
+    }
+
     const dialogsLength = Object.keys(tmpDialogs).map(a => tmpDialogs[a].reduce(function (total) { return total + 1 }, 0)) // и правильно считаем длину
 
     const length = {
@@ -136,15 +271,69 @@ function * getDialogs () {
     yield put({ type: 'GET_DIALOGS_SUCCESS', payload: { dialogs: tmpDialogs, length } })
   } catch (e) {
     const errorMessage = { code: e.code, message: e.message }
-    console.log(errorMessage)
     yield put({ type: 'GET_DIALOGS_FAILURE', error: errorMessage })
   }
 }
 
 // * message Saga's
 
-export const getMessagesState = (state) => state.message
-export const getDialogsState = (state) => state.dialog
+// Пока что не используется так как новые диалоги в очередь добавляются в ручную, а не через моб. приложение
+function * checkOperator (action) {
+  try {
+    const { user } = yield select(getAuthState)
+    const { status, index, message } = action.payload.dialogData
+    console.log(action)
+    const checkOperatorId = yield call(
+      rsf.database.read,
+      firebase.database().ref(`chat/${status}/${index}/operatorId`)
+    )
+    if (!checkOperatorId) {
+      const newObject = {
+        ...message,
+        name: faker.name.findName(),
+        avatar: faker.image.avatar(),
+        operatorId: 123, // закрепляем оператора за диалогом
+        status: 'active',
+        uuid: uuidv4()
+      }
+      if (user.autoGreeting) {
+        const timestamp = new Date()
+        // добавляем авто-приветственное сообщение
+        newObject.messages[newObject.messages.length] = {
+          content: user.autoGreeting,
+          timestamp: timestamp.toISOString(),
+          writtenBy: 'operator'
+        }
+      }
+
+      // (средствами realtime database firebase) - это означает удалить данную запись полностью
+      // и создать новую в путе chat/active/${LastIndex} + 1 с новыми данными operatorId и status
+      // создаем запись
+      // для этого узнаем длину последнего элемента в активных чатах
+      let lengthActiveDialogs = yield call(
+        rsf.database.read,
+        firebase.database().ref('chat/active/').limitToLast(1)
+      )
+      lengthActiveDialogs = Number(Object.keys(lengthActiveDialogs)[0]) + 1
+
+      if (lengthActiveDialogs) {
+        yield call(
+          rsf.database.update, `chat/active/${lengthActiveDialogs}`, newObject
+        )
+      }
+
+      // ! удаляем запись - пока что закоментиовано, чтобы не создавать каждый раз диалог в firebase
+      // await firebase.database().ref(`chat/${status}/${index}`).remove((error) => {
+      //   console.log(error)
+      //   console.log('вроде как удалили - смотри firebase')
+      // })
+    }
+    // проверяем поле operatorId в базе этого диалога
+  } catch (e) {
+    const errorMessage = { code: e.code, message: e.message }
+    console.log(errorMessage)
+  }
+}
 
 function * getMessages (action) {
   try {
@@ -168,15 +357,19 @@ function * sendMessage (action) {
     const { status, message } = action.payload
     const { messageLength, indexDialogUser, idDialogUser } = yield select(getMessagesState)
     const { filteredMessages } = yield select(getDialogsState)
+
+    const dialogObject = filteredMessages[status].filter(obj => obj.uuid === idDialogUser)
     const chatMessageRef = firebase.database().ref(`chat/${status}/${indexDialogUser}/messages/${messageLength}`)
+
     yield call(() => {
+      // eslint-disable-next-line
       return new Promise((resolve, _) => {
         chatMessageRef.set(message)
         resolve(true)
       })
     })
 
-    if (idDialogUser === filteredMessages[status][indexDialogUser].uuid) {
+    if (idDialogUser === dialogObject[0].uuid) {
       yield put({ type: 'ADD_MESSAGE_TO_DIALOG', payload: { status, index: indexDialogUser, message, id: idDialogUser } })
     }
   } catch (e) {
@@ -186,15 +379,47 @@ function * sendMessage (action) {
   }
 }
 
+// * User Saga's
+
+function * changeUser () {
+  try {
+    const { user } = yield select(getAuthState)
+    yield call(rsf.database.update, `operators/${user.keyFirebase}`, user)
+  } catch (e) {
+    const errorMessage = { code: e.code, message: e.message }
+    console.log(errorMessage)
+    // yield put({ type: 'GET_MESSAGES_FAILURE', error: errorMessage })
+  }
+}
+
+// dropping Saga's
+function * resetRedux () {
+  try {
+    yield put({ type: 'RESET_STORE' })
+    yield put({ type: 'RESET_DIALOGS_STORE' })
+    yield put({ type: 'RESET_MESSAGE_STORE' })
+  } catch (e) {
+    console.log(e)
+  }
+}
+
 export default function * rootSaga () {
   yield all([
     takeLatest('CHECKOUT_REQUEST', signIn),
+    takeLatest('CHECK_TOKEN', checkToken),
     takeLatest('CHECKOUT_REGISTRATION_REQUEST', signUp),
     takeLatest('FORGOT_PASSWORD_REQUEST', forgotPassword),
 
+    takeLatest('REFRESH_PASSWORD', refreshPassword),
+
     takeLatest('GET_DIALOGS_REQUEST', getDialogs),
 
+    takeLatest('CHECK_ATTACH_OPERATOR', checkOperator),
     takeLatest('GET_MESSAGES_REQUEST', getMessages),
-    takeLatest('SEND_MESSAGE', sendMessage)
+    takeLatest('SEND_MESSAGE', sendMessage),
+
+    takeLatest('CHANGE_USER_FIELD', changeUser),
+
+    takeLatest('RESET_REDUX', resetRedux)
   ])
 }

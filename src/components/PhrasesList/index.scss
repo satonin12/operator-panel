@@ -1,0 +1,53 @@
+.SelectList {
+  width: 100%;
+  margin-top: 40px;
+  padding: 10px 0;
+
+  color: black;
+
+  &Item {
+    padding: 10px 0;
+
+    &--Title {
+
+    }
+    &--List {
+
+    }
+    &--Add {
+
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+
+      width: 100%;
+
+      input {
+        width: 98%;
+      }
+
+      button {
+        width: 10%;
+      }
+    }
+
+    .PhraseList {
+
+      list-style: none;
+      padding: 10px 0;
+
+      &_Item {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+
+        button {
+          width: auto;
+          margin: 0;
+        }
+      }
+    }
+  }
+
+}

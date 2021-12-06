@@ -1,20 +1,38 @@
 import React from 'react'
 
-import './index.scss'
-import LabelInput from '../Inputs/LabelInput/LabelInput'
 import Button from '../Button/Button'
-import { Link } from 'react-router-dom'
-import { RouteNames } from '../../router'
+import LabelInput from '../Inputs/LabelInput/LabelInput'
+
+import './index.scss'
+import { useSelector } from 'react-redux'
 
 const RefreshPasswordForm = ({ formik }) => {
+  const { error } = useSelector((state) => state.auth)
   return (
     <>
       <form onSubmit={formik.handleSubmit}>
         <div className='FormContent'>
+
+          <LabelInput
+            name='oldPassword'
+            type='password'
+            label='Старый пароль'
+            placeholder=''
+            onChange={formik.handleChange}
+            value={formik.values.oldPassword}
+          />
+          {(error && formik.isSubmitting) || formik.errors.oldPassword
+            ? (
+              <span className='formPrompt formPrompt--error'>
+                {error || formik.errors.oldPassword}
+              </span>
+              )
+            : null}
+
           <LabelInput
             name='password'
             type='password'
-            label='Пароль'
+            label='Новый пароль'
             placeholder=''
             onChange={formik.handleChange}
             value={formik.values.password}
@@ -30,7 +48,7 @@ const RefreshPasswordForm = ({ formik }) => {
           <LabelInput
             name='repeatPassword'
             type='password'
-            label='Подтверждение пароля'
+            label='Подтверждение нового пароля'
             placeholder=''
             onChange={formik.handleChange}
             value={formik.values.repeatPassword}
@@ -44,18 +62,8 @@ const RefreshPasswordForm = ({ formik }) => {
             : null}
 
           <Button type='submit' styleButton='primary'>
-            Отправить ссылку для восстановления
+            Обновить пароль
           </Button>
-
-          <div className='formLinks'>
-            <Link className='formLinks--item' to={RouteNames.LOGIN}>
-              Войти
-            </Link>
-
-            <Link className='formLinks--item' to={RouteNames.REGISTER}>
-              Регистрация
-            </Link>
-          </div>
         </div>
       </form>
     </>

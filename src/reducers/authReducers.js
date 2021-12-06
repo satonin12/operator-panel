@@ -1,8 +1,9 @@
 import {
+  CHANGE_USER_FIELD,
   CHECKOUT_FAILURE,
   CHECKOUT_REGISTRATION_REQUEST,
   CHECKOUT_REQUEST,
-  CHECKOUT_SUCCESS, RESET_STORE,
+  CHECKOUT_SUCCESS, REFRESH_PASSWORD, REFRESH_PASSWORD_ERROR, RESET_STORE,
   SET_AUTH, SET_TOKEN
 } from '../actions/authAction'
 
@@ -50,6 +51,23 @@ export function authReducer (state = initialState, action) {
       }
     case RESET_STORE:
       return initialState
+    case REFRESH_PASSWORD:
+      return state
+    case REFRESH_PASSWORD_ERROR:
+      return {
+        ...state,
+        error: action.payload
+      }
+    case CHANGE_USER_FIELD:
+      // eslint-disable-next-line no-case-declarations
+      const keyUser = Object.keys(action.payload)[0]
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          [keyUser]: action.payload[keyUser]
+        }
+      }
     default:
       return state
   }

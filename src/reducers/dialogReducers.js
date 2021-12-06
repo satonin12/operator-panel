@@ -54,12 +54,14 @@ export function dialogReducer (state = initialState, action) {
         ...state,
         dialogs: action.payload.dialogs,
         filteredMessages: action.payload.dialogs,
-        lengthDialogs: action.payload.length
+        lengthDialogs: action.payload.length,
+        loadingData: false
       }
     case GET_DIALOGS_FAILURE:
       return {
         ...state,
-        error: action.error
+        error: action.error,
+        loadingData: false
       }
     case SET_FILTERED_DIALOGS:
       return {
@@ -82,7 +84,7 @@ export function dialogReducer (state = initialState, action) {
         filteredMessages: {
           ...state.filteredMessages,
           save: [...state.filteredMessages.save, action.payload.dialog], // добавляем в сохраненных
-          [action.payload.status]: state.filteredMessages[action.payload.status].filter((_, index) => index !== action.payload.index) // убираем из активных
+          [action.payload.status]: state.filteredMessages[action.payload.status].filter((dialog) => dialog.uuid !== action.payload.dialog.uuid) // убираем из активных
         },
         lengthDialogs: {
           ...state.lengthDialogs,
@@ -95,7 +97,7 @@ export function dialogReducer (state = initialState, action) {
         ...state,
         filteredMessages: {
           ...state.filteredMessages,
-          save: state.filteredMessages.save.filter((_, index) => index !== action.payload.index), // убираем из сохраненных
+          save: state.filteredMessages.save.filter((dialog) => dialog.uuid !== action.payload.dialog.uuid), // убираем из сохраненных
           [action.payload.dialog.status]: [...state.filteredMessages[action.payload.dialog.status], action.payload.dialog] // добавляем откуда взяли
         },
         lengthDialogs: {
@@ -145,12 +147,16 @@ export function dialogReducer (state = initialState, action) {
         ...state,
         filteredMessages: {
           ...state.filteredMessages,
-          [aPl.status]: state.filteredMessages[aPl.status].map(dialog => dialog.uuid === aPl.id
-            // transform the one with a matching id
-            ? { ...dialog, messages: newMessagesArray }
-            // otherwise return original todo
-            : dialog
-          )
+          // eslint-disable-next-line array-callback-return
+          [aPl.status]: state.filteredMessages[aPl.status].map(dialog => {
+            if (typeof dialog !== 'undefined') {
+              return dialog.uuid === aPl.id
+                // transform the one with a matching id
+                ? { ...dialog, messages: newMessagesArray }
+                // otherwise return original
+                : dialog
+            }
+          })
         }
       }
     default:
