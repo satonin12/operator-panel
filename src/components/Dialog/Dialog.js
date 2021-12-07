@@ -11,6 +11,7 @@ import {
 import Picker from 'emoji-picker-react'
 import { AutoComplete } from 'antd'
 import { useDispatch, useSelector } from 'react-redux'
+import clonedeep from 'lodash.clonedeep'
 
 import { usePubNub } from 'pubnub-react'
 
@@ -71,6 +72,8 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
     // понадобится после того как появится моб. приложения
     // dispatch({ type: 'CHECK_ATTACH_OPERATOR', payload: { dialogData } })
 
+    let newObject = {}
+    const transferedObject = clonedeep(dialogData.message)
     let checkOperatorId = null
     await firebase
       .database()
@@ -86,15 +89,14 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
 
     // если оператор не закреплен
     if (checkOperatorId) {
-      const newObject = {
-        ...dialogData.message,
+      newObject = {
+        ...transferedObject,
         name: faker.name.findName(),
         avatar: faker.image.avatar(),
         operatorId: 123,
         status: 'active',
         uuid: uuidv4()
       }
-
       // и есть авто-приветственное сообщение
       if (autoGreeting) {
         const timestamp = new Date()
