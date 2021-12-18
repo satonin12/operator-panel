@@ -394,7 +394,6 @@ function * checkOperator (action) {
 }
 
 function checkEndDialog (id) {
-  // eslint-disable-next-line promise/param-names
   return new Promise((resolve, _) => {
     firebase
       .database()
