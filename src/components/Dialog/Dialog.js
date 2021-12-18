@@ -187,7 +187,8 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile, onEndDialog 
 
   useEffect(() => {
     if (isEndDialog) showConfirm()
-  }, [isEndDialog, showConfirm])
+    // eslint-disable-next-line
+  }, [isEndDialog])
 
   const sendNotification = () => {
     const headers = {
