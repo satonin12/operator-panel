@@ -2,13 +2,19 @@ export const GET_DIALOGS_REQUEST = 'GET_DIALOGS_REQUEST'
 export const GET_DIALOGS_SUCCESS = 'GET_DIALOGS_SUCCESS'
 export const GET_DIALOGS_FAILURE = 'GET_DIALOGS_FAILURE'
 
+export const GET_TOPICS_REQUEST = 'GET_TOPICS_REQUEST'
+export const GET_TOPICS_SUCCESS = 'GET_TOPICS_SUCCESS'
+export const GET_TOPICS_FAILURE = 'GET_TOPICS_FAILURE'
+
 export const SET_FILTERED_DIALOGS = 'SET_FILTERED_DIALOGS'
+export const SET_END_DIALOGS = 'SET_END_DIALOGS'
 
 export const RESET_DIALOGS_STORE = 'RESET_DIALOGS_STORE'
 
 export const ADD_TO_SAVE = 'ADD_TO_SAVE'
 export const DELETE_FROM_SAVE = 'DELETE_FROM_SAVE'
 export const ADD_DIALOG_TO_ACTIVE = 'ADD_DIALOG_TO_ACTIVE'
+export const ADD_DIALOG_TO_STATE = 'ADD_DIALOG_TO_STATE'
 
 export const ADD_MESSAGE_TO_DIALOG = 'ADD_MESSAGE_TO_DIALOG'
 
@@ -43,12 +49,38 @@ export function getDialogsError (error) {
   }
 }
 
+export function getTopics () {
+  return {
+    type: GET_TOPICS_REQUEST
+  }
+}
+
+export function getTopicsSuccess (topics) {
+  return {
+    type: GET_TOPICS_SUCCESS,
+    topics
+  }
+}
+
+export function getTopicsError (error) {
+  return {
+    type: GET_TOPICS_FAILURE,
+    error
+  }
+}
+
 // =======================================
 
 export function setFilteredDialogs (dialogs) {
   return {
     type: SET_FILTERED_DIALOGS,
     dialogs
+  }
+}
+
+export function setEndDialogs () {
+  return {
+    type: SET_END_DIALOGS
   }
 }
 
@@ -77,6 +109,12 @@ export function deleteFromSave () {
 export function addToActive () {
   return {
     type: ADD_DIALOG_TO_ACTIVE
+  }
+}
+
+export function addDialogToState () {
+  return {
+    type: ADD_DIALOG_TO_STATE
   }
 }
 

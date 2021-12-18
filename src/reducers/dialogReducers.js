@@ -11,7 +11,8 @@ import {
   SET_OPEN_DIALOG,
   SET_PROFILE_OPEN,
   SET_SELECTED_DIALOG,
-  ADD_MESSAGE_TO_DIALOG
+  ADD_MESSAGE_TO_DIALOG,
+  ADD_DIALOG_TO_STATE, GET_TOPICS_REQUEST, GET_TOPICS_SUCCESS, GET_TOPICS_FAILURE, SET_END_DIALOGS
 } from '../actions/dialogAction'
 
 const initialState = {
@@ -39,7 +40,9 @@ const initialState = {
   isSelected: {}, // подсвечивать диалог, при его выборе
   activeTab: 'start',
   activeDialog: {},
-  isOpenDialog: false // состояние для определения открыт ли диалог или нет
+  isOpenDialog: false, // состояние для определения открыт ли диалог или нет
+  listTopics: {}, // список тем и подтем
+  isEndDialog: false // завершенный ли диалог или нет
 }
 
 export function dialogReducer (state = initialState, action) {
@@ -63,6 +66,18 @@ export function dialogReducer (state = initialState, action) {
         error: action.error,
         loadingData: false
       }
+    case GET_TOPICS_REQUEST:
+      return state
+    case GET_TOPICS_SUCCESS:
+      return {
+        ...state,
+        listTopics: action.payload
+      }
+    case GET_TOPICS_FAILURE:
+      return {
+        ...state,
+        error: action.error
+      }
     case SET_FILTERED_DIALOGS:
       return {
         ...state,
@@ -70,6 +85,11 @@ export function dialogReducer (state = initialState, action) {
           ...state.filteredMessages,
           [action.payload.tab]: action.payload.dialogs
         }
+      }
+    case SET_END_DIALOGS:
+      return {
+        ...state,
+        isEndDialog: action.payload
       }
     case RESET_DIALOGS_STORE:
       return initialState
@@ -118,6 +138,22 @@ export function dialogReducer (state = initialState, action) {
           active: state.lengthDialogs.active + 1
         }
       }
+    case ADD_DIALOG_TO_STATE :
+      return {
+        ...state,
+        dialogs: {
+          ...state.dialogs,
+          [action.payload.status]: [...state.dialogs[action.payload.status], action.payload]
+        },
+        filteredMessages: {
+          ...state.filteredMessages,
+          [action.payload.status]: [...state.filteredMessages[action.payload.status], action.payload]
+        },
+        lengthDialogs: {
+          ...state.lengthDialogs,
+          [action.payload.status]: state.lengthDialogs[action.payload.status] + 1
+        }
+      }
     case SET_SELECTED_DIALOG:
       return {
         ...state,
@@ -141,8 +177,6 @@ export function dialogReducer (state = initialState, action) {
     case ADD_MESSAGE_TO_DIALOG:
       // eslint-disable-next-line no-case-declarations
       const aPl = action.payload
-      // eslint-disable-next-line no-case-declarations
-      const newMessagesArray = [...state.filteredMessages[aPl.status][aPl.index].messages, aPl.message]
       return {
         ...state,
         filteredMessages: {
@@ -152,7 +186,7 @@ export function dialogReducer (state = initialState, action) {
             if (typeof dialog !== 'undefined') {
               return dialog.uuid === aPl.id
                 // transform the one with a matching id
-                ? { ...dialog, messages: newMessagesArray }
+                ? { ...dialog, messages: [...dialog.messages, aPl.message] }
                 // otherwise return original
                 : dialog
             }

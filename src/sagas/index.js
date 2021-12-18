@@ -1,4 +1,4 @@
-import { takeLatest, put, call, all, select } from 'redux-saga/effects'
+import { all, call, put, select, takeLatest } from 'redux-saga/effects'
 
 import faker from 'faker'
 import rsf from '../firebase'
@@ -31,7 +31,8 @@ function * signIn (action) {
 
     const operatorFromFirebase = yield call(
       rsf.database.read,
-      operatorRef.orderByChild('uid').equalTo(uid))
+      operatorRef.orderByChild('uid').equalTo(uid)
+    )
 
     const keysResponseOperator = Object.keys(operatorFromFirebase)
     const userToState = operatorFromFirebase[keysResponseOperator[0]]
@@ -84,7 +85,10 @@ function * checkToken () {
     if (!isValidToken) yield put({ type: 'RESET_REDUX' })
   } catch (e) {
     const errorMessage = { code: e.code, message: e.message }
-    console.log(errorMessage)
+    throw new Error({
+      ...errorMessage,
+      path: 'saga-checkToken'
+    })
   }
 }
 
@@ -130,8 +134,13 @@ function * signUp (action) {
       const generator = new AvatarGenerator()
       const urlRandomAvatar = generator.generateRandomAvatar()
 
-      const newOperator = { uid, email: action.user.email, avatar: urlRandomAvatar }
-      const newOperatorStandard = AssignNewOperatorToDefaultOperatorSchema(newOperator)
+      const newOperator = {
+        uid,
+        email: action.user.email,
+        avatar: urlRandomAvatar
+      }
+      const newOperatorStandard =
+        AssignNewOperatorToDefaultOperatorSchema(newOperator)
       yield call(addOperatorFirebase, newOperatorRef, newOperatorStandard)
     }
 
@@ -160,7 +169,6 @@ function * signUp (action) {
 
 function * forgotPassword (action) {
   try {
-    console.log(action)
     yield call(rsf.auth.sendPasswordResetEmail, action.user.email)
 
     toast.success('🦄 Уведомление успешно отправлено, проверьте свой Email!', {
@@ -187,10 +195,14 @@ function * forgotPassword (action) {
 }
 
 function reAuth (user, currentUser) {
-  const credentials = firebase.auth.EmailAuthProvider.credential(user.email, user.password)
-  return currentUser.reauthenticateWithCredential(credentials)
+  const credentials = firebase.auth.EmailAuthProvider.credential(
+    user.email,
+    user.password
+  )
+  return currentUser
+    .reauthenticateWithCredential(credentials)
     .then((response) => ({ response }))
-    .catch(error => ({ error }))
+    .catch((error) => ({ error }))
 }
 
 function updatePass (currentUser, action) {
@@ -216,24 +228,33 @@ function * refreshPassword (action) {
 
       if (response) {
         yield call(updatePass, currentUser, action)
-        toast.success('🦄 Пароль успешно обновлен! Зайдите заново с новым паролем', {
-          position: 'top-right',
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined
-        })
+        toast.success(
+          '🦄 Пароль успешно обновлен! Зайдите заново с новым паролем',
+          {
+            position: 'top-right',
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined
+          }
+        )
         yield put({ type: 'RESET_REDUX' })
       }
     } else {
-      yield put({ type: 'REFRESH_PASSWORD_ERROR', payload: 'Старый пароль не совпадает, пожалуйста, проверьте правильность данных' })
+      yield put({
+        type: 'REFRESH_PASSWORD_ERROR',
+        payload:
+          'Старый пароль не совпадает, пожалуйста, проверьте правильность данных'
+      })
     }
   } catch (e) {
     const errorMessage = { code: e.code, message: e.message }
-    console.log(errorMessage)
-    // yield put({ type: 'CHECKOUT_FAILURE', error: errorMessage })
+    throw new Error({
+      ...errorMessage,
+      path: 'saga-refreshPassword'
+    })
   }
 }
 
@@ -241,6 +262,8 @@ function * refreshPassword (action) {
 
 function * getDialogs () {
   try {
+    const { user } = yield select(getAuthState)
+
     const tmpDialogs = {
       start: [],
       active: [],
@@ -248,18 +271,41 @@ function * getDialogs () {
       save: []
     }
 
+    // start принимаем все диалоги, а остальные только текущего оператора, другие видны не будут
     tmpDialogs.start = yield call(rsf.database.read, 'chat/start/')
-    tmpDialogs.active = yield call(rsf.database.read, 'chat/active/')
-    tmpDialogs.complete = yield call(rsf.database.read, 'chat/complete/')
+    tmpDialogs.active = yield call(
+      rsf.database.read,
+      firebase
+        .database()
+        .ref('chat/active/')
+        .orderByChild('operatorId')
+        .equalTo(user.uid)
+    )
+    tmpDialogs.complete = yield call(
+      rsf.database.read,
+      firebase
+        .database()
+        .ref('chat/complete/')
+        .orderByChild('operatorId')
+        .equalTo(user.uid)
+    )
 
     // удаляем null и Undefined значения
+    let _array = null
     for (const key in tmpDialogs) {
-      tmpDialogs[key].filter((item) => {
-        return item !== null || typeof item !== 'undefined'
-      })
+      if (tmpDialogs[key] !== null) {
+        if (!tmpDialogs[key].isArray) {
+          _array = []
+          for (const keyTmpDialogs in tmpDialogs[key]) _array.push(tmpDialogs[key][keyTmpDialogs])
+          tmpDialogs[key] = _array
+        }
+        tmpDialogs[key].filter((item) => item !== null || typeof item !== 'undefined')
+      } else {
+        tmpDialogs[key] = []
+      }
     }
 
-    const dialogsLength = Object.keys(tmpDialogs).map(a => tmpDialogs[a].reduce(function (total) { return total + 1 }, 0)) // и правильно считаем длину
+    const dialogsLength = Object.keys(tmpDialogs).map((a) => tmpDialogs[a].length) // считаем длину
 
     const length = {
       start: dialogsLength[0],
@@ -268,10 +314,17 @@ function * getDialogs () {
       save: dialogsLength[3]
     }
 
-    yield put({ type: 'GET_DIALOGS_SUCCESS', payload: { dialogs: tmpDialogs, length } })
+    yield put({
+      type: 'GET_DIALOGS_SUCCESS',
+      payload: { dialogs: tmpDialogs, length }
+    })
   } catch (e) {
     const errorMessage = { code: e.code, message: e.message }
     yield put({ type: 'GET_DIALOGS_FAILURE', error: errorMessage })
+    throw new Error({
+      ...errorMessage,
+      path: 'saga-getDialogs'
+    })
   }
 }
 
@@ -282,7 +335,7 @@ function * checkOperator (action) {
   try {
     const { user } = yield select(getAuthState)
     const { status, index, message } = action.payload.dialogData
-    console.log(action)
+
     const checkOperatorId = yield call(
       rsf.database.read,
       firebase.database().ref(`chat/${status}/${index}/operatorId`)
@@ -318,7 +371,9 @@ function * checkOperator (action) {
 
       if (lengthActiveDialogs) {
         yield call(
-          rsf.database.update, `chat/active/${lengthActiveDialogs}`, newObject
+          rsf.database.update,
+          `chat/active/${lengthActiveDialogs}`,
+          newObject
         )
       }
 
@@ -331,8 +386,29 @@ function * checkOperator (action) {
     // проверяем поле operatorId в базе этого диалога
   } catch (e) {
     const errorMessage = { code: e.code, message: e.message }
-    console.log(errorMessage)
+    throw new Error({
+      ...errorMessage,
+      path: 'saga-checkToken'
+    })
   }
+}
+
+function checkEndDialog (id) {
+  // eslint-disable-next-line promise/param-names
+  return new Promise((resolve, _) => {
+    firebase
+      .database()
+      .ref('chat/complete')
+      .orderByChild('uuid')
+      .equalTo(id)
+      .once('value')
+      .then((snapshot) => {
+        const tmp = Number(Object.keys(snapshot.val())[0])
+        if (snapshot.val() !== null && 'rate' in snapshot.val()[tmp]) {
+          resolve(true) // переведен в завершенный
+        }
+      })
+  })
 }
 
 function * getMessages (action) {
@@ -340,26 +416,80 @@ function * getMessages (action) {
     const { status, uuid } = action.payload
     const tmpObject = yield call(
       rsf.database.read,
-      firebase.database().ref(`chat/${status}`).orderByChild('uuid').equalTo(uuid))
+      firebase
+        .database()
+        .ref(`chat/${status}`)
+        .orderByChild('uuid')
+        .equalTo(uuid)
+    )
 
-    const keyArray = +Object.keys(tmpObject)
-    const messages = tmpObject[keyArray].messages
-    yield put({ type: 'GET_MESSAGES_SUCCESS', payload: { messages, index: keyArray, length: messages.length, id: uuid } })
+    if (tmpObject === null) {
+      // проверяем на то, что пользователь закончил диалог
+      const isEnd = checkEndDialog(uuid)
+      if (isEnd) {
+        yield put({ type: 'SET_END_DIALOGS', payload: true })
+      }
+    } else {
+      const keyArray = +Object.keys(tmpObject)
+      const messages = tmpObject[keyArray].messages
+      yield put({
+        type: 'GET_MESSAGES_SUCCESS',
+        payload: { messages, index: keyArray, length: messages.length, id: uuid }
+      })
+    }
   } catch (e) {
     const errorMessage = { code: e.code, message: e.message }
-    console.log(errorMessage)
     yield put({ type: 'GET_MESSAGES_FAILURE', error: errorMessage })
+    throw new Error({
+      ...errorMessage,
+      path: 'saga-getMessages'
+    })
+  }
+}
+
+function * getTopics () {
+  try {
+    const topicsData = yield call(
+      rsf.database.read,
+      firebase.database().ref('topics/')
+    )
+
+    const newTopics = {
+      topics: {},
+      subtopics: {}
+    }
+
+    Object.keys(topicsData).forEach(item => {
+      topicsData[item].forEach(st => {
+        newTopics[item][st.value] = st.label
+      })
+    })
+
+    yield put({ type: 'GET_TOPICS_SUCCESS', payload: newTopics })
+  } catch (e) {
+    const errorMessage = { code: e.code, message: e.message }
+    yield put({ type: 'GET_TOPICS_FAILURE', error: errorMessage })
+    throw new Error({
+      ...errorMessage,
+      path: 'saga-getTopics'
+    })
   }
 }
 
 function * sendMessage (action) {
   try {
     const { status, message } = action.payload
-    const { messageLength, indexDialogUser, idDialogUser } = yield select(getMessagesState)
+    const { messageLength, indexDialogUser, idDialogUser } = yield select(
+      getMessagesState
+    )
     const { filteredMessages } = yield select(getDialogsState)
 
-    const dialogObject = filteredMessages[status].filter(obj => obj.uuid === idDialogUser)
-    const chatMessageRef = firebase.database().ref(`chat/${status}/${indexDialogUser}/messages/${messageLength}`)
+    const dialogObject = filteredMessages[status].filter(
+      (obj) => obj.uuid === idDialogUser
+    )
+    const chatMessageRef = firebase
+      .database()
+      .ref(`chat/${status}/${indexDialogUser}/messages/${messageLength}`)
 
     yield call(() => {
       // eslint-disable-next-line
@@ -370,12 +500,18 @@ function * sendMessage (action) {
     })
 
     if (idDialogUser === dialogObject[0].uuid) {
-      yield put({ type: 'ADD_MESSAGE_TO_DIALOG', payload: { status, index: indexDialogUser, message, id: idDialogUser } })
+      yield put({
+        type: 'ADD_MESSAGE_TO_DIALOG',
+        payload: { status, index: indexDialogUser, message, id: idDialogUser }
+      })
     }
   } catch (e) {
     const errorMessage = { code: e.code, message: e.message }
-    console.log(errorMessage)
     yield put({ type: 'GET_MESSAGES_FAILURE', error: errorMessage })
+    throw new Error({
+      ...errorMessage,
+      path: 'saga-sendMessage'
+    })
   }
 }
 
@@ -387,8 +523,10 @@ function * changeUser () {
     yield call(rsf.database.update, `operators/${user.keyFirebase}`, user)
   } catch (e) {
     const errorMessage = { code: e.code, message: e.message }
-    console.log(errorMessage)
-    // yield put({ type: 'GET_MESSAGES_FAILURE', error: errorMessage })
+    throw new Error({
+      ...errorMessage,
+      path: 'saga-changeUser'
+    })
   }
 }
 
@@ -399,7 +537,10 @@ function * resetRedux () {
     yield put({ type: 'RESET_DIALOGS_STORE' })
     yield put({ type: 'RESET_MESSAGE_STORE' })
   } catch (e) {
-    console.log(e)
+    throw new Error({
+      ...e,
+      path: 'saga-resetRedux'
+    })
   }
 }
 
@@ -413,6 +554,7 @@ export default function * rootSaga () {
     takeLatest('REFRESH_PASSWORD', refreshPassword),
 
     takeLatest('GET_DIALOGS_REQUEST', getDialogs),
+    takeLatest('GET_TOPICS_REQUEST', getTopics),
 
     takeLatest('CHECK_ATTACH_OPERATOR', checkOperator),
     takeLatest('GET_MESSAGES_REQUEST', getMessages),

@@ -5,7 +5,7 @@ import Time from '../../Time/Time'
 
 import './index.scss'
 
-const DialogMessage = ({ isReverse, isRemovable, messages, avatar }) => {
+const DialogMessage = ({ isReverse, isRemovable, messages }) => {
   return (
     <div className='dialogMessage'>
       <div
@@ -24,11 +24,15 @@ const DialogMessage = ({ isReverse, isRemovable, messages, avatar }) => {
               <div className='item--text'>{messages.content}</div>
 
               {typeof messages.image_url !== 'undefined' && messages.image_url?.length > 0 &&
-               messages.image_url.map((item, index) => (
-                 <div key={index} className='item--image'>
-                   <img src={item.src} width={300} height={300} alt='Прикрепленное изображение' />
-                 </div>
-               ))}
+               messages.image_url.map((item) => {
+                 return (
+                   // eslint-disable-next-line no-prototype-builtins
+                   <div key={item.hasOwnProperty('src') ? item.src : item} className='item--image'>
+                     {/* eslint-disable-next-line no-prototype-builtins */}
+                     <img src={item.hasOwnProperty('src') ? item.src : item} width={300} height={300} alt='Прикрепленное изображение' />
+                   </div>
+                 )
+               })}
 
             </div>
 
@@ -36,20 +40,6 @@ const DialogMessage = ({ isReverse, isRemovable, messages, avatar }) => {
               <Time date={messages.timestamp} />
             </div>
 
-            {/* <img */}
-            {/*  src={avatar} */}
-            {/*  className='item--message item--message__status' */}
-            {/*  name={ */}
-            {/*      messages.status === 'sended' ? 'MessageSended' : 'MessageReaded' */}
-            {/*    } */}
-            {/*  alt='AvatarPicture' */}
-            {/*  width={20} */}
-            {/*  height={20} */}
-            {/* /> */}
-            {/* <IoIosTrash */}
-            {/*  size={18} */}
-            {/*  className='item--message item--message__remove-message' */}
-            {/* /> */}
           </div>
         </div>
       </div>

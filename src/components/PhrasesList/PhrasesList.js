@@ -7,6 +7,7 @@ import LabelInput from '../Inputs/LabelInput/LabelInput'
 import './index.scss'
 
 const PhrasesList = ({ defaultValue, onChange }) => {
+  const [input, setInput] = useState('')
   const [phrases, setPhrases] = useState(defaultValue || [])
 
   useEffect(() => {
@@ -23,8 +24,6 @@ const PhrasesList = ({ defaultValue, onChange }) => {
     const filteredPhrases = [...phrases].filter(phrase => phrase.id !== id)
     setPhrases(filteredPhrases)
   }
-
-  const [input, setInput] = useState('')
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -54,8 +53,8 @@ const PhrasesList = ({ defaultValue, onChange }) => {
         </div>
         <div className='SelectListItem SelectListItem--List'>
           <ul className='PhraseList'>
-            {phrases.map((phrase, index) => (
-              <li key={index} className='PhraseList_Item'>
+            {phrases.map((phrase) => (
+              <li key={phrase.id} className='PhraseList_Item'>
                 {phrase.text}
                 <Button onClick={(e) => removePhrase(e, phrase.id)}>X</Button>
               </li>

@@ -1,7 +1,5 @@
-import React, { createRef, useCallback, useEffect, useState, useRef } from 'react'
-import faker from 'faker'
+import React, { createRef, useCallback, useEffect, useState } from 'react'
 import firebase from 'firebase'
-import { v4 as uuidv4 } from 'uuid'
 import {
   StarFilled,
   SmileTwoTone,
@@ -9,69 +7,45 @@ import {
   UploadOutlined
 } from '@ant-design/icons'
 import Picker from 'emoji-picker-react'
-import { AutoComplete } from 'antd'
-import { useDispatch, useSelector } from 'react-redux'
-import clonedeep from 'lodash.clonedeep'
-
 import { usePubNub } from 'pubnub-react'
+import clonedeep from 'lodash.clonedeep'
+import { AutoComplete, Modal } from 'antd'
+import { useDispatch, useSelector } from 'react-redux'
 
+import Button from '../Button/Button'
+import useInterval from '../../hooks/useInterval'
 import LabelInput from '../Inputs/LabelInput/LabelInput'
 import DialogMessage from './DialogMessage/DialogMessage'
-import Button from '../Button/Button'
 
 import './index.scss'
 
-function useInterval (callback, delay) {
-  const savedCallback = useRef()
-
-  // Remember the latest function.
-  useEffect(() => {
-    savedCallback.current = callback
-  }, [callback])
-
-  // Set up the interval.
-  useEffect(() => {
-    function tick () {
-      savedCallback.current()
-    }
-    if (delay !== null) {
-      const id = setInterval(tick, delay)
-      return () => clearInterval(id)
-    }
-  }, [delay])
-}
-
-const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
+const Dialog = ({ dialogData, transferToActive, handlerOpenProfile, onEndDialog }) => {
   const { id, status } = dialogData
 
   // * pubnup
   let timeoutCache = 0
   const pubnub = usePubNub()
-  const [channels] = useState([dialogData.message.name])
+  const [channels] = useState([id])
 
   const dispatch = useDispatch()
   const { messages } = useSelector((state) => state.message)
-  const { autoGreeting, readyPhrases } = useSelector((state) => state.auth.user)
+  const { isEndDialog } = useSelector((state) => state.dialog)
+  const { autoGreeting, readyPhrases, uid } = useSelector((state) => state.auth.user)
 
-  const delay = 30000 // 30 секунд
+  const { confirm } = Modal
+  const delay = 5000 // 30 секунд
   const inputRef = createRef()
   const [value, setValue] = useState('')
   const [options, setOptions] = useState([]) // for hints when entering the text of ready-made phrases
   const [isTyping, setIsTyping] = useState(false)
   const [attachImage, setAttachImage] = useState([])
-  const [isGetMessages, setIsGetMessages] = useState(true)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
 
   const getMessages = useCallback(async () => {
-    setIsGetMessages(false)
     dispatch({ type: 'GET_MESSAGES_REQUEST', payload: { status, uuid: dialogData.message.uuid } })
-    setIsGetMessages(true)
   }, [dispatch, status, dialogData.message.uuid])
 
   const checkDialogOperatorId = async () => {
-    // понадобится после того как появится моб. приложения
-    // dispatch({ type: 'CHECK_ATTACH_OPERATOR', payload: { dialogData } })
-
     let newObject = {}
     const transferedObject = clonedeep(dialogData.message)
     let checkOperatorId = null
@@ -91,11 +65,9 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
     if (checkOperatorId) {
       newObject = {
         ...transferedObject,
-        name: faker.name.findName(),
-        avatar: faker.image.avatar(),
-        operatorId: 123,
-        status: 'active',
-        uuid: uuidv4()
+        // меняем на текущего оператора и присваиваем статус active, чтобы удалить у других операторов
+        operatorId: uid,
+        status: 'active'
       }
       // и есть авто-приветственное сообщение
       if (autoGreeting) {
@@ -128,13 +100,14 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
           .ref(`chat/active/${lengthActiveDialogs}`)
           .set(newObject, (error) => {
             if (error) {
-              console.log(error)
-            } else {
-              console.log('добавление прошло удачно - смотри firebase')
+              throw new Error({
+                ...error,
+                path: 'Dialog-checkDialogOperatorId'
+              })
             }
           })
       } else {
-        throw Error('Ошибка lengthActiveDialogs!!!')
+        throw new Error('lengthActiveDialogs not true')
       }
 
       const newObjectFromDialogsItem = {
@@ -142,38 +115,49 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
         message: newObject,
         status: 'active'
       }
-      // ! удаляем запись - пока что закоментиовано, чтобы не создавать каждый раз диалог в firebase
-      // await firebase.database().ref(`chat/${status}/${index}`).remove((error) => {
-      //   console.log(error)
-      //   console.log('вроде как удалили - смотри firebase')
-      // })
 
+      // удаляем запись из очереди
+      await firebase
+        .database()
+        .ref(`chat/${status}/`)
+        .orderByChild('uuid')
+        .equalTo(id)
+        .once('value', (snapshot) => {
+          snapshot.forEach((child) => {
+            child.ref.remove()
+          })
+        })
       //  после всего этого нужно перерендерить компонент homepage, чтобы текущий диалог встал в карточку 'active'
       //  для этого вручную кладём текущий dialogItem в массив active
       transferToActive(newObjectFromDialogsItem)
+      if ('deviceId' in dialogData.message) {
+        sendNotification()
+      }
     }
   }
 
   useEffect(() => {
     // проверка, если этот диалог без operatorId в firebase -> значит переводим в активный за текущим оператором (пока что константа 123)
-    checkDialogOperatorId()
+    if (!isEndDialog) checkDialogOperatorId()
     getMessages()
     // eslint-disable-next-line
   }, [])
 
   useInterval(() => {
     getMessages()
-  }, isGetMessages ? delay : null)
+  }, delay)
 
   const hideTypingIndicator = () => { setIsTyping(false) }
 
   const handleSignal = (event) => {
-    clearTimeout(timeoutCache)
-    setIsTyping(true)
-    timeoutCache = setTimeout(hideTypingIndicator, 3000) // 3 seconds
+    if (event.message === 'typing_on_client') {
+      clearTimeout(timeoutCache)
+      setIsTyping(true)
+      timeoutCache = setTimeout(hideTypingIndicator, 3000) // 3 seconds
 
-    if (event.message === '0') {
-      hideTypingIndicator()
+      if (event.message === '0') {
+        hideTypingIndicator()
+      }
     }
   }
 
@@ -187,6 +171,57 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
     pubnub.subscribe({ channels })
     // eslint-disable-next-line
   }, [pubnub, channels])
+
+  const showConfirm = () => {
+    confirm({
+      title: 'Этот пользователь завершил диалог !!!',
+      content: 'Нажмите ОК, чтобы продолжить',
+      onOk () {
+        dispatch({ type: 'SET_END_DIALOGS', payload: false })
+        dispatch({ type: 'GET_DIALOGS_REQUEST' })
+        onEndDialog()
+      },
+      okType: 'danger'
+    })
+  }
+
+  useEffect(() => {
+    if (isEndDialog) showConfirm()
+  }, [isEndDialog])
+
+  const sendNotification = () => {
+    const headers = {
+      'Content-Type': 'application/json; charset=utf-8',
+      Authorization: 'Basic NThhZTIxNjMtZmI2MC00NDEzLWI3Y2EtYmU1OThjODYzMDRi'
+    }
+    const endpoint = 'https://onesignal.com/api/v1/notifications'
+    const params = {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({
+        app_id: '23e26e2f-9643-4633-8055-e32259dae838',
+        filters: [ // Will send notification only to specific device
+          {
+            field: 'tag',
+            key: dialogData.message.deviceId ? 'id_device' : 'custom_id',
+            relation: '=',
+            value: dialogData.message.deviceId ? dialogData.message.deviceId : id
+          }
+        ],
+        headings: { en: 'Your Heading' },
+        contents: { en: 'This notification is from RN code' }
+        // url: 'https://something.any' // optional
+      })
+    }
+    window.fetch(endpoint, params)
+      .then(res => console.log(res))
+      .catch((error) => {
+        throw new Error({
+          ...error,
+          path: 'Dialog-sendNotification'
+        })
+      })
+  }
 
   const handlerSendMessage = () => {
     if (value.trim().length || attachImage.length !== 0) {
@@ -220,9 +255,18 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
           })
         }
       } catch (e) {
-        console.log(e)
+        throw new Error({
+          ...e,
+          path: 'Dialog-handlerSendMessage'
+        })
       }
-      pubnub.publish({ channel: channels[0], message: value })
+
+      if (value.trim().length) {
+        pubnub.publish({ channel: channels[0], message: { isImage: false, value } })
+      } else {
+        pubnub.publish({ channel: channels[0], message: { images: attachImage, isImage: true } })
+      }
+
       getMessages()
       setValue('')
       setOptions([])
@@ -252,7 +296,10 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
         }
       })
     } catch (e) {
-      console.log(e)
+      throw new Error({
+        ...e,
+        path: 'Dialog-uploadImage'
+      })
     }
   }
 
@@ -276,10 +323,22 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
   const handlerInputChange = (e) => {
     // отправляем в pubnup в канал нашего диалога сигнал о том, что мы печатаем
     pubnub.signal({
-      message: 'typing_on',
+      message: 'typing_on_operator',
       channel: channels
     })
     setValue(e.target.value)
+  }
+
+  // * JSX Variables
+
+  const renderFeedBackRate = rate => {
+    const content = []
+    let item = null
+    for (let i = 1; i <= 5; i++) {
+      item = (rate < i) ? <StarOutlined style={{ fontSize: '40px', color: '#DB0006' }} /> : <StarFilled style={{ fontSize: '40px', color: '#DB0006' }} />
+      content.push(item)
+    }
+    return content
   }
 
   // TODO: вынести блок ввода и прикрепления фотографий в отдельный компонент
@@ -308,7 +367,7 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
       <div className='Dialog--item DialogContent'>
         <div className='Content--Scroll'>
           {messages.map((item, index) => (
-            <DialogMessage key={index + Date.now()} messages={item} />
+            <DialogMessage key={messages[0].timestamp + '_' + index.toString()} messages={item} />
           ))}
           {
             isTyping &&
@@ -324,11 +383,7 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile }) => {
             <div className='FeedbackBlock'>
               <h5>Этот диалог завершился !!!</h5>
               <div className='FeedbackBlock--Star'>
-                <StarFilled style={{ fontSize: '40px', color: '#DB0006' }} />
-                <StarFilled style={{ fontSize: '40px', color: '#DB0006' }} />
-                <StarFilled style={{ fontSize: '40px', color: '#DB0006' }} />
-                <StarOutlined style={{ fontSize: '40px', color: '#DB0006' }} />
-                <StarOutlined style={{ fontSize: '40px', color: '#DB0006' }} />
+                {renderFeedBackRate(dialogData.message.rate)}
               </div>
             </div>
             )

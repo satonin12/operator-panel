@@ -12,6 +12,7 @@ import {
   EnvironmentFilled,
   CheckSquareTwoTone
 } from '@ant-design/icons'
+import firebase from 'firebase'
 import { useFormik } from 'formik'
 import ReactModal from 'react-modal'
 // import throttle from 'lodash.throttle'
@@ -30,6 +31,7 @@ import LabelInput from '../../components/Inputs/LabelInput/LabelInput'
 import RefreshPasswordForm from '../../components/forms/RefreshPasswordForm'
 import SettingsDialog from '../../components/forms/SettingsDialog'
 import AvatarIcon from '../../img/avatar_icon.svg'
+import useInterval from '../../hooks/useInterval'
 
 import './index.scss'
 
@@ -130,7 +132,11 @@ const HoomRoom = () => {
 
   const checkToken = () => { dispatch({ type: 'CHECK_TOKEN' }) }
 
-  const getData = () => { dispatch({ type: 'GET_DIALOGS_REQUEST' }) }
+  const getData = () => {
+    dispatch({ type: 'GET_DIALOGS_REQUEST' })
+  }
+
+  const getTopicsSubTopics = () => { dispatch({ type: 'GET_TOPICS_REQUEST' }) }
 
   const sortDialogs = () => {
     const objectKeys = Object.keys(filteredMessages)
@@ -150,9 +156,32 @@ const HoomRoom = () => {
     forceUpdate()
   }
 
+  const checkAddingDialog = () => {
+    return new Promise(resolve => {
+      firebase.database().ref('chat/start/').limitToLast(1).on('child_added', (snapshot, prevChildKey) => {
+        resolve({ value: snapshot.val(), prevChildKey })
+      })
+    })
+  }
+
+  const listenterQueueDialog = async () => {
+    const addingDialogs = await checkAddingDialog()
+    const checkExistDialog = dialogs.start.some((dialog) => {
+      if (typeof dialog !== 'undefined' && dialog !== null) {
+        return dialog.uuid === addingDialogs.value.uuid
+      }
+      return false
+    })
+    // если false диалога нету и нужно его добавить в общий список
+    if (!checkExistDialog) {
+      dispatch({ type: 'ADD_DIALOG_TO_STATE', payload: addingDialogs.value })
+    }
+  }
+
   useEffect(() => {
     checkToken()
     getData()
+    getTopicsSubTopics()
     clickedRef.current = clicked
     // eslint-disable-next-line
   }, [])
@@ -161,6 +190,10 @@ const HoomRoom = () => {
     sortDialogs()
     // eslint-disable-next-line
   }, [dialogs, filteredMessages])
+
+  useInterval(() => {
+    listenterQueueDialog()
+  }, 10000)
 
   // Когда оператор выбрал диалог из очереди -> то переводим его в активный этому оператору
   const transferDialogToActive = (dialog) => {
@@ -193,6 +226,13 @@ const HoomRoom = () => {
     clickedRef.current = 'Button'
     dispatch({ type: 'DELETE_FROM_SAVE', payload: obj })
   }, [dispatch])
+
+  const handlerEndDialog = () => {
+    // сбрасываем все state
+    setIsOpenDialog(false)
+    setActiveDialog({})
+    setIsSelected({})
+  }
 
   const handlerSearch = (e) => {
     const value = e.target.value.toLowerCase()
@@ -478,6 +518,7 @@ const HoomRoom = () => {
                 <Dialog
                   key={activeDialog.id}
                   dialogData={activeDialog}
+                  onEndDialog={handlerEndDialog}
                   handlerOpenProfile={handlerOpenProfile}
                   transferToActive={transferDialogToActive}
                 />
@@ -539,7 +580,7 @@ const HoomRoom = () => {
               content: {
                 color: 'lightsteelblue',
                 width: '600px',
-                height: 'fit-content'
+                height: '500px'
               }
             }}
             contentLabel='Inline Styles Modal Example'
