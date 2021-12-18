@@ -187,7 +187,7 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile, onEndDialog 
 
   useEffect(() => {
     if (isEndDialog) showConfirm()
-  }, [isEndDialog])
+  }, [isEndDialog, showConfirm])
 
   const sendNotification = () => {
     const headers = {
