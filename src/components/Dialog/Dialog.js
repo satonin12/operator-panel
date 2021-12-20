@@ -309,16 +309,18 @@ const Dialog = ({ dialogData, transferToActive, handlerOpenProfile, onEndDialog 
   }
 
   const handleSearch = (searchValue) => {
-    const filteredOptions = readyPhrases.filter((phrase) => {
-      return (
-        phrase.text.toLowerCase().includes(searchValue.toLowerCase())
-      )
-    })
-    const tmp = filteredOptions.map((item) => {
-      return { value: item.text }
-    })
+    if (Array.isArray(readyPhrases) && (typeof readyPhrases !== 'undefined' || readyPhrases !== null)) {
+      const filteredOptions = readyPhrases.filter((phrase) => {
+        return (
+          phrase.text.toLowerCase().includes(searchValue.toLowerCase())
+        )
+      })
+      const tmp = filteredOptions.map((item) => {
+        return { value: item.text }
+      })
 
-    setOptions(tmp)
+      setOptions(tmp)
+    }
   }
 
   const handlerInputChange = (e) => {
