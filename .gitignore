@@ -25,5 +25,12 @@ yarn-error.log*
 .idea
 **/.vscode/
 firebase.js
+firebase*.js
+
+img
+img/
+
+build
+build/
 
 package-lock.json
