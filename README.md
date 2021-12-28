@@ -14,8 +14,11 @@ UI библиотеки
 Приложение на React Native для обращения в поддержку - [Приложение на React Native для клиента](https://github.com/satonin12/operator-panel-mobile)
 
 Ссылка на gitlub: https://gitlab.com/vlad.satonin74
+<br />
 Ссылка на github: https://github.com/satonin12
+<br />
 Связаться в телеграм: https://t.me/vsatonin
+<br />
 
 Last commit vercel deploy - [Link](https://internship-vsatonin-9nxnjt0rd-satonin12.vercel.app)
 
